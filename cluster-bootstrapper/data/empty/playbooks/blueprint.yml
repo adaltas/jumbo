@@ -1,0 +1,10 @@
+---
+- hosts: ambariclients
+  become: true
+  roles:
+    - { role: ambariagents, when: use_blueprint == true }
+
+- hosts: ambariserver
+  become: true
+  roles:
+    - { role: postblueprint, when: use_blueprint == true }

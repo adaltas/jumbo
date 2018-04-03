@@ -1,0 +1,7 @@
+{
+	"Repositories" : {
+		"base_url" : "http://10.10.10.1:10080/centos7/hdp-2.6.4.0/HDP/centos7/2.x/updates/2.6.4.0/",
+		"verify_base_url" : true, 
+		"repo_name": "HDP-2.6"
+	}
+}

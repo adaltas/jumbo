@@ -1,0 +1,71 @@
+{
+  "blueprint": "hdp-2640-blueprint",
+  "repository_version_id": 1,
+  "host_groups": [
+    {
+      "name": "edge",
+      "hosts": [
+        {
+          "fqdn": "edge01.hdp.local"
+        }
+      ]
+    },
+    {
+      "name": "master01",
+      "hosts": [
+        {
+          "fqdn": "master01.hdp.local"
+        }
+      ]
+    },
+    {
+      "name": "master02",
+      "hosts": [
+        {
+          "fqdn": "master02.hdp.local"
+        }
+      ]
+    },
+    {
+      "name": "master03",
+      "hosts": [
+        {
+          "fqdn": "master03.hdp.local"
+        }
+      ]
+    },
+    {
+      "name": "worker",
+      "hosts": [
+        {
+          "fqdn": "worker01.hdp.local"
+        },
+        {
+          "fqdn": "worker02.hdp.local"
+        }
+      ]
+    }
+  ],
+  "configurations": [
+    {
+      "hive-site": {
+        "properties": {
+          "javax.jdo.option.ConnectionPassword": "hive"
+        }
+      }
+    },
+    {
+      "oozie-site": {
+        "properties": {
+          "oozie.service.JPAService.jdbc.password": "oozie"
+        }
+      }
+    },
+    {
+      "ams-grafana-env": {
+        "metrics_grafana_username": "admin",
+        "metrics_grafana_password": "admin"
+      }
+    }
+  ]
+}
