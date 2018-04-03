@@ -1,0 +1,11 @@
+---
+domain: hdp.local
+realm: HDP.LOCAL
+ipa_dm_password: dm_p4ssw0rd
+ipa_admin_password: adm1n_p4ssw0rd
+ambari_repo_url: http://10.10.10.1:10080/centos7/ambari-2.6.1.5.repo
+use_blueprint: true
+blueprint_name: hdp-2640-blueprint
+cluster_name: hdp2640
+ambari_user: admin
+ambari_pwd: admin

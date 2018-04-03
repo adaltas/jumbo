@@ -1,0 +1,30 @@
+---
+- name: Add IPA server as nameserver in resolf.conf (first line) and lock file (immutable attr)
+  lineinfile:
+    dest: /etc/resolv.conf
+    line: "nameserver {{ hostvars[item]['ansible_host'] }}"
+    insertbefore: BOF
+    attributes: "i"
+  with_inventory_hostnames:
+    - ipaserver
+
+- name: Download ipa-client
+  yum:
+    name: ipa-client
+    state: present
+
+- name: IPA discovery
+  ipadiscovery:
+  register: ipadiscovery
+
+- name: Join IPA
+  ipajoin:
+    servers: "{{ ipadiscovery.servers }}"
+    domain: "{{ ipadiscovery.domain }}"
+    realm: "{{ ipadiscovery.realm }}"
+    kdc: "{{ ipadiscovery.kdc }}"
+    basedn: "{{ ipadiscovery.basedn }}"
+    hostname: "{{ ipadiscovery.hostname }}"
+    principal: admin
+    password: "{{ ipa_admin_password }}"
+    force_join: yes

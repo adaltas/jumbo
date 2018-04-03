@@ -1,0 +1,23 @@
+---
+- name: Add ambari repo (on agents)
+  get_url:
+    url: "{{ ambari_repo_url }}"
+    dest: /etc/yum.repos.d/ambari.repo
+
+- name: Download and install ambari-agent
+  yum:
+    name: ambari-agent
+
+- name: Edit ambari-agent.ini
+  ini_file:
+    path: /etc/ambari-agent/conf/ambari-agent.ini
+    section: server
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { option: "hostname", value: "{{ hostvars[groups['ambariserver'][0]]['inventory_hostname'] }}.{{ domain }}" }
+    - { option: "url_port", value: "8440" }
+    - { option: "secured_url_port", value: "8441" }
+
+- name: Start ambari-agent
+  command: ambari-agent start

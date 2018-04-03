@@ -1,0 +1,5 @@
+---
+- hosts: pgsqlserver
+  become: true
+  roles:
+    - postgres
