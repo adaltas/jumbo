@@ -1,4 +1,0 @@
-Warning: Permanently added '192.168.121.155' (ECDSA) to the list of known hosts.
-bind: Address already in use
-channel_setup_fwd_listener_tcpip: cannot listen to port: 24015
-Could not request local forwarding.
