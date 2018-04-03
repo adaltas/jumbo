@@ -13,15 +13,21 @@
       insertafter: EOF
     with_items: "{{ groups['all'] }}"
 
+  - name: EPEL repository
+    yum:
+      name: epel-release
+      state: latest
+
   - name: Install common packages
     yum:
       name: "{{ item }}"
       state: latest
     with_items:
+      - htop
       - net-tools
+      - ntp
       - vim
       - wget
-      - ntp
 
   - name: Disable and stop chronyd
     service:

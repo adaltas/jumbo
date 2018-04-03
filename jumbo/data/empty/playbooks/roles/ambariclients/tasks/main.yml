@@ -7,5 +7,5 @@
 - name: Add ambari-server ssh_key.pub to clients authorized_keys
   lineinfile:
     dest: /root/.ssh/authorized_keys
-    line: "{{ ambari_key }}"
+    line: "{{ lookup('file', '/tmp/id_rsa_ambari.pub') }}"
     insertafter: EOF

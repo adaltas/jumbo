@@ -1,2 +1,0 @@
----
-ambari_key_dest: /root/.ssh/id_rsa      # path on master03 (=ambariserver)

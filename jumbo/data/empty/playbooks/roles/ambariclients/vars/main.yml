@@ -1,2 +1,0 @@
----
-ambari_key: "{{ lookup('file', '/tmp/id_rsa_ambari.pub') }}"

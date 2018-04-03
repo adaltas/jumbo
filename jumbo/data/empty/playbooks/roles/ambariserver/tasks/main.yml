@@ -2,20 +2,20 @@
 - name: Copy ssh_key to ambariserver
   copy:
     src: "/tmp/id_rsa_ambari"
-    dest: "{{ ambari_key_dest }}"
+    dest: "/root/.ssh/id_rsa"
     mode: '600'
 
 - name: Copy ssh_key.pub to ambariserver
   copy:
     src: "/tmp/id_rsa_ambari.pub"
-    dest: "{{ ambari_key_dest }}.pub"
+    dest: "/root/.ssh/id_rsa.pub"
 
 - name: Set StrictHostKeyChecking no
   copy:
      content: "StrictHostKeyChecking no"
      dest: /root/.ssh/config
      mode: '600'
-     force: no
+     force: yes
      owner: root
 
 - name: Add ambari repo (on server)

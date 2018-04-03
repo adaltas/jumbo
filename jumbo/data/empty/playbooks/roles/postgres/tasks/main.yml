@@ -37,6 +37,7 @@
   with_items:
     - hive
     - oozie
+    - druid
     - superset
 
 - name: Create users
@@ -48,4 +49,5 @@
   with_items:
     - hive
     - oozie
+    - druid
     - superset
