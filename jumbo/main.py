@@ -43,7 +43,7 @@ def jumbo_shell(cluster):
 
 
 @jumbo_shell.command()
-@click.option('--name', prompt='Cluster name: ')
+@click.option('--name', '-n', prompt='Cluster name: ')
 def create_cluster(name):
     click.echo('Creating %s...' % name)
     clusters.create_cluster(name)
@@ -52,7 +52,6 @@ def create_cluster(name):
 @jumbo_shell.command()
 def hello():
     print('Hello')
-
 
 
 if __name__ == '__main__':

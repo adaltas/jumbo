@@ -4,7 +4,7 @@ import os
 import pathlib
 from distutils.dir_util import copy_tree
 
-JUMBODIR=os.path.expanduser('~/.jumbo/')
+JUMBODIR = os.path.expanduser('~/.jumbo/')
 
 
 def check_cluster(name):
@@ -20,7 +20,3 @@ def create_cluster(name):
     copy_tree('data/empty', JUMBODIR+name)
 
     return True
-
-
-
-
