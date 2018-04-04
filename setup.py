@@ -4,11 +4,12 @@ setup(
     name='Jumbo',
     version='0.1',
     install_requires=[
-        'Click'
+        'Click',
+        'click-shell',
     ],
     py_modules=['jumbo'],
     entry_points='''
         [console_scripts]
         jumbo=jumbo.main:jumbo_shell
-    '''
+    ''',
 )
