@@ -9,9 +9,10 @@
 
 - name: Configure iptables
   service:
-      name: firewalld
-      state: stopped
-      enabled: no
+    name: firewalld
+    state: stopped
+    enabled: no
+  ignore_errors: true
 
 - name: Permanently disable SELinux
   selinux:
