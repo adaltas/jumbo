@@ -16,7 +16,6 @@ def main():
             'master'
         ]
     )
-    print(session.svars["machines"])
     machines.add_machine(
         "toto",
         "10.10.10.11",
@@ -26,7 +25,15 @@ def main():
             "master"
         ],
         2)
-    print(session.svars["machines"])
+    machines.add_machine(
+        "tata",
+        "10.10.10.12",
+        2000,
+        10000,
+        [
+            "edge"
+        ],
+        2)
 
 
 @shell(prompt=click.style('jumbo > ', fg='green'), intro=click.style('Welcome to the jumbo shell v0.1.3.3.7!', blink=True, fg='cyan'))

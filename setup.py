@@ -10,6 +10,7 @@ setup(
     py_modules=['jumbo'],
     entry_points='''
         [console_scripts]
-        jumbo=jumbo.main:jumbo_shell
+        jumboshell=jumbo.main:jumbo_shell
+        jumbo=jumbo.main:main
     ''',
 )
