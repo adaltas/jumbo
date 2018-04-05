@@ -3,6 +3,7 @@ import click
 import os
 import pathlib
 from distutils.dir_util import copy_tree
+from shutil import rmtree
 
 from jumbo.utils.settings import JUMBODIR
 
@@ -21,3 +22,7 @@ def create_cluster(name):
         '/jumbo/data/empty'
     copy_tree(empty_dir, JUMBODIR + name)
     return True
+
+
+def delete_cluster(name):
+    rmtree(JUMBODIR + name)
