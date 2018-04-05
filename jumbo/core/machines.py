@@ -1,4 +1,4 @@
-from jumbo.core import session as ss
+from jumbo.utils import session as ss
 
 
 def add_machine(name, ip, ram, disk, types, cpus=1):

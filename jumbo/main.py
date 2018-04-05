@@ -1,63 +1,63 @@
 import click
-from click_shell import shell
+from click_shell.core import Shell
 
-from jumbo.core import machines
-from jumbo.core import session
-from jumbo.utils import clusters
+from jumbo.utils import clusters, session
 
 
-def main():
-    machines.add_machine(
-        'toto',
-        '10.10.10.11',
-        1000,
-        10000,
-        [
-            'master'
-        ]
-    )
-    machines.add_machine(
-        "toto",
-        "10.10.10.11",
-        1000,
-        10000,
-        [
-            "master"
-        ],
-        2)
-    machines.add_machine(
-        "tata",
-        "10.10.10.12",
-        2000,
-        10000,
-        [
-            "edge"
-        ],
-        2)
+@click.group(invoke_without_command=True)
+@click.option('--cluster', '-c')
+@click.pass_context
+def jumbo(ctx, cluster):
+    """
+    Execute a Jumbo command. If no command is passed, start the Jumbo shell interactive mode.
+    """
 
+    # Create the shell
+    sh = Shell(prompt=click.style('jumbo > ', fg='green'),
+               intro=click.style('Welcome to the jumbo shell v0.1.3.3.7!', blink=True, fg='cyan'))
+    # Save the shell in the click context (allows to modify its prompt later on)
+    ctx.meta['jumbo_shell'] = sh.shell
+    # Register commands that can be used in the shell
+    sh.add_command(create)
+    sh.add_command(exit)
 
-@shell(prompt=click.style('jumbo > ', fg='green'), intro=click.style('Welcome to the jumbo shell v0.1.3.3.7!', blink=True, fg='cyan'))
-@click.option('--cluster')
-def jumbo_shell(cluster):
+    # If cluster exists, save it to svars (session variable) and adapt prompt
     if cluster:
         if not clusters.check_cluster(cluster):
             click.echo('This cluster does not exist. Use `create NAME` to create it.', err=True)
         else:
             session.svars['cluster'] = cluster
+            ctx.meta['jumbo_shell'].prompt = click.style('jumbo (%s) > ' % cluster, fg='green')
+
+    # Run the command, or the shell if no command is passed
+    sh.invoke(ctx)
 
 
-@jumbo_shell.command()
+@jumbo.command()
+@click.pass_context
+def exit(ctx):
+    """
+    Reset current context.
+    :param ctx: Click context
+    """
+    if session.svars.get('cluster'):
+        session.svars['cluster'] = None
+        ctx.meta['jumbo_shell'].prompt = click.style('jumbo > ', fg='green')
+    else:
+        click.echo('Use `quit` to quit the shell. Exit only removes context.')
+
+
+@jumbo.command()
 @click.argument('name')
 def create(name):
+    """
+    Create a new cluster.
+    :param name: New cluster name
+    """
     click.echo('Creating %s...' % name)
     if clusters.create_cluster(name):
         click.echo('Cluster `%s` created.' % name)
 
 
-@jumbo_shell.command()
-def hello():
-    print('Hello')
-
-
 if __name__ == '__main__':
-    main()
+    pass

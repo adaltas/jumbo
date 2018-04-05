@@ -6,6 +6,7 @@ from distutils.dir_util import copy_tree
 
 from jumbo.utils.settings import JUMBODIR
 
+
 def check_cluster(name):
     return os.path.isdir(JUMBODIR + name)
 

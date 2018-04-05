@@ -1,7 +1,7 @@
 import unittest
 
 from jumbo.core import machines
-from jumbo.core import session
+from jumbo.utils import session
 
 
 class TestMachineMethods(unittest.TestCase):
