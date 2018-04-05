@@ -6,6 +6,7 @@ setup(
     install_requires=[
         'Click',
         'click-shell',
+        'jinja2'
     ],
     py_modules=['jumbo'],
     entry_points='''

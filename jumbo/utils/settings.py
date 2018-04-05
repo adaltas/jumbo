@@ -1,4 +1,4 @@
 import os
 
 
-JUMBODIR=os.path.expanduser('~/.jumbo/')
+JUMBODIR = os.path.expanduser('~/.jumbo/')

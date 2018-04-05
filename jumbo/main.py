@@ -24,7 +24,8 @@ def jumbo(ctx, cluster):
     # If cluster exists, save it to svars (session variable) and adapt prompt
     if cluster:
         if not clusters.check_cluster(cluster):
-            click.echo('This cluster does not exist. Use `create NAME` to create it.', err=True)
+            click.echo(
+                'This cluster does not exist. Use `create NAME` to create it.', err=True)
         else:
             session.svars['cluster'] = cluster
             ctx.meta['jumbo_shell'].prompt = click.style('jumbo (%s) > ' % cluster, fg='green')

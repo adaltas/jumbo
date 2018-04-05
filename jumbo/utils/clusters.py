@@ -17,5 +17,7 @@ def create_cluster(name):
         return False
 
     pathlib.Path(JUMBODIR + name).mkdir(parents=True)
-    copy_tree('data/empty', JUMBODIR+name)
+    empty_dir = os.path.dirname(os.path.abspath(__package__)) + \
+        '/jumbo/data/empty'
+    copy_tree(empty_dir, JUMBODIR + name)
     return True
