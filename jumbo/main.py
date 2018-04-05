@@ -2,41 +2,15 @@ import click
 from click_shell import shell
 
 from jumbo.core import machines
-from jumbo.core import session
+from jumbo.utils import session
 from jumbo.utils import clusters
 
 
 def main():
-    machines.add_machine(
-        'toto',
-        '10.10.10.11',
-        1000,
-        10000,
-        [
-            'master'
-        ]
-    )
-    machines.add_machine(
-        "toto",
-        "10.10.10.11",
-        1000,
-        10000,
-        [
-            "master"
-        ],
-        2)
-    machines.add_machine(
-        "tata",
-        "10.10.10.12",
-        2000,
-        10000,
-        [
-            "edge"
-        ],
-        2)
+    pass
 
 
-@shell(prompt=click.style('jumbo > ', fg='green'), intro=click.style('Welcome to the jumbo shell v0.1.3.3.7!', blink=True, fg='cyan'))
+@shell(prompt=click.style('jumbo > ', fg='green'), intro=click.style('Jumbo shell v0.1', fg='cyan'))
 @click.option('--cluster')
 def jumbo_shell(cluster):
     if cluster:
@@ -53,11 +27,31 @@ def create(name):
     click.echo('Creating %s...' % name)
     if clusters.create_cluster(name):
         click.echo('Cluster `%s` created.' % name)
+    else:
+        click.echo(click.style('Cluster already exists!', fg='red'), err=True)
 
 
 @jumbo_shell.command()
-def hello():
-    print('Hello')
+@click.argument('name')
+def manage(name):
+    click.echo('Loading %s...' % name)
+    loaded, exists = clusters.load_cluster(name)
+    if loaded:
+        click.echo('Cluster `%s` loaded.' % name)
+    else:
+        if exists:
+            click.echo(click.style('Couldn\'t find the file `jumbo_config`!\n'
+                                   'All cluster configuration has been lost.',
+                                   fg='red'), err=True)
+            click.echo('Recreating `jumbo_config` from scratch...')
+        else:
+            click.echo(click.style('Cluster doesn\'t exist!',
+                                   fg='red'), err=True)
+
+# @jumbo_shell.command()
+# @click.argument('name')
+# @click.option('--ip', '-i', )
+#     def addvm(''):
 
 
 if __name__ == '__main__':
