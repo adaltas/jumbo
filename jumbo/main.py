@@ -22,6 +22,7 @@ def jumbo(ctx, cluster):
     # Register commands that can be used in the shell
     sh.add_command(create)
     sh.add_command(exit)
+    sh.add_command(delete)
     # If cluster exists, save it to svars (session variable) and adapt prompt
     if cluster:
         if not clusters.check_cluster(cluster):
@@ -64,15 +65,19 @@ def create(name):
 
 @jumbo.command()
 @click.argument('name')
-def delete(name):
+@click.option('--force/--no-force', default=False)
+def delete(name, force):
     """
     Delete a cluster.
     :param name: Name of the cluster to delete.
     """
     if clusters.check_cluster(name):
-        if click.confirm(
-                'Are you sure you want to delete the cluster %s' % name):
+        if force:
             clusters.delete_cluster(name)
+        else:
+            if click.confirm(
+                    'Are you sure you want to delete the cluster %s' % name):
+                clusters.delete_cluster(name)
     else:
         click.echo(click.style('Cluster `%s` does not exist', fg='red'),
                    err=True)
