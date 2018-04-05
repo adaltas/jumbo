@@ -36,17 +36,23 @@ def main():
         2)
 
 
-@shell(prompt=click.style('jumbo > ', fg='green'), intro=click.style('Welcome to the jumbo shell!', blink=True, fg='cyan'))
+@shell(prompt=click.style('jumbo > ', fg='green'), intro=click.style('Welcome to the jumbo shell v0.1.3.3.7!', blink=True, fg='cyan'))
 @click.option('--cluster')
 def jumbo_shell(cluster):
-    pass
+    if cluster:
+        if not clusters.check_cluster(cluster):
+            click.echo(
+                'This cluster does not exist. Use `create NAME` to create it.', err=True)
+        else:
+            session.svars['cluster'] = cluster
 
 
 @jumbo_shell.command()
-@click.option('--name', '-n', prompt='Cluster name: ')
-def create_cluster(name):
+@click.argument('name')
+def create(name):
     click.echo('Creating %s...' % name)
-    clusters.create_cluster(name)
+    if clusters.create_cluster(name):
+        click.echo('Cluster `%s` created.' % name)
 
 
 @jumbo_shell.command()
