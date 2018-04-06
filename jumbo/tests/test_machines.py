@@ -1,12 +1,12 @@
 import unittest
 
 from jumbo.core import machines
-from jumbo.utils import session as ss
+from jumbo.utils import clusters, session as ss
 
 
 class TestMachineMethods(unittest.TestCase):
     def test_add(self):
-        ss.svars['cluster'] = 'whalla'
+        clusters.create_cluster('test')
         machines.add_machine(
             'toto',
             '10.10.10.11',

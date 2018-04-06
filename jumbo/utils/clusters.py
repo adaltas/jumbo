@@ -3,6 +3,7 @@ import click
 import os
 import pathlib
 from distutils.dir_util import copy_tree
+from shutil import rmtree
 
 from jumbo.utils.settings import JUMBODIR
 from jumbo.utils import session as ss
@@ -26,12 +27,21 @@ def create_cluster(name):
 
 
 def load_cluster(name):
+    exists = True
+    loaded = True
+
     if not check_cluster(name):
-        return False, False
+        exists = False
+        loaded = False
+        return exists, loaded
 
     if not ss.load_config(name):
+        loaded = False
         ss.svars['cluster'] = name
         ss.dump_config()
-        return False, True
 
-    return True, True
+    return exists, loaded
+
+
+def delete_cluster(name):
+    rmtree(JUMBODIR + name)
