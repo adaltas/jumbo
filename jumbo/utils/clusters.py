@@ -25,4 +25,8 @@ def create_cluster(name):
 
 
 def delete_cluster(name):
-    rmtree(JUMBODIR + name)
+    if check_cluster(name):
+        rmtree(JUMBODIR + name)
+        return True
+    else:
+        return False

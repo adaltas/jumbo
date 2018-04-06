@@ -71,15 +71,16 @@ def delete(name, force):
     Delete a cluster.
     :param name: Name of the cluster to delete.
     """
-    if clusters.check_cluster(name):
-        if force:
-            clusters.delete_cluster(name)
-        else:
-            if click.confirm(
-                    'Are you sure you want to delete the cluster %s' % name):
-                clusters.delete_cluster(name)
+    deleted = False
+    if force:
+        deleted = clusters.delete_cluster(name)
     else:
-        click.echo(click.style('Cluster `%s` does not exist', fg='red'),
+        if click.confirm(
+                'Are you sure you want to delete the cluster %s' % name):
+            deleted = clusters.delete_cluster(name)
+
+    if not deleted:
+        click.echo(click.style('Cluster `%s` does not exist' % name, fg='red'),
                    err=True)
 
 
