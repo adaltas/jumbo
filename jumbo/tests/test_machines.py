@@ -1,11 +1,12 @@
 import unittest
 
 from jumbo.core import machines
-from jumbo.utils import session
+from jumbo.utils import clusters, session as ss
 
 
 class TestMachineMethods(unittest.TestCase):
     def test_add(self):
+        clusters.create_cluster('test')
         machines.add_machine(
             'toto',
             '10.10.10.11',
@@ -16,7 +17,7 @@ class TestMachineMethods(unittest.TestCase):
             ]
         )
         self.assertEqual(
-            session.svars['machines'][0],
+            ss.svars['machines'][0],
             {
                 'name': 'toto',
                 'ip': '10.10.10.11',
@@ -35,7 +36,7 @@ class TestMachineMethods(unittest.TestCase):
             ],
             2)
         self.assertEqual(
-            session.svars['machines'][0],
+            ss.svars['machines'][0],
             {
                 'name': 'toto',
                 'ip': '10.10.10.11',

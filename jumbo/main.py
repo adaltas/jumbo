@@ -1,7 +1,8 @@
 import click
 from click_shell.core import Shell
 
-from jumbo.utils import clusters, session
+from jumbo.core import machines
+from jumbo.utils import clusters, session as ss
 
 
 @click.group(invoke_without_command=True)
@@ -16,22 +17,24 @@ def jumbo(ctx, cluster):
     # Create the shell
     sh = Shell(prompt=click.style('jumbo > ', fg='green'),
                intro=click.style('Welcome to the jumbo shell v0.1.3.3.7!',
-                                blink=True, fg='cyan'))
+                                 blink=True, fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
     ctx.meta['jumbo_shell'] = sh.shell
     # Register commands that can be used in the shell
     sh.add_command(create)
     sh.add_command(exit)
     sh.add_command(delete)
+    sh.add_command(manage)
     # If cluster exists, save it to svars (session variable) and adapt prompt
     if cluster:
         if not clusters.check_cluster(cluster):
+            manage(cluster)
             click.echo('This cluster does not exist.'
                        ' Use `create NAME` to create it.', err=True)
         else:
-            session.svars['cluster'] = cluster
             ctx.meta['jumbo_shell'].prompt = click.style(
                 'jumbo (%s) > ' % cluster, fg='green')
+            sh.shell.onecmd('manage %s' % cluster)
 
     # Run the command, or the shell if no command is passed
     sh.invoke(ctx)
@@ -44,8 +47,8 @@ def exit(ctx):
     Reset current context.
     :param ctx: Click context
     """
-    if session.svars.get('cluster'):
-        session.svars['cluster'] = None
+    if ss.svars.get('cluster'):
+        ss.svars['cluster'] = None
         ctx.meta['jumbo_shell'].prompt = click.style('jumbo > ', fg='green')
     else:
         click.echo('Use `quit` to quit the shell. Exit only removes context.')
@@ -61,6 +64,32 @@ def create(name):
     click.echo('Creating %s...' % name)
     if clusters.create_cluster(name):
         click.echo('Cluster `%s` created.' % name)
+    else:
+        click.echo(click.style('Cluster already exists!', fg='red'), err=True)
+
+
+@jumbo.command()
+@click.argument('name')
+def manage(name):
+    click.echo('Loading %s...' % name)
+    exists, loaded = clusters.load_cluster(name)
+    if loaded:
+        click.echo('Cluster `%s` loaded.' % name)
+    else:
+        if exists:
+            click.echo(click.style('Couldn\'t find the file `jumbo_config`!\n'
+                                   'All cluster configuration has been lost.',
+                                   fg='red'), err=True)
+            click.echo('Recreating `jumbo_config` from scratch...')
+        else:
+            click.echo(click.style('Cluster doesn\'t exist!',
+                                   fg='red'), err=True)
+
+
+# @jumbo.command()
+# @click.argument('name')
+# @click.option('--ip', '-i')
+#     def addvm(name, ):
 
 
 @jumbo.command()
