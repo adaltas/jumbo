@@ -28,7 +28,7 @@ def jumbo(ctx, cluster):
     sh.add_command(delete)
     sh.add_command(manage)
     sh.add_command(addvm)
-    sh.add_command(listc)
+    sh.add_command(listcl)
     sh.add_command(listvm)
     # If cluster exists, save it to svars (session variable) and adapt prompt
     if cluster:
@@ -36,9 +36,7 @@ def jumbo(ctx, cluster):
             click.echo('This cluster does not exist.'
                        ' Use `create NAME` to create it.', err=True)
         else:
-            ctx.meta['jumbo_shell'].prompt = click.style(
-                'jumbo (%s) > ' % cluster, fg='green')
-            sh.shell.onecmd('manage %s' % cluster)
+            ctx.invoke(manage, name=cluster)
 
     # Run the command, or the shell if no command is passed
     sh.invoke(ctx)
@@ -76,22 +74,27 @@ def create(name):
 
 @jumbo.command()
 @click.argument('name')
-def manage(name):
-    """Switch to another cluster to manage.
+@click.pass_context
+def manage(ctx, name):
+    """
+    Set a cluster to manage. Persist --cluster option.
 
     :param name: Cluster name
     """
-
     click.echo('Loading %s...' % name)
     exists, loaded = clusters.load_cluster(name)
     if loaded:
         click.echo('Cluster `%s` loaded.' % name)
+        ctx.meta['jumbo_shell'].prompt = click.style(
+            'jumbo (%s) > ' % name, fg='green')
     else:
         if exists:
             click.secho('Couldn\'t find the file `jumbo_config`!\n'
                         'All cluster configuration has been lost.',
                         fg='red', err=True)
             click.echo('Recreating `jumbo_config` from scratch...')
+            ctx.meta['jumbo_shell'].prompt = click.style(
+                'jumbo (%s) > ' % name, fg='green')
         else:
             click.secho('Cluster doesn\'t exist!', fg='red', err=True)
 
@@ -139,7 +142,8 @@ def validate_new_name(ctx, param, value):
               help='Number of CPUs allocated to the VM')
 @click.option('--cluster', '-c',
               help='Cluster in which the VM will be created')
-def addvm(name, ip, ram, disk, types, cpus, cluster):
+@click.pass_context
+def addvm(ctx, name, ip, ram, disk, types, cpus, cluster):
     """
     Create a new VM in the cluster being managed.
     Another cluster can be specified with "--cluster".
@@ -169,12 +173,14 @@ def addvm(name, ip, ram, disk, types, cpus, cluster):
                     'to specify a cluster.', fg='red', err=True)
         return
 
-    # TODO: Only echo if in shell mode
-    if switched:
-        click.echo('Switched to cluster `%s`.' % loaded)
-
     if vm.add_machine(name, ip, ram, disk, types, cpus):
         click.echo('Machine `{}` added to cluster `{}`.'.format(name, loaded))
+
+    # TODO: Only echo if in shell mode
+    if switched:
+        click.echo('Switched to cluster `%s`.\n' % loaded)
+        ctx.meta['jumbo_shell'].prompt = click.style(
+            'jumbo (%s) > ' % loaded, fg='green')
 
 
 @jumbo.command()
@@ -199,7 +205,7 @@ def delete(name, force):
 
 
 @jumbo.command()
-def listc():
+def listcl():
     """
     List clusters managed by Jumbo.
     """
