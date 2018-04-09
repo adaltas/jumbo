@@ -1,8 +1,10 @@
 import click
 from click_shell.core import Shell
+import ipaddress as ipadd
+from prettytable import PrettyTable
 
-from jumbo.core import machines
-from jumbo.utils import clusters, session as ss
+from jumbo.core import clusters, machines as vm
+from jumbo.utils import session as ss
 
 
 @click.group(invoke_without_command=True)
@@ -16,8 +18,8 @@ def jumbo(ctx, cluster):
 
     # Create the shell
     sh = Shell(prompt=click.style('jumbo > ', fg='green'),
-               intro=click.style('Welcome to the jumbo shell v0.1.3.3.7!',
-                                 blink=True, fg='cyan'))
+               intro=click.style('Jumbo shell v0.1',
+                                 fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
     ctx.meta['jumbo_shell'] = sh.shell
     # Register commands that can be used in the shell
@@ -25,10 +27,12 @@ def jumbo(ctx, cluster):
     sh.add_command(exit)
     sh.add_command(delete)
     sh.add_command(manage)
+    sh.add_command(addvm)
+    sh.add_command(listc)
+    sh.add_command(listvm)
     # If cluster exists, save it to svars (session variable) and adapt prompt
     if cluster:
         if not clusters.check_cluster(cluster):
-            manage(cluster)
             click.echo('This cluster does not exist.'
                        ' Use `create NAME` to create it.', err=True)
         else:
@@ -45,6 +49,7 @@ def jumbo(ctx, cluster):
 def exit(ctx):
     """
     Reset current context.
+
     :param ctx: Click context
     """
     if ss.svars.get('cluster'):
@@ -59,46 +64,127 @@ def exit(ctx):
 def create(name):
     """
     Create a new cluster.
+
     :param name: New cluster name
     """
     click.echo('Creating %s...' % name)
     if clusters.create_cluster(name):
         click.echo('Cluster `%s` created.' % name)
     else:
-        click.echo(click.style('Cluster already exists!', fg='red'), err=True)
+        click.secho('Cluster already exists!', fg='red', err=True)
 
 
 @jumbo.command()
 @click.argument('name')
 def manage(name):
+    """Switch to another cluster to manage.
+
+    :param name: Cluster name
+    """
+
     click.echo('Loading %s...' % name)
     exists, loaded = clusters.load_cluster(name)
     if loaded:
         click.echo('Cluster `%s` loaded.' % name)
     else:
         if exists:
-            click.echo(click.style('Couldn\'t find the file `jumbo_config`!\n'
-                                   'All cluster configuration has been lost.',
-                                   fg='red'), err=True)
+            click.secho('Couldn\'t find the file `jumbo_config`!\n'
+                        'All cluster configuration has been lost.',
+                        fg='red', err=True)
             click.echo('Recreating `jumbo_config` from scratch...')
         else:
-            click.echo(click.style('Cluster doesn\'t exist!',
-                                   fg='red'), err=True)
+            click.secho('Cluster doesn\'t exist!', fg='red', err=True)
 
 
-# @jumbo.command()
-# @click.argument('name')
-# @click.option('--ip', '-i')
-#     def addvm(name, ):
+def validate_ip(ctx, param, value):
+    try:
+        ipadd.ip_address(value)
+    except ValueError:
+        raise click.BadParameter('%s is not a valid IP address.' % value)
+
+    m = ss.check_ip(value)
+    try:
+        if m:
+            raise ValueError()
+    except ValueError:
+        raise click.BadParameter('The address `{}` is already used by '
+                                 'machine `{}`.'.format(value, m))
+
+    return value
+
+
+def validate_new_name(ctx, param, value):
+    try:
+        if ss.check_machine(value):
+            raise ValueError()
+        return value
+    except ValueError:
+        raise click.BadParameter(
+            'A machine with the name `%s` already exists.\nUse '
+            '"modifyvm" to change its configuration.' % value)
+
+
+@jumbo.command()
+@click.argument('name', callback=validate_new_name)
+@click.option('--ip', '-i',  callback=validate_ip, prompt='IP',
+              help='VM IP address')
+@click.option('--ram', '-r', type=int, prompt='RAM (MB)',
+              help='RAM allocated to the VM in MB')
+@click.option('--disk', '-d', type=int, prompt='Disk (MB)',
+              help='Disk allocated to the VM in MB')
+@click.option('--types', '-t', multiple=True, type=click.Choice([
+    'master', 'sidemaster', 'edge', 'worker', 'ldap', 'other']),
+    required=True, help='VM host type(s)')
+@click.option('--cpus', '-p', default=1,
+              help='Number of CPUs allocated to the VM')
+@click.option('--cluster', '-c',
+              help='Cluster in which the VM will be created')
+def addvm(name, ip, ram, disk, types, cpus, cluster):
+    """
+    Create a new VM in the cluster being managed.
+    Another cluster can be specified with "--cluster".
+
+    :param name: New VM name
+    """
+
+    switched = False
+    loaded = ss.svars['cluster']
+
+    if cluster:
+        if not clusters.check_cluster(cluster):
+            click.secho('Cluster `%s` doesn\'t exist!' % cluster, fg='red',
+                        err=True)
+            return
+
+        switched, loaded = clusters.switch_cluster(cluster)
+
+        if not loaded:
+            click.secho('Failed to load `%s`!' % cluster, fg='red')
+            return
+
+        loaded = cluster
+
+    if not loaded:
+        click.secho('No cluster specified nor managed! Use "--cluster" '
+                    'to specify a cluster.', fg='red', err=True)
+        return
+
+    # TODO: Only echo if in shell mode
+    if switched:
+        click.echo('Switched to cluster `%s`.' % loaded)
+
+    if vm.add_machine(name, ip, ram, disk, types, cpus):
+        click.echo('Machine `{}` added to cluster `{}`.'.format(name, loaded))
 
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--force/--no-force', default=False)
+@click.option('--force', '-f', is_flag=True)
 def delete(name, force):
     """
     Delete a cluster.
-    :param name: Name of the cluster to delete.
+
+    :param name: Name of the cluster to delete
     """
     if clusters.check_cluster(name):
         if force:
@@ -107,9 +193,56 @@ def delete(name, force):
             if click.confirm(
                     'Are you sure you want to delete the cluster %s' % name):
                 clusters.delete_cluster(name)
+                ss.clear()
     else:
-        click.echo(click.style('Cluster `%s` does not exist', fg='red'),
-                   err=True)
+        click.secho('Cluster `%s` doesn\'t exist!' % name, fg='red', err=True)
+
+
+@jumbo.command()
+def listc():
+    """
+    List clusters managed by Jumbo.
+    """
+
+    cluster_table = PrettyTable(['Name', 'Number of VMs'])
+
+    for cluster in clusters.list_clusters():
+        cluster_table.add_row([cluster['cluster'].split('/')[-1],
+                               len(cluster['machines'])])
+
+    click.echo(cluster_table)
+
+
+@jumbo.command()
+@click.option('--cluster', '-c', help='Cluster in which to list the VMs')
+def listvm(cluster):
+    """
+    List VMs in the cluster being managed.
+    Another cluster can be specified with "--cluster".
+    """
+
+    if cluster:
+        if clusters.check_cluster(cluster):
+            ss.svars['cluster'] = cluster
+        else:
+            click.secho('Cluster `%s` does not exist' % cluster,
+                        fg='red', err=True)
+            return
+    else:
+        if not ss.svars['cluster']:
+            click.secho('No cluster specified nor managed! Use "--cluster" '
+                        'to specify a cluster.', fg='red', err=True)
+            return
+        cluster = ss.svars['cluster']
+
+    vm_table = PrettyTable(
+        ['Name', 'Types', 'IP', 'RAM (MB)', 'Disk (MB)', 'CPUs'])
+
+    for m in vm.list_machines(cluster):
+        vm_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
+                          m['ram'], m['disk'], m['cpus']])
+
+    click.echo(vm_table)
 
 
 if __name__ == '__main__':

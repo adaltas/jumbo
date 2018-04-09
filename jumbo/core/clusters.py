@@ -1,6 +1,7 @@
 import click
 
 import os
+import json
 import pathlib
 from distutils.dir_util import copy_tree
 from shutil import rmtree
@@ -43,5 +44,29 @@ def load_cluster(name):
     return exists, loaded
 
 
+def switch_cluster(name):
+    switched = False
+    loaded = True
+
+    if ss.svars['cluster'] != name:
+        if ss.load_config(name):
+            switched = True
+        else:
+            loaded = False
+
+    return switched, loaded
+
+
 def delete_cluster(name):
     rmtree(JUMBODIR + name)
+
+
+def list_clusters():
+    path_list = [f.path for f in os.scandir(JUMBODIR) if f.is_dir()]
+    clusters = []
+
+    for p in path_list:
+        with open(p + '/jumbo_config') as cfg:
+            clusters += [json.load(cfg)]
+
+    return clusters
