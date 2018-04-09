@@ -59,7 +59,8 @@ def exit(ctx):
 
 @jumbo.command()
 @click.argument('name')
-def create(name):
+@click.pass_context
+def create(ctx, name):
     """
     Create a new cluster.
 
@@ -68,6 +69,8 @@ def create(name):
     click.echo('Creating %s...' % name)
     if clusters.create_cluster(name):
         click.echo('Cluster `%s` created.' % name)
+        ctx.meta['jumbo_shell'].prompt = click.style(
+            'jumbo (%s) > ' % name, fg='green')
     else:
         click.secho('Cluster already exists!', fg='red', err=True)
 
@@ -105,45 +108,26 @@ def validate_ip(ctx, param, value):
     except ValueError:
         raise click.BadParameter('%s is not a valid IP address.' % value)
 
-    m = ss.check_ip(value)
-    try:
-        if m:
-            raise ValueError()
-    except ValueError:
-        raise click.BadParameter('The address `{}` is already used by '
-                                 'machine `{}`.'.format(value, m))
-
     return value
 
 
-def validate_new_name(ctx, param, value):
-    try:
-        if ss.check_machine(value):
-            raise ValueError()
-        return value
-    except ValueError:
-        raise click.BadParameter(
-            'A machine with the name `%s` already exists.\nUse '
-            '"modifyvm" to change its configuration.' % value)
-
-
 @jumbo.command()
-@click.argument('name', callback=validate_new_name)
+@click.argument('name')
+@click.option('--types', '-t', multiple=True, type=click.Choice([
+    'master', 'sidemaster', 'edge', 'worker', 'ldap', 'other']),
+    required=True, help='VM host type(s)')
 @click.option('--ip', '-i',  callback=validate_ip, prompt='IP',
               help='VM IP address')
 @click.option('--ram', '-r', type=int, prompt='RAM (MB)',
               help='RAM allocated to the VM in MB')
 @click.option('--disk', '-d', type=int, prompt='Disk (MB)',
               help='Disk allocated to the VM in MB')
-@click.option('--types', '-t', multiple=True, type=click.Choice([
-    'master', 'sidemaster', 'edge', 'worker', 'ldap', 'other']),
-    required=True, help='VM host type(s)')
 @click.option('--cpus', '-p', default=1,
               help='Number of CPUs allocated to the VM')
 @click.option('--cluster', '-c',
               help='Cluster in which the VM will be created')
 @click.pass_context
-def addvm(ctx, name, ip, ram, disk, types, cpus, cluster):
+def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
     """
     Create a new VM in the cluster being managed.
     Another cluster can be specified with "--cluster".
@@ -152,9 +136,15 @@ def addvm(ctx, name, ip, ram, disk, types, cpus, cluster):
     """
 
     switched = False
-    loaded = ss.svars['cluster']
+    current = ss.svars['cluster']
 
     if cluster:
+        if current and cluster != current:
+            click.secho('You are currently managing the cluster `%s`. '
+                        'Type "exit" to manage other clusters.'
+                        % ss.svars['cluster'], fg='red')
+            return
+
         if not clusters.check_cluster(cluster):
             click.secho('Cluster `%s` doesn\'t exist!' % cluster, fg='red',
                         err=True)
@@ -166,21 +156,33 @@ def addvm(ctx, name, ip, ram, disk, types, cpus, cluster):
             click.secho('Failed to load `%s`!' % cluster, fg='red')
             return
 
-        loaded = cluster
+        current = cluster
+    else:
+        if not ss.svars['cluster']:
+            click.secho('No cluster specified nor managed! Use "--cluster" '
+                        'to specify a cluster.', fg='red', err=True)
+            return
 
-    if not loaded:
-        click.secho('No cluster specified nor managed! Use "--cluster" '
-                    'to specify a cluster.', fg='red', err=True)
+    if vm.check_machine(current, name):
+        click.secho('A machine with the name `%s` already exists.\nUse '
+                    '"modifyvm" to change its configuration.' % name,
+                    fg='red')
+        return
+
+    m_ip = vm.check_ip(current, ip)
+    if m_ip:
+        click.secho('The address `{}` is already used by '
+                    'machine `{}`.'.format(ip, m_ip), fg='red')
         return
 
     if vm.add_machine(name, ip, ram, disk, types, cpus):
-        click.echo('Machine `{}` added to cluster `{}`.'.format(name, loaded))
+        click.echo('Machine `{}` added to cluster `{}`.'.format(name, current))
 
     # TODO: Only echo if in shell mode
     if switched:
-        click.echo('Switched to cluster `%s`.\n' % loaded)
+        click.echo('\nSwitched to cluster `%s`.' % current)
         ctx.meta['jumbo_shell'].prompt = click.style(
-            'jumbo (%s) > ' % loaded, fg='green')
+            'jumbo (%s) > ' % current, fg='green')
 
 
 @jumbo.command()

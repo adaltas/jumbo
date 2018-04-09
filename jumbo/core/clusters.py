@@ -22,6 +22,7 @@ def create_cluster(name):
     empty_dir = os.path.dirname(os.path.abspath(__package__)) + \
         '/jumbo/data/empty'
     copy_tree(empty_dir, JUMBODIR + name)
+    ss.clear()
     ss.svars['cluster'] = name
     ss.dump_config()
     return True

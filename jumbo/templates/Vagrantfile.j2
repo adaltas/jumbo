@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
   {% for host in hosts -%}
   config.vm.define :{{ host.name }} do |node|
     node.vm.box = box
-    node.vm.network :private_network, ip: {{ host.ip }}
+    node.vm.network :private_network, ip: "{{ host.ip }}"
     node.vm.network :forwarded_port, guest: 22, host: {{ host_nb }}, auto_correct: true
     node.vm.provider "libvirt" do |d|
       d.memory = {{ host.ram }}
