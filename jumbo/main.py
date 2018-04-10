@@ -25,7 +25,8 @@ def jumbo(ctx, cluster):
     sh.add_command(exit)
     sh.add_command(delete)
     sh.add_command(manage)
-    # If cluster exists, save it to svars (session variable) and adapt prompt
+    # If cluster exists, call manage command (saves the shell in session
+    #  variable svars and adapts the shell prompt)
     if cluster:
         if not clusters.check_cluster(cluster):
             click.echo('This cluster does not exist.'
