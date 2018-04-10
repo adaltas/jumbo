@@ -15,14 +15,18 @@ def add_machine(name, ip, ram, disk, types, cpus=1):
     }
 
     ss.add_machine(m)
+    ss.dump_config()
 
-    try:
-        temp = ss.jinja_env.get_template('Vagrantfile.j2')
-        with open(JUMBODIR + ss.svars['cluster'] + '/Vagrantfile', 'w+') as vf:
-            vf.write(temp.render(hosts=ss.svars['machines']))
-    except IOError:
+    return True
+
+
+def remove_machine(cluster, name):
+    if not check_machine(cluster, name):
         return False
 
+    for i, m in enumerate(ss.svars['machines']):
+        if m['name'] == name:
+            del(ss.svars['machines'][i])
     ss.dump_config()
 
     return True

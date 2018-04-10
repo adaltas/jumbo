@@ -17,6 +17,13 @@ def dump_config():
     with open(JUMBODIR + svars['cluster'] + '/jumbo_config', 'w') as cfg:
         json.dump(svars, cfg)
 
+    try:
+        temp = jinja_env.get_template('Vagrantfile.j2')
+        with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w+') as vf:
+            vf.write(temp.render(hosts=svars['machines']))
+    except IOError:
+        return False
+
 
 def load_config(name):
     global svars

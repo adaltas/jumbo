@@ -28,6 +28,7 @@ def jumbo(ctx, cluster):
     sh.add_command(delete)
     sh.add_command(manage)
     sh.add_command(addvm)
+    sh.add_command(rmvm)
     sh.add_command(listcl)
     sh.add_command(listvm)
     # If cluster exists, save it to svars (session variable) and adapt prompt
@@ -56,6 +57,8 @@ def exit(ctx):
     else:
         click.echo('Use `quit` to quit the shell. Exit only removes context.')
 
+
+# cluster commands
 
 @jumbo.command()
 @click.argument('name')
@@ -101,6 +104,44 @@ def manage(ctx, name):
         else:
             click.secho('Cluster doesn\'t exist!', fg='red', err=True)
 
+
+@jumbo.command()
+@click.argument('name')
+@click.option('--force', '-f', is_flag=True)
+def delete(name, force):
+    """
+    Delete a cluster.
+
+    :param name: Name of the cluster to delete
+    """
+    if clusters.check_cluster(name):
+        if force:
+            clusters.delete_cluster(name)
+        else:
+            if click.confirm(
+                    'Are you sure you want to delete the cluster %s' % name):
+                clusters.delete_cluster(name)
+                ss.clear()
+    else:
+        click.secho('Cluster `%s` doesn\'t exist!' % name, fg='red', err=True)
+
+
+@jumbo.command()
+def listcl():
+    """
+    List clusters managed by Jumbo.
+    """
+
+    cluster_table = PrettyTable(['Name', 'Number of VMs'])
+
+    for cluster in clusters.list_clusters():
+        cluster_table.add_row([cluster['cluster'].split('/')[-1],
+                               len(cluster['machines'])])
+
+    click.echo(cluster_table)
+
+
+# VM commands
 
 def validate_ip(ctx, param, value):
     try:
@@ -187,38 +228,54 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--force', '-f', is_flag=True)
-def delete(name, force):
+@click.pass_context
+@click.option('--cluster', '-c', help='Cluster of the VM to be deleted')
+def rmvm(ctx, name, cluster):
     """
-    Delete a cluster.
+    Removes a VM.
 
-    :param name: Name of the cluster to delete
+    :param name: VM name
     """
-    if clusters.check_cluster(name):
-        if force:
-            clusters.delete_cluster(name)
-        else:
-            if click.confirm(
-                    'Are you sure you want to delete the cluster %s' % name):
-                clusters.delete_cluster(name)
-                ss.clear()
+
+    switched = False
+    current = ss.svars['cluster']
+
+    if cluster:
+        if current and cluster != current:
+            click.secho('You are currently managing the cluster `%s`. '
+                        'Type "exit" to manage other clusters.'
+                        % ss.svars['cluster'], fg='red')
+            return
+
+        if not clusters.check_cluster(cluster):
+            click.secho('Cluster `%s` doesn\'t exist!' % cluster, fg='red',
+                        err=True)
+            return
+
+        switched, loaded = clusters.switch_cluster(cluster)
+
+        if not loaded:
+            click.secho('Failed to load `%s`!' % cluster, fg='red')
+            return
+
+        current = cluster
     else:
-        click.secho('Cluster `%s` doesn\'t exist!' % name, fg='red', err=True)
+        if not ss.svars['cluster']:
+            click.secho('No cluster specified nor managed! Use "--cluster" '
+                        'to specify a cluster.', fg='red', err=True)
+            return
 
+    if vm.remove_machine(current, name):
+        click.echo('Machine `{}` removed of cluster `{}`.'
+                   .format(name, current))
+    else:
+        click.secho('Machine `%s` doesn\'t exist!' % name, fg='red')
 
-@jumbo.command()
-def listcl():
-    """
-    List clusters managed by Jumbo.
-    """
-
-    cluster_table = PrettyTable(['Name', 'Number of VMs'])
-
-    for cluster in clusters.list_clusters():
-        cluster_table.add_row([cluster['cluster'].split('/')[-1],
-                               len(cluster['machines'])])
-
-    click.echo(cluster_table)
+    # TODO: Only echo if in shell mode
+    if switched:
+        click.echo('\nSwitched to cluster `%s`.' % current)
+        ctx.meta['jumbo_shell'].prompt = click.style(
+            'jumbo (%s) > ' % current, fg='green')
 
 
 @jumbo.command()

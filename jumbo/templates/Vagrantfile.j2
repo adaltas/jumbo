@@ -27,12 +27,12 @@ Vagrant.configure("2") do |config|
     config.vbguest.no_remote = true
     config.vbguest.auto_update = false
   end
-  {% set host_nb = 24011 -%}
+  {% set host_nb = 24010 -%}
   {% for host in hosts -%}
   config.vm.define :{{ host.name }} do |node|
     node.vm.box = box
     node.vm.network :private_network, ip: "{{ host.ip }}"
-    node.vm.network :forwarded_port, guest: 22, host: {{ host_nb }}, auto_correct: true
+    node.vm.network :forwarded_port, guest: 22, host: {{ host_nb + loop.index }}, auto_correct: true
     node.vm.provider "libvirt" do |d|
       d.memory = {{ host.ram }}
       d.graphics_type = "none"
@@ -73,7 +73,6 @@ Vagrant.configure("2") do |config|
     end
     {% endif %}
   end
-    {% set host_nb = host_nb + 1 -%}
   {% endfor %}
   config.vm.provision "Add ssh_pub_key", type: "shell" do |s|
     s.inline = <<-SHELL
