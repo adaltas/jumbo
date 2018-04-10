@@ -4,7 +4,7 @@ import ipaddress as ipadd
 from prettytable import PrettyTable
 
 from jumbo.core import clusters, machines as vm
-from jumbo.utils import session as ss
+from jumbo.utils import session as ss, exceptions as ex
 
 
 @click.group(invoke_without_command=True)
@@ -31,6 +31,7 @@ def jumbo(ctx, cluster):
     sh.add_command(rmvm)
     sh.add_command(listcl)
     sh.add_command(listvm)
+    sh.add_command(repair)
     # If cluster exists, save it to svars (session variable) and adapt prompt
     if cluster:
         if not clusters.check_cluster(cluster):
@@ -60,6 +61,11 @@ def exit(ctx):
 
 # cluster commands
 
+def set_context(ctx, name):
+    ctx.meta['jumbo_shell'].prompt = click.style(
+        'jumbo (%s) > ' % name, fg='green')
+
+
 @jumbo.command()
 @click.argument('name')
 @click.pass_context
@@ -70,12 +76,13 @@ def create(ctx, name):
     :param name: New cluster name
     """
     click.echo('Creating %s...' % name)
-    if clusters.create_cluster(name):
-        click.echo('Cluster `%s` created.' % name)
-        ctx.meta['jumbo_shell'].prompt = click.style(
-            'jumbo (%s) > ' % name, fg='green')
+    try:
+        clusters.create_cluster(name)
+    except ex.CreationError as e:
+        click.secho(e.message, fg='red', err=True)
     else:
-        click.secho('Cluster already exists!', fg='red', err=True)
+        click.echo('Cluster `%s` created.' % name)
+        set_context(ctx, name)
 
 
 @jumbo.command()
@@ -88,21 +95,16 @@ def manage(ctx, name):
     :param name: Cluster name
     """
     click.echo('Loading %s...' % name)
-    exists, loaded = clusters.load_cluster(name)
-    if loaded:
-        click.echo('Cluster `%s` loaded.' % name)
-        ctx.meta['jumbo_shell'].prompt = click.style(
-            'jumbo (%s) > ' % name, fg='green')
+
+    try:
+        clusters.load_cluster(name)
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+        if e.type == 'NoConfFile':
+            click.secho('Use "repair" to regenerate `jumbo_config`.')
     else:
-        if exists:
-            click.secho('Couldn\'t find the file `jumbo_config`!\n'
-                        'All cluster configuration has been lost.',
-                        fg='red', err=True)
-            click.echo('Recreating `jumbo_config` from scratch...')
-            ctx.meta['jumbo_shell'].prompt = click.style(
-                'jumbo (%s) > ' % name, fg='green')
-        else:
-            click.secho('Cluster doesn\'t exist!', fg='red', err=True)
+        click.echo('Cluster `%s` loaded.' % name)
+        set_context(ctx, name)
 
 
 @jumbo.command()
@@ -114,16 +116,16 @@ def delete(name, force):
 
     :param name: Name of the cluster to delete
     """
-    if clusters.check_cluster(name):
-        if force:
-            clusters.delete_cluster(name)
-        else:
-            if click.confirm(
-                    'Are you sure you want to delete the cluster %s' % name):
-                clusters.delete_cluster(name)
-                ss.clear()
+    if not force:
+        if not click.confirm(
+                'Are you sure you want to delete the cluster %s' % name):
+            return
+    try:
+        clusters.delete_cluster(name)
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
     else:
-        click.secho('Cluster `%s` doesn\'t exist!' % name, fg='red', err=True)
+        click.echo('Cluster `%s` deleted.' % name)
 
 
 @jumbo.command()
@@ -131,17 +133,30 @@ def listcl():
     """
     List clusters managed by Jumbo.
     """
+    try:
+        cluster_table = PrettyTable(['Name', 'Number of VMs'])
+        for cluster in clusters.list_clusters():
+            cluster_table.add_row([cluster['cluster'],
+                                   len(cluster['machines'])])
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+        if e.type == 'NoConfFile':
+            click.echo('Use "repair" to regenerate `jumbo_config`.')
+    else:
+        click.echo(cluster_table)
 
-    cluster_table = PrettyTable(['Name', 'Number of VMs'])
 
-    for cluster in clusters.list_clusters():
-        cluster_table.add_row([cluster['cluster'].split('/')[-1],
-                               len(cluster['machines'])])
-
-    click.echo(cluster_table)
-
+@jumbo.command()
+@click.argument('name')
+def repair(name):
+    if clusters.repair_cluster(name):
+        click.echo('Recreated `jumbo_config` from scratch '
+                   'for cluster `%s`.' % name)
+    else:
+        click.echo('Nothing to repair in cluster `%s`.' % name)
 
 # VM commands
+
 
 def validate_ip(ctx, param, value):
     try:
@@ -175,55 +190,24 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 
     :param name: New VM name
     """
-
     switched = False
-    current = ss.svars['cluster']
 
-    if cluster:
-        if current and cluster != current:
-            click.secho('You are currently managing the cluster `%s`. '
-                        'Type "exit" to manage other clusters.'
-                        % ss.svars['cluster'], fg='red')
-            return
+    if not cluster:
+        cluster = ss.svars['cluster']
 
-        if not clusters.check_cluster(cluster):
-            click.secho('Cluster `%s` doesn\'t exist!' % cluster, fg='red',
-                        err=True)
-            return
-
-        switched, loaded = clusters.switch_cluster(cluster)
-
-        if not loaded:
-            click.secho('Failed to load `%s`!' % cluster, fg='red')
-            return
-
-        current = cluster
+    try:
+        switched = vm.add_machine(name, ip, ram, disk, types, cluster, cpus)
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+        if e.type == 'NoConfFile':
+            click.secho('Use "repair" to regenerate `jumbo_config`.')
     else:
-        if not ss.svars['cluster']:
-            click.secho('No cluster specified nor managed! Use "--cluster" '
-                        'to specify a cluster.', fg='red', err=True)
-            return
+        click.echo('Machine `{}` added to cluster `{}`.'.format(name, cluster))
 
-    if vm.check_machine(current, name):
-        click.secho('A machine with the name `%s` already exists.\nUse '
-                    '"modifyvm" to change its configuration.' % name,
-                    fg='red')
-        return
-
-    m_ip = vm.check_ip(current, ip)
-    if m_ip:
-        click.secho('The address `{}` is already used by '
-                    'machine `{}`.'.format(ip, m_ip), fg='red')
-        return
-
-    if vm.add_machine(name, ip, ram, disk, types, cpus):
-        click.echo('Machine `{}` added to cluster `{}`.'.format(name, current))
-
-    # TODO: Only echo if in shell mode
-    if switched:
-        click.echo('\nSwitched to cluster `%s`.' % current)
-        ctx.meta['jumbo_shell'].prompt = click.style(
-            'jumbo (%s) > ' % current, fg='green')
+        # TODO: Only echo if in shell mode
+        if switched:
+            click.echo('\nSwitched to cluster `%s`.' % cluster)
+            set_context(ctx, cluster)
 
 
 @jumbo.command()
@@ -236,46 +220,24 @@ def rmvm(ctx, name, cluster):
 
     :param name: VM name
     """
-
     switched = False
-    current = ss.svars['cluster']
+    if not cluster:
+        cluster = ss.svars['cluster']
 
-    if cluster:
-        if current and cluster != current:
-            click.secho('You are currently managing the cluster `%s`. '
-                        'Type "exit" to manage other clusters.'
-                        % ss.svars['cluster'], fg='red')
-            return
-
-        if not clusters.check_cluster(cluster):
-            click.secho('Cluster `%s` doesn\'t exist!' % cluster, fg='red',
-                        err=True)
-            return
-
-        switched, loaded = clusters.switch_cluster(cluster)
-
-        if not loaded:
-            click.secho('Failed to load `%s`!' % cluster, fg='red')
-            return
-
-        current = cluster
+    try:
+        switched = vm.remove_machine(cluster, name)
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+        if e.type == 'NoConfFile':
+            click.secho('Use "repair" to regenerate `jumbo_config`')
     else:
-        if not ss.svars['cluster']:
-            click.secho('No cluster specified nor managed! Use "--cluster" '
-                        'to specify a cluster.', fg='red', err=True)
-            return
-
-    if vm.remove_machine(current, name):
         click.echo('Machine `{}` removed of cluster `{}`.'
-                   .format(name, current))
-    else:
-        click.secho('Machine `%s` doesn\'t exist!' % name, fg='red')
+                   .format(name, cluster))
 
-    # TODO: Only echo if in shell mode
-    if switched:
-        click.echo('\nSwitched to cluster `%s`.' % current)
-        ctx.meta['jumbo_shell'].prompt = click.style(
-            'jumbo (%s) > ' % current, fg='green')
+        # TODO: Only echo if in shell mode
+        if switched:
+            click.echo('\nSwitched to cluster `%s`.' % cluster)
+            set_context(ctx, cluster)
 
 
 @jumbo.command()
@@ -285,29 +247,20 @@ def listvm(cluster):
     List VMs in the cluster being managed.
     Another cluster can be specified with "--cluster".
     """
-
-    if cluster:
-        if clusters.check_cluster(cluster):
-            ss.svars['cluster'] = cluster
-        else:
-            click.secho('Cluster `%s` does not exist' % cluster,
-                        fg='red', err=True)
-            return
-    else:
-        if not ss.svars['cluster']:
-            click.secho('No cluster specified nor managed! Use "--cluster" '
-                        'to specify a cluster.', fg='red', err=True)
-            return
+    if not cluster:
         cluster = ss.svars['cluster']
 
-    vm_table = PrettyTable(
-        ['Name', 'Types', 'IP', 'RAM (MB)', 'Disk (MB)', 'CPUs'])
+    try:
+        vm_table = PrettyTable(
+            ['Name', 'Types', 'IP', 'RAM (MB)', 'Disk (MB)', 'CPUs'])
 
-    for m in vm.list_machines(cluster):
-        vm_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
-                          m['ram'], m['disk'], m['cpus']])
-
-    click.echo(vm_table)
+        for m in clusters.list_machines(cluster):
+            vm_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
+                              m['ram'], m['disk'], m['cpus']])
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+    else:
+        click.echo(vm_table)
 
 
 if __name__ == '__main__':
