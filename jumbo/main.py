@@ -27,6 +27,8 @@ def jumbo(ctx, cluster):
     sh.add_command(exit)
     sh.add_command(delete)
     sh.add_command(manage)
+    # If cluster exists, call manage command (saves the shell in session
+    #  variable svars and adapts the shell prompt)
     sh.add_command(addvm)
     sh.add_command(rmvm)
     sh.add_command(listcl)
