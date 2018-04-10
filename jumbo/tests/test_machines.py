@@ -1,7 +1,7 @@
 import unittest
 
-from jumbo.core import machines
-from jumbo.utils import clusters, session as ss
+from jumbo.core import clusters, machines
+from jumbo.utils import session as ss
 
 
 class TestMachineMethods(unittest.TestCase):

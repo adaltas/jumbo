@@ -6,11 +6,12 @@ setup(
     install_requires=[
         'Click',
         'click-shell',
-        'jinja2'
+        'jinja2',
+        'prettytable'
     ],
     py_modules=['jumbo'],
     entry_points='''
         [console_scripts]
         jumbo=jumbo.main:jumbo
-    ''',
+    '''
 )

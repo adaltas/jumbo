@@ -4,7 +4,7 @@ import json
 from jumbo.utils.settings import JUMBODIR
 
 svars = {
-    'cluster': '',
+    'cluster': None,
     'machines': []
 }
 
@@ -17,6 +17,13 @@ def dump_config():
     with open(JUMBODIR + svars['cluster'] + '/jumbo_config', 'w') as cfg:
         json.dump(svars, cfg)
 
+    try:
+        temp = jinja_env.get_template('Vagrantfile.j2')
+        with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w+') as vf:
+            vf.write(temp.render(hosts=svars['machines']))
+    except IOError:
+        return False
+
 
 def load_config(name):
     global svars
@@ -26,6 +33,44 @@ def load_config(name):
     except IOError:
         return False
     return True
+
+
+def clear():
+    global svars
+    svars = {
+        'cluster': None,
+        'machines': []
+    }
+
+
+def check_machine(name):
+    """Check if machine already exists
+
+    :param m: machine name
+    :type m: string
+    :return: machine exists
+    :rtype: bool
+    """
+
+    for machine in svars['machines']:
+        if machine['name'] == name:
+            return True
+    return False
+
+
+def check_ip(ip):
+    """Check if ip not already used
+
+    :param ip: ip address
+    :type ip: string
+    :return: name of the machine using the ip or False
+    :rtype: string or bool
+    """
+
+    for machine in svars['machines']:
+        if machine['ip'] == ip:
+            return machine['name']
+    return False
 
 
 def add_machine(m):
