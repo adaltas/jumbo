@@ -14,6 +14,11 @@ jinja_env = Environment(
 
 
 def dump_config():
+    """Dump the session's cluster config and generates the project.
+
+    :return: True on success
+    """
+
     with open(JUMBODIR + svars['cluster'] + '/jumbo_config', 'w') as cfg:
         json.dump(svars, cfg)
 
@@ -26,6 +31,13 @@ def dump_config():
 
 
 def load_config(name):
+    """Load a cluster in the session.
+
+    :param name: Cluster name
+    :type name: str
+    :return: True on success
+    """
+
     global svars
     # not using 'with open()' because of a Python bug
     svars = json.load(open(JUMBODIR + name + '/jumbo_config', 'r'))
@@ -34,6 +46,10 @@ def load_config(name):
 
 
 def clear():
+    """Reset the sessions variables.
+
+    """
+
     global svars
     svars = {
         'cluster': None,
@@ -42,6 +58,12 @@ def clear():
 
 
 def add_machine(m):
+    """Add a machine to the current session.
+
+    :param m: Machine configuration
+    :type m: dict
+    """
+
     added = False
     for i, machine in enumerate(svars['machines']):
         if machine['name'] == m['name']:

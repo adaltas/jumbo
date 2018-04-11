@@ -49,11 +49,11 @@ def jumbo(ctx, cluster):
 @jumbo.command()
 @click.pass_context
 def exit(ctx):
-    """
-    Reset current context.
+    """Reset current context.
 
     :param ctx: Click context
     """
+
     if ss.svars.get('cluster'):
         ss.svars['cluster'] = None
         ctx.meta['jumbo_shell'].prompt = click.style('jumbo > ', fg='green')
@@ -72,11 +72,11 @@ def set_context(ctx, name):
 @click.argument('name')
 @click.pass_context
 def create(ctx, name):
-    """
-    Create a new cluster.
+    """Create a new cluster.
 
     :param name: New cluster name
     """
+
     click.echo('Creating %s...' % name)
     try:
         clusters.create_cluster(name)
@@ -91,11 +91,11 @@ def create(ctx, name):
 @click.argument('name')
 @click.pass_context
 def manage(ctx, name):
-    """
-    Set a cluster to manage. Persist --cluster option.
+    """Set a cluster to manage. Persist --cluster option.
 
     :param name: Cluster name
     """
+
     click.echo('Loading %s...' % name)
 
     try:
@@ -111,13 +111,13 @@ def manage(ctx, name):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--force', '-f', is_flag=True)
+@click.option('--force', '-f', is_flag=True, help='Force deletion')
 def delete(name, force):
-    """
-    Delete a cluster.
+    """Delete a cluster.
 
     :param name: Name of the cluster to delete
     """
+
     if not force:
         if not click.confirm(
                 'Are you sure you want to delete the cluster %s' % name):
@@ -132,9 +132,9 @@ def delete(name, force):
 
 @jumbo.command()
 def listcl():
+    """List clusters managed by Jumbo.
     """
-    List clusters managed by Jumbo.
-    """
+
     try:
         cluster_table = PrettyTable(['Name', 'Number of VMs'])
         for cluster in clusters.list_clusters():
@@ -151,6 +151,11 @@ def listcl():
 @jumbo.command()
 @click.argument('name')
 def repair(name):
+    """Recreate `jumbo_config` if it doesn't exist.
+
+    :param name: Cluster name
+    """
+
     if clusters.repair_cluster(name):
         click.echo('Recreated `jumbo_config` from scratch '
                    'for cluster `%s`.' % name)
@@ -192,6 +197,7 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 
     :param name: New VM name
     """
+
     switched = False
 
     if not cluster:
@@ -217,11 +223,11 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 @click.pass_context
 @click.option('--cluster', '-c', help='Cluster of the VM to be deleted')
 def rmvm(ctx, name, cluster):
-    """
-    Removes a VM.
+    """Removes a VM.
 
     :param name: VM name
     """
+
     switched = False
     if not cluster:
         cluster = ss.svars['cluster']
@@ -249,6 +255,7 @@ def listvm(cluster):
     List VMs in the cluster being managed.
     Another cluster can be specified with "--cluster".
     """
+
     if not cluster:
         cluster = ss.svars['cluster']
 

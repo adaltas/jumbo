@@ -11,14 +11,34 @@ from jumbo.utils import session as ss, exceptions as ex
 
 
 def check_cluster(name):
+    """Return true if the cluster exists.
+
+    :param name: Cluster name
+    :type name: str
+    """
+
     return os.path.isdir(JUMBODIR + name)
 
 
 def check_config(name):
+    """Return true if the cluster has a `jumbo_config` file.
+
+    :param name: Cluster name
+    :type name: str
+    """
+
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
 def create_cluster(name):
+    """Create a new cluster and load it in the session.
+
+    :param name: New cluster name
+    :type name: str
+    :raises ex.CreationError: If name already used
+    :return: True on creation success
+    """
+
     if check_cluster(name):
         raise ex.CreationError('cluster', name, 'name', name)
 
@@ -33,6 +53,14 @@ def create_cluster(name):
 
 
 def load_cluster(name):
+    """Load a cluster in the session.
+
+    :param name: Cluster name
+    :type name: str
+    :raises ex.LoadError: If creation failed
+    :return: True on loading success
+    """
+
     if not check_cluster(name):
         raise ex.LoadError('cluster', name, 'NotExist')
 
@@ -48,6 +76,13 @@ def load_cluster(name):
 
 
 def repair_cluster(name):
+    """Recreate the cluster `jumbo_config` file if it doesn't exist.
+
+    :param name: Cluster name
+    :type name: str
+    :return: True if the `jumbo_config` has been recreated
+    """
+
     if not check_config(name):
         ss.clear()
         ss.svars['cluster'] = name
@@ -57,20 +92,15 @@ def repair_cluster(name):
     return False
 
 
-def switch_cluster(name):
-    switched = False
-    loaded = True
-
-    if ss.svars['cluster'] != name:
-        if ss.load_config(name):
-            switched = True
-        else:
-            loaded = False
-
-    return switched, loaded
-
-
 def delete_cluster(name):
+    """Delete a cluster.
+
+    :param name: Cluster name
+    :type name: str
+    :raises ex.LoadError: If the cluster doesn't exist
+    :return: True if the deletion was successfull
+    """
+
     if not check_cluster(name):
         raise ex.LoadError('cluster', name, 'NotExist')
     try:
@@ -83,6 +113,13 @@ def delete_cluster(name):
 
 
 def list_clusters():
+    """List all the clusters managed by Jumbo.
+
+    :raises ex.LoadError: If a cluster doesn't have a `jumbo_config` file
+    :return: The list of clusters' configurations
+    :rtype: dict
+    """
+
     path_list = [f.path for f in os.scandir(JUMBODIR) if f.is_dir()]
     clusters = []
 
@@ -97,6 +134,15 @@ def list_clusters():
 
 
 def list_machines(cluster):
+    """List the machines of a cluster.
+
+    :param cluster: Cluster name
+    :type cluster: str
+    :raises ex.LoadError: If the cluster doesn't exist or is not given
+    :return: The list of the cluster's machines
+    :rtype: dict
+    """
+
     if not cluster:
         raise ex.LoadError('cluster', None, 'NoContext')
 
