@@ -39,10 +39,10 @@ def add_machine(name, ip, ram, disk, types, cluster, cpus=1):
             switched = True
 
     if check_machine(cluster, name):
-        raise ex.CreationError('machine', name, 'name', name)
+        raise ex.CreationError('machine', name, 'name', name, 'Exists')
 
     if check_ip(cluster, ip):
-        raise ex.CreationError('machine', name, 'IP', ip)
+        raise ex.CreationError('machine', name, 'IP', ip, 'Exists')
 
     m = {
         'name': name,
@@ -50,7 +50,8 @@ def add_machine(name, ip, ram, disk, types, cluster, cpus=1):
         'ram': ram,
         'disk': disk,
         'types': types,
-        'cpus': cpus
+        'cpus': cpus,
+        'components': []
     }
 
     clusters.load_cluster(cluster)

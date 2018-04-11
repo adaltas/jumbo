@@ -3,19 +3,31 @@ class Error(Exception):
 
 
 class CreationError(Error):
-    def __init__(self, obj_type, obj_name, cft_type, cft_value):
+    def __init__(self, obj_type, obj_name, cft_prop, cft_value, err):
         self.object = {
             'type': obj_type,
             'name': obj_name
         }
         self.conflict = {
-            'type': cft_type,
-            'value': cft_value
+            'type': cft_prop,
+            'property': cft_value
         }
-        self.message = 'A {} with the {} `{}` already exists!'.format(
-            self.object['type'],
-            self.conflict['type'],
-            self.conflict['value'])
+        self.message = self.generate_message(err)
+
+    def generate_message(self, err):
+        switcher = {
+            'Exists': 'A {} with the {} `{}` already exists!'.format(
+                self.object['type'],
+                self.conflict['property'],
+                self.conflict['value']),
+            'Installed': 'The {} {} is already present on the {} {}'.format(
+                self.conflict['property'],
+                self.conflict['value'],
+                self.object['type'],
+                self.object['name'])
+        }
+
+        return switcher.get(err, err)
 
 
 class LoadError(Error):
@@ -24,10 +36,10 @@ class LoadError(Error):
             'type': obj_type,
             'name': obj_name
         }
-        self.message = self.generate_message(err)
         self.type = err
+        self.message = self.generate_message()
 
-    def generate_message(self, err):
+    def generate_message(self):
         switcher = {
             'NotExist': 'The {} `{}` doesn\'t exist!'.format(
                 self.object['type'],
@@ -41,4 +53,4 @@ class LoadError(Error):
                            ' `{}`\nAll cluster configuration has been lost.'
                            .format(self.object['name']))
         }
-        return switcher.get(err, err)
+        return switcher.get(self.type, self.type)

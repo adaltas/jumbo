@@ -3,7 +3,7 @@ from click_shell.core import Shell
 import ipaddress as ipadd
 from prettytable import PrettyTable
 
-from jumbo.core import clusters, machines as vm
+from jumbo.core import clusters, machines as vm, services
 from jumbo.utils import session as ss, exceptions as ex
 
 
@@ -27,14 +27,15 @@ def jumbo(ctx, cluster):
     sh.add_command(exit)
     sh.add_command(delete)
     sh.add_command(manage)
-    # If cluster exists, call manage command (saves the shell in session
-    #  variable svars and adapts the shell prompt)
     sh.add_command(addvm)
     sh.add_command(rmvm)
     sh.add_command(listcl)
     sh.add_command(listvm)
     sh.add_command(repair)
-    # If cluster exists, save it to svars (session variable) and adapt prompt
+    sh.add_command(addcomp)
+
+    # If cluster exists, call manage command (saves the shell in session
+    #  variable svars and adapts the shell prompt)
     if cluster:
         if not clusters.check_cluster(cluster):
             click.echo('This cluster does not exist.'
@@ -272,5 +273,21 @@ def listvm(cluster):
         click.echo(vm_table)
 
 
-if __name__ == '__main__':
-    pass
+# services commands
+
+
+@jumbo.command()
+@click.argument('name')
+@click.option('--machine', '-m', required=True)
+@click.option('--cluster', '-c')
+def addcomp(name, machine, cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        services.add_component(name, machine, cluster)
+    except (ex.CreationError, ex.LoadError) as e:
+        click.secho(e.message, fg='red', err=True)
+    else:
+        click.echo('Component `{}` added to machine {}/{}'
+                   .format(name, machine, cluster))

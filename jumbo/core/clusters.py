@@ -40,7 +40,7 @@ def create_cluster(name):
     """
 
     if check_cluster(name):
-        raise ex.CreationError('cluster', name, 'name', name)
+        raise ex.CreationError('cluster', name, 'name', name, 'Exists')
 
     pathlib.Path(JUMBODIR + name).mkdir(parents=True)
     empty_dir = os.path.dirname(os.path.abspath(__package__)) + \
