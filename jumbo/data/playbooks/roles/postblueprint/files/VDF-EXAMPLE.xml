@@ -41,13 +41,13 @@
     <os family="redhat7">
       <package-version>2_6_4_0_*</package-version>
       <repo>
-        <baseurl>http://10.10.10.1:10080/centos7/hdp_2.6.4.0/hdp/centos7/HDP-2.6.4.0</baseurl>
+        <baseurl>http://10.10.10.1:10080/centos7/hdp-2.6.4.0/HDP/centos7/2.x/updates/2.6.4.0/</baseurl>
         <repoid>HDP-2.6</repoid>
         <reponame>HDP</reponame>
         <unique>true</unique>
       </repo>
       <repo>
-        <baseurl>http://10.10.10.1:10080/centos7/hdp_2.6.4.0/hdp/centos7/HDP-GPL-2.6.4.0</baseurl>
+        <baseurl>http://10.10.10.1:10080/centos7/hdp-GPL-2.6.4.0/HDP-GPL/centos7/2.x/updates/2.6.4.0/</baseurl>
         <repoid>HDP-2.6-GPL</repoid>
         <reponame>HDP-GPL</reponame>
         <unique>true</unique>
@@ -56,7 +56,7 @@
         </tags>
       </repo>
       <repo>
-        <baseurl>http://10.10.10.1:10080/centos7/hdp_2.6.4.0/hdp/centos7/HDP-UTILS-1.1.0.22</baseurl>
+        <baseurl>http://10.10.10.1:10080/centos7/hdp-2.6.4.0/HDP-UTILS-1.1.0.22/repos/centos7/</baseurl>
         <repoid>HDP-UTILS-1.1.0.22</repoid>
         <reponame>HDP-UTILS</reponame>
         <unique>false</unique>

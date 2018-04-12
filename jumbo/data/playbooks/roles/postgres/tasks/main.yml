@@ -16,7 +16,13 @@
   lineinfile:
     path: /var/lib/pgsql/data/pg_hba.conf
     line: host all all 0.0.0.0/0 md5
-    insertafter: EOF
+    insertbefore: BOF
+
+- name: Authorize password connection from localhost for ambari
+  lineinfile:
+    path: /var/lib/pgsql/data/pg_hba.conf
+    line: local all ambari md5
+    insertbefore: BOF
 
 - name: Enable PostgreSQL listen on all addresses
   replace:
@@ -39,6 +45,7 @@
     - oozie
     - druid
     - superset
+    - ambari
 
 - name: Create users
   postgresql_user:
@@ -51,3 +58,19 @@
     - oozie
     - druid
     - superset
+    - ambari
+
+- name: Create pgsql schema for ambari db
+  command: psql -d ambari -c "CREATE SCHEMA ambarischema AUTHORIZATION ambari;"
+  become_user: postgres
+  ignore_errors: yes
+
+- name: Set schema owner to ambari user
+  command: psql -d ambari -c "ALTER SCHEMA ambarischema OWNER TO ambari"
+  become_user: postgres
+  ignore_errors: yes
+
+- name: Set search_path for ambari schema
+  command: psql -d ambari -c "ALTER ROLE ambari SET search_path to 'ambarischema', 'public';"
+  become_user: postgres
+  ignore_error: yes

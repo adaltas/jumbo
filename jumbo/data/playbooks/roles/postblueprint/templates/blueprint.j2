@@ -17,7 +17,7 @@
       "hive-site": {
         "properties": {
           "javax.jdo.option.ConnectionDriverName": "org.postgresql.Driver",
-          "javax.jdo.option.ConnectionURL": "jdbc:postgresql://master02.hdp.local:5432/hive",
+          "javax.jdo.option.ConnectionURL": "jdbc:postgresql://{{ hostvars[groups['pgsqlserver'][0]]['inventory_hostname'] }}.{{ domain }}:5432/hive",
           "javax.jdo.option.ConnectionUserName": "hive",
           "hive.metastore.uris": "thrift://%HOSTGROUP::master02%:9083,thrift://%HOSTGROUP::master03%:9083",
           "hive.exec.compress.output": "false",
@@ -38,7 +38,7 @@
       "oozie-site": {
         "properties": {
           "oozie.service.JPAService.jdbc.username": "oozie",
-          "oozie.service.JPAService.jdbc.url": "jdbc:postgresql://%HOSTGROUP::master02%:5432/oozie",
+          "oozie.service.JPAService.jdbc.url": "jdbc:postgresql://%HOSTGROUP::{{ hostvars[groups['pgsqlserver'][0]]['inventory_hostname'] }}%:5432/oozie",
           "oozie.service.JPAService.jdbc.driver": "org.postgresql.Driver",
           "oozie.db.schema.name": "oozie"
         }
