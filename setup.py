@@ -7,7 +7,8 @@ setup(
         'Click',
         'click-shell',
         'jinja2',
-        'prettytable'
+        'prettytable',
+        'pyyaml'
     ],
     py_modules=['jumbo'],
     entry_points='''
