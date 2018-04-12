@@ -280,14 +280,22 @@ def listvm(cluster):
 @click.argument('name')
 @click.option('--machine', '-m', required=True)
 @click.option('--cluster', '-c')
-def addcomp(name, machine, cluster):
+@click.pass_context
+def addcomp(ctx, name, machine, cluster):
+    switched = False
+
     if not cluster:
         cluster = ss.svars['cluster']
 
     try:
-        services.add_component(name, machine, cluster)
+        switched = services.add_component(name, machine, cluster)
     except (ex.CreationError, ex.LoadError) as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Component `{}` added to machine {}/{}'
-                   .format(name, machine, cluster))
+        click.echo('Component `{}` added to machine `{}/{}`'
+                   .format(name, cluster, machine))
+
+        # TODO: Only echo if in shell mode
+        if switched:
+            click.echo('\nSwitched to cluster `%s`.' % cluster)
+            set_context(ctx, cluster)

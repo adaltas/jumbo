@@ -9,8 +9,8 @@ class CreationError(Error):
             'name': obj_name
         }
         self.conflict = {
-            'type': cft_prop,
-            'property': cft_value
+            'property': cft_prop,
+            'value': cft_value
         }
         self.message = self.generate_message(err)
 
@@ -20,11 +20,12 @@ class CreationError(Error):
                 self.object['type'],
                 self.conflict['property'],
                 self.conflict['value']),
-            'Installed': 'The {} {} is already present on the {} {}'.format(
-                self.conflict['property'],
-                self.conflict['value'],
-                self.object['type'],
-                self.object['name'])
+            'Installed': ('The {} `{}` is already present on the {} `{}`!'
+                          .format(
+                              self.conflict['property'],
+                              self.conflict['value'],
+                              self.object['type'],
+                              self.object['name']))
         }
 
         return switcher.get(err, err)
@@ -50,7 +51,7 @@ class LoadError(Error):
                          'Type "exit" to manage other clusters.'.format(
                              self.object['name'])),
             'NoConfFile': ('Couldn\'t find the file `jumbo_config` for cluster'
-                           ' `{}`\nAll cluster configuration has been lost.'
+                           ' `{}`.\nAll cluster configuration has been lost.'
                            .format(self.object['name']))
         }
         return switcher.get(self.type, self.type)

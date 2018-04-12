@@ -27,8 +27,8 @@ Vagrant.configure("2") do |config|
     config.vbguest.no_remote = true
     config.vbguest.auto_update = false
   end
-  {% set host_nb = 24010 -%}
-  {% for host in hosts -%}
+  {% set host_nb = 24010 %}
+  {% for host in hosts %}
   config.vm.define :{{ host.name }} do |node|
     node.vm.box = box
     node.vm.network :private_network, ip: "{{ host.ip }}"
@@ -44,7 +44,7 @@ Vagrant.configure("2") do |config|
       d.cpus = {{ host.cpus }}
       d.customize ["modifyvm", :id, "--ioapic", "on"]
     end
-      {% if 'edge' in host.types -%}
+      {% if 'edge' in host.types %}
     node.vm.provision "Import vagrant_insecure_key", type: "shell" do |s|
       s.inline = <<-SHELL
         sudo mkdir -p /root/.ssh/

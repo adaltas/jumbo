@@ -51,7 +51,8 @@ def add_machine(name, ip, ram, disk, types, cluster, cpus=1):
         'disk': disk,
         'types': types,
         'cpus': cpus,
-        'components': []
+        'components': [],
+        'groups': []
     }
 
     clusters.load_cluster(cluster)
