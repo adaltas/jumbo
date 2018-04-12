@@ -34,6 +34,7 @@ def jumbo(ctx, cluster):
     sh.add_command(repair)
     sh.add_command(addservice)
     sh.add_command(addcomp)
+    sh.add_command(listcomp)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -141,11 +142,13 @@ def listcl():
     """
 
     try:
-        cluster_table = PrettyTable(['Name', 'Domain Name', 'Number of VMs'])
+        cluster_table = PrettyTable(['Name', 'Domain Name', 'VMs',
+                                     'Services'])
         for cluster in clusters.list_clusters():
             cluster_table.add_row([cluster['cluster'],
                                    cluster['domain'],
-                                   len(cluster['machines'])])
+                                   len(cluster['machines']),
+                                   ', '.join(cluster['services'])])
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
@@ -222,7 +225,6 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 
         # TODO: Only echo if in shell mode
         if switched:
-            click.echo('\nSwitched to cluster `%s`.' % cluster)
             set_context(ctx, cluster)
 
 
@@ -252,7 +254,6 @@ def rmvm(ctx, name, cluster):
 
         # TODO: Only echo if in shell mode
         if switched:
-            click.echo('\nSwitched to cluster `%s`.' % cluster)
             set_context(ctx, cluster)
 
 
@@ -307,7 +308,6 @@ def addservice(ctx, name, cluster):
 
     # TODO: Only echo if in shell mode
     if switched:
-        click.echo('\nSwitched to cluster `%s`.' % cluster)
         set_context(ctx, cluster)
 
 
@@ -324,13 +324,34 @@ def addcomp(ctx, name, machine, cluster):
 
     try:
         switched = services.add_component(name, machine, cluster)
-    except (ex.CreationError, ex.LoadError) as e:
+    except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
+    except ex.CreationError as e:
+        click.secho(e.message, fg='red', err=True)
+        switched = True
     else:
         click.echo('Component `{}` added to machine `{}/{}`'
                    .format(name, cluster, machine))
 
-        # TODO: Only echo if in shell mode
-        if switched:
-            click.echo('\nSwitched to cluster `%s`.' % cluster)
-            set_context(ctx, cluster)
+    # TODO: Only echo if in shell mode
+    if switched:
+        set_context(ctx, cluster)
+
+
+@jumbo.command()
+@click.argument('machine')
+@click.option('--cluster', '-c')
+def listcomp(machine, cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        comp_table = PrettyTable(
+            ['Component', 'Service'])
+
+        for c in services.list_components(machine, cluster):
+            comp_table.add_row([c, services.check_component(c)])
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+    else:
+        click.echo(comp_table)

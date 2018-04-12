@@ -3,6 +3,7 @@ import json
 
 from jumbo.core import machines as vm, clusters
 from jumbo.utils import exceptions as ex, session as ss
+from jumbo.utils.settings import JUMBODIR
 
 
 def load_services_conf():
@@ -57,6 +58,17 @@ def add_component(name, machine, cluster):
     for i, m in enumerate(ss.svars['machines']):
         if m['name'] == machine:
             m_index = i
+
+    missing_serv, missing_comp = check_service_req_service(service)
+    if missing_serv:
+        raise ex.CreationError('component', name, 'services', missing_serv,
+                               'ReqNotMet')
+    if missing_comp:
+        print_missing = []
+        for k, v in missing_comp.items():
+            print_missing.append('{} {}'.format(v, k))
+        raise ex.CreationError('component', name, 'components', print_missing,
+                               'ReqNotMet')
 
     if check_component_machine(name, ss.svars['machines'][m_index]):
         raise ex.CreationError('machine', machine, 'component', name,
@@ -143,3 +155,26 @@ def get_available_components():
         for c in s['components']:
             components[c['name']] = 0
     return components
+
+
+def list_components(machine, cluster):
+    if not cluster:
+        raise ex.LoadError('cluster', None, 'NoContext')
+
+    if not vm.check_machine(cluster, machine):
+        raise ex.LoadError('cluster', cluster, 'NotExist')
+
+    if cluster != ss.svars['cluster']:
+        try:
+            with open(JUMBODIR + cluster + '/jumbo_config', 'r') as clf:
+                cluster_conf = json.load(clf)
+        except IOError as e:
+            raise ex.LoadError('cluster', cluster, e.strerror)
+    else:
+        cluster_conf = ss.svars
+
+    for m in cluster_conf['machines']:
+        if m['name'] == machine:
+            m_conf = m
+
+    return m_conf['components']
