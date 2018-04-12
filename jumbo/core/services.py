@@ -14,6 +14,13 @@ def load_services_conf():
 config = load_services_conf()
 
 
+def check_service(name):
+    for s in config['services']:
+        if s['name'] == name:
+            return True
+    return False
+
+
 def check_component(name):
     for s in config['services']:
         for c in s['components']:
@@ -23,10 +30,7 @@ def check_component(name):
 
 
 def check_component_machine(name, machine):
-    if name in machine['components']:
-        return True
-    else:
-        return False
+    return name in machine['components']
 
 
 def add_component(name, machine, cluster):
@@ -58,7 +62,84 @@ def add_component(name, machine, cluster):
         raise ex.CreationError('machine', machine, 'component', name,
                                'Installed')
 
-    ss.svars['machines'][m_index]['components'] += [name]
+    ss.svars['machines'][m_index]['components'].append(name)
     ss.dump_config()
 
     return switched
+
+
+def add_service(name, cluster):
+    switched = False
+
+    if not cluster:
+        raise ex.LoadError('cluster', None, 'NoContext')
+    elif cluster != ss.svars['cluster']:
+        if ss.svars['cluster']:
+            raise ex.LoadError('cluster', ss.svars['cluster'], 'MustExit')
+        else:
+            switched = True
+
+    if not check_service(name):
+        raise ex.LoadError('service', name, 'NotExist')
+
+    clusters.load_cluster(cluster)
+
+    missing_serv, missing_comp = check_service_req_service(name)
+    if missing_serv:
+        raise ex.CreationError('service', name, 'services', missing_serv,
+                               'ReqNotMet')
+    if missing_comp:
+        print_missing = []
+        for k, v in missing_comp.items():
+            print_missing.append('{} {}'.format(v, k))
+        raise ex.CreationError('service', name, 'components', print_missing,
+                               'ReqNotMet')
+
+    ss.svars['services'].append(name)
+    ss.dump_config()
+
+    return switched
+
+
+def check_service_req_service(name, ha=False):
+    req = 'ha' if ha else 'default'
+    missing_serv = []
+    missing_comp = {}
+    for s in config['services']:
+        if s['name'] == name:
+            for req_s in s['requirements']['services'][req]:
+                if req_s not in ss.svars['services']:
+                    missing_serv.append(req_s)
+                missing_comp.update(check_service_req_comp(req_s))
+            return missing_serv, missing_comp
+    raise ex.LoadError('service', name, 'NotExist')
+
+
+def check_service_req_comp(name, ha=False):
+    req = 'ha' if ha else 'default'
+    missing = {}
+    comp_count = count_components()
+    for s in config['services']:
+        if s['name'] == name:
+            for comp in s['components']:
+                missing_count = comp['number'][req] - comp_count[comp['name']]
+                if missing_count > 0:
+                    missing[comp['name']] = missing_count
+            return missing
+    raise ex.LoadError('service', name, 'NotExist')
+
+
+def count_components():
+    components = get_available_components()
+    for machine in ss.svars['machines']:
+        for c in machine['components']:
+            components[c] += 1
+    return components
+
+
+def get_available_components():
+    components = {}
+    for s in config['services']:
+        for c in s['components']:
+            components[c['name']] = 0
+    return components

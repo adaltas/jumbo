@@ -25,8 +25,12 @@
         "ram": 1000,
         "disk": 10000,
         "machines": {
-          "default": {},
-          "ha": {}
+          "default": {
+            "edge": 1
+          },
+          "ha": {
+            "edge": 1
+          }
         },
         "services": {
           "default": [],
@@ -52,8 +56,12 @@
         "ram": 1000,
         "disk": 10000,
         "machines": {
-          "default": {},
-          "ha": {}
+          "default": {
+            "sidemaster": 1
+          },
+          "ha": {
+            "sidemaster": 1
+          }
         },
         "services": {
           "default": [

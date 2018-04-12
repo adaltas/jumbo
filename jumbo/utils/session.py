@@ -6,7 +6,8 @@ from jumbo.utils.settings import JUMBODIR
 svars = {
     'cluster': None,
     'domain': None,
-    'machines': []
+    'machines': [],
+    'services': []
 }
 
 jinja_env = Environment(
@@ -64,7 +65,8 @@ def clear():
     global svars
     svars = {
         'cluster': None,
-        'machines': []
+        'machines': [],
+        'services': []
     }
 
 
@@ -81,9 +83,7 @@ def add_machine(m):
             svars['machines'][i] = m
             added = True
     if not added:
-        svars['machines'] += [
-            m
-        ]
+        svars['machines'].append(m)
 
 
 def generate_ansible_groups():

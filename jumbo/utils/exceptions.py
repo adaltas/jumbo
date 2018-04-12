@@ -12,9 +12,10 @@ class CreationError(Error):
             'property': cft_prop,
             'value': cft_value
         }
-        self.message = self.generate_message(err)
+        self.type = err
+        self.message = self.generate_message()
 
-    def generate_message(self, err):
+    def generate_message(self):
         switcher = {
             'Exists': 'A {} with the {} `{}` already exists!'.format(
                 self.object['type'],
@@ -25,10 +26,16 @@ class CreationError(Error):
                               self.conflict['property'],
                               self.conflict['value'],
                               self.object['type'],
-                              self.object['name']))
+                              self.object['name'])),
+            'ReqNotMet': ('The requirements to add the {} `{}` are not met!\n'
+                          'These {} are missing:\n - {}'
+                          .format(self.object['type'],
+                                  self.object['name'],
+                                  self.conflict['property'],
+                                  ',\n - '.join(self.conflict['value'])))
         }
 
-        return switcher.get(err, err)
+        return switcher.get(self.type, self.type)
 
 
 class LoadError(Error):

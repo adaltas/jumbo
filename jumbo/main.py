@@ -32,6 +32,7 @@ def jumbo(ctx, cluster):
     sh.add_command(listcl)
     sh.add_command(listvm)
     sh.add_command(repair)
+    sh.add_command(addservice)
     sh.add_command(addcomp)
 
     # If cluster exists, call manage command (saves the shell in session
@@ -280,6 +281,34 @@ def listvm(cluster):
 
 
 # services commands
+
+
+@jumbo.command()
+@click.argument('name')
+@click.option('--cluster', '-c',
+              help='The cluster in which to add the service')
+@click.pass_context
+def addservice(ctx, name, cluster):
+    switched = False
+
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        switched = services.add_service(name, cluster)
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+    except ex.CreationError as e:
+        click.secho(e.message, fg='red', err=True)
+        switched = True
+    else:
+        click.echo('Service `{}` added to cluster `{}`'
+                   .format(name, cluster))
+
+    # TODO: Only echo if in shell mode
+    if switched:
+        click.echo('\nSwitched to cluster `%s`.' % cluster)
+        set_context(ctx, cluster)
 
 
 @jumbo.command()
