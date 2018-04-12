@@ -5,6 +5,7 @@ from jumbo.utils.settings import JUMBODIR
 
 svars = {
     'cluster': None,
+    'domain': None,
     'machines': []
 }
 
@@ -27,7 +28,8 @@ def dump_config():
 
         vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
         with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w+') as vf:
-            vf.write(vagrant_temp.render(hosts=svars['machines']))
+            vf.write(vagrant_temp.render(hosts=svars['machines'],
+                                         domain=svars['domain']))
 
         generate_ansible_groups()
         hosts_temp = jinja_env.get_template('hosts.j2')

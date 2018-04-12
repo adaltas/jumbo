@@ -71,8 +71,9 @@ def set_context(ctx, name):
 
 @jumbo.command()
 @click.argument('name')
+@click.option('--domain', '-d', help='Domain name of the cluster')
 @click.pass_context
-def create(ctx, name):
+def create(ctx, name, domain):
     """Create a new cluster.
 
     :param name: New cluster name
@@ -80,11 +81,13 @@ def create(ctx, name):
 
     click.echo('Creating %s...' % name)
     try:
-        clusters.create_cluster(name)
+        clusters.create_cluster(name, domain)
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Cluster `%s` created.' % name)
+        click.echo('Cluster `{}` created (domain name = "{}").'.format(
+            name,
+            domain if domain else '%s.local' % name))
         set_context(ctx, name)
 
 
@@ -137,9 +140,10 @@ def listcl():
     """
 
     try:
-        cluster_table = PrettyTable(['Name', 'Number of VMs'])
+        cluster_table = PrettyTable(['Name', 'Domain Name', 'Number of VMs'])
         for cluster in clusters.list_clusters():
             cluster_table.add_row([cluster['cluster'],
+                                   cluster['domain'],
                                    len(cluster['machines'])])
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
@@ -151,15 +155,17 @@ def listcl():
 
 @jumbo.command()
 @click.argument('name')
-def repair(name):
+@click.option('--domain', '-d', help='Domain name of the cluster')
+def repair(name, domain):
     """Recreate `jumbo_config` if it doesn't exist.
 
     :param name: Cluster name
     """
 
-    if clusters.repair_cluster(name):
+    if clusters.repair_cluster(name, domain):
         click.echo('Recreated `jumbo_config` from scratch '
-                   'for cluster `%s`.' % name)
+                   'for cluster `{}` (domain name = "{}").'
+                   .format(name, domain if domain else '%s.local' % name))
     else:
         click.echo('Nothing to repair in cluster `%s`.' % name)
 

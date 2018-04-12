@@ -30,11 +30,13 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(name):
+def create_cluster(name, domain):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
     :type name: str
+    :param domain: New cluster domain name
+    :type domain: str
     :raises ex.CreationError: If name already used
     :return: True on creation success
     """
@@ -48,6 +50,7 @@ def create_cluster(name):
     copy_tree(empty_dir, JUMBODIR + name)
     ss.clear()
     ss.svars['cluster'] = name
+    ss.svars['domain'] = domain if domain else '%s.local' % name
     ss.dump_config()
     return True
 
@@ -75,17 +78,20 @@ def load_cluster(name):
     return True
 
 
-def repair_cluster(name):
+def repair_cluster(name, domain):
     """Recreate the cluster `jumbo_config` file if it doesn't exist.
 
     :param name: Cluster name
     :type name: str
+    :param domain: Cluster domaine name
+    :type domain: str
     :return: True if the `jumbo_config` has been recreated
     """
 
     if not check_config(name):
         ss.clear()
         ss.svars['cluster'] = name
+        ss.svars['domain'] = domain if domain else '%s.local' % name
         ss.dump_config()
         return True
 

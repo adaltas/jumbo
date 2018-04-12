@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
       d.cpus = {{ host.cpus }}
     end
     node.vm.provider "virtualbox" do |d|
-      d.name =  "{{ host.name }}.local"
+      d.name =  "{{ host.name }}.{{ domain }}"
       d.memory = {{ host.ram }}
       d.cpus = {{ host.cpus }}
       d.customize ["modifyvm", :id, "--ioapic", "on"]
