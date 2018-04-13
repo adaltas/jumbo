@@ -1,0 +1,12 @@
+- debug:
+    msg: The blueprint '{{ blueprint_name }}' already exists.
+
+- name: Enter another name for the blueprint
+  pause:
+    prompt: "Name (!= '{{ blueprint_name }}')"
+  register: bp_tmp
+  until: bp_tmp.user_input != (bp_existence.content|from_json).Blueprints.blueprint_name and bp_tmp.user_input != ""
+  retries: 10
+
+- set_fact:
+    bp_tmp: "{{ bp_tmp.user_input }}"

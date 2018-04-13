@@ -1,0 +1,5 @@
+---
+- hosts: ipaclients
+  become: true
+  roles:
+    - ipaclient

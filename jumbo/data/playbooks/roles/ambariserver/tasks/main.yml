@@ -1,0 +1,40 @@
+---
+- name: Add ambari repo (on server)
+  get_url:
+    url: "{{ ambari_repo_url }}"
+    dest: /etc/yum.repos.d/ambari.repo
+
+- name: Download and install ambari-server
+  yum:
+    name: ambari-server
+
+- name: Load the Ambari Server database schema
+  shell: PGPASSWORD=ambari psql -U ambari -d ambari -f '/var/lib/ambari-server/resources/Ambari-DDL-Postgres-CREATE.sql'
+  become_user: postgres
+  ignore_errors: yes
+
+- name: Download PostgreSQL JDBC driver
+  get_url:
+    url: https://jdbc.postgresql.org/download/postgresql-42.2.1.jar
+    dest: /var/lib/ambari-server
+
+- name: Set jdbc driver
+  command: ambari-server setup \
+    --jdbc-driver=/var/lib/ambari-server/postgresql-42.2.1.jar \
+    --jdbc-db=postgres
+
+- name: Ambari setup
+  command: ambari-server setup \
+    --database=postgres \
+    --databasehost=master03.hdp.local \
+    --databaseport=5432 \
+    --databasename=ambari \
+    --postgresschema=ambarischema \
+    --databaseusername=ambari \
+    --databasepassword=ambari \
+    -s
+
+- name: Start ambari-server
+  service:
+    name: ambari-server
+    state: started
