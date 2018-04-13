@@ -35,6 +35,8 @@ def jumbo(ctx, cluster):
     sh.add_command(addservice)
     sh.add_command(addcomp)
     sh.add_command(listcomp)
+    sh.add_command(rmservice)
+    sh.add_command(rmcomp)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -232,13 +234,21 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 @click.argument('name')
 @click.pass_context
 @click.option('--cluster', '-c', help='Cluster of the VM to be deleted')
-def rmvm(ctx, name, cluster):
+@click.option('--force', '-f', is_flag=True, help='Force deletion')
+def rmvm(ctx, name, cluster, force):
     """Removes a VM.
 
     :param name: VM name
     """
 
     switched = False
+
+    if not force:
+        if not click.confirm(
+                'Are you sure you want to remove the machine `{}` '
+                'of cluster `{}`?'.format(name, cluster)):
+            return
+
     if not cluster:
         cluster = ss.svars['cluster']
 
@@ -313,6 +323,40 @@ def addservice(ctx, name, cluster):
 
 @jumbo.command()
 @click.argument('name')
+@click.option('--cluster', '-c',
+              help='The cluster in which to delete the service')
+@click.option('--force', '-f', is_flag=True, help='Force deletion')
+@click.pass_context
+def rmservice(ctx, name, cluster, force):
+    switched = False
+
+    if not force:
+        if not click.confirm(
+                'Are you sure you want to remove the service `{}` and all its '
+                'componenents of cluster `{}`?'.format(name, cluster)):
+            return
+
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        switched = services.remove_service(name, cluster)
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+    except ex.CreationError as e:
+        click.secho(e.message, fg='red', err=True)
+        switched = True
+    else:
+        click.echo('Service `{}` and its components removed from cluster `{}`.'
+                   .format(name, cluster))
+
+    # TODO: Only echo if in shell mode
+    if switched:
+        set_context(ctx, cluster)
+
+
+@jumbo.command()
+@click.argument('name')
 @click.option('--machine', '-m', required=True)
 @click.option('--cluster', '-c')
 @click.pass_context
@@ -331,6 +375,40 @@ def addcomp(ctx, name, machine, cluster):
         switched = True
     else:
         click.echo('Component `{}` added to machine `{}/{}`'
+                   .format(name, cluster, machine))
+
+    # TODO: Only echo if in shell mode
+    if switched:
+        set_context(ctx, cluster)
+
+
+@jumbo.command()
+@click.argument('name')
+@click.option('--machine', '-m', required=True)
+@click.option('--cluster', '-c')
+@click.option('--force', '-f', is_flag=True, help='Force deletion')
+@click.pass_context
+def rmcomp(ctx, name, machine, cluster, force):
+    switched = False
+
+    if not force:
+        if not click.confirm(
+                'Are you sure you want to remove the component `{}` '
+                'of machine `{}/{}`?'.format(name, cluster, machine)):
+            return
+
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        switched = services.remove_component(name, machine, cluster)
+    except ex.LoadError as e:
+        click.secho(e.message, fg='red', err=True)
+    except ex.CreationError as e:
+        click.secho(e.message, fg='red', err=True)
+        switched = True
+    else:
+        click.echo('Component `{}` removed of machine `{}/{}`'
                    .format(name, cluster, machine))
 
     # TODO: Only echo if in shell mode

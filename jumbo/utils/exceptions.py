@@ -32,7 +32,12 @@ class CreationError(Error):
                           .format(self.object['type'],
                                   self.object['name'],
                                   self.conflict['property'],
-                                  ',\n - '.join(self.conflict['value'])))
+                                  ',\n - '.join(self.conflict['value']))),
+            'NotInstalled': ('The {} `{}` is not installed on the {} `{}`!'
+                             .format(self.conflict['property'],
+                                     self.conflict['value'],
+                                     self.object['type'],
+                                     self.object['name']))
         }
 
         return switcher.get(self.type, self.type)
