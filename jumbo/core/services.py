@@ -62,6 +62,10 @@ def add_component(name, machine, cluster):
     if not service:
         raise ex.LoadError('component', name, 'NotExist')
 
+    if not check_service_cluster(service):
+        raise ex.CreationError(
+            'cluster', cluster, 'service', name, 'NotInstalled')
+
     for i, m in enumerate(ss.svars['machines']):
         if m['name'] == machine:
             m_index = i
@@ -82,7 +86,7 @@ def add_component(name, machine, cluster):
                                'Installed')
 
     ss.svars['machines'][m_index]['components'].append(name)
-    ss.dump_config()
+    ss.dump_config(get_services_components_hosts())
 
     return switched
 
@@ -103,6 +107,10 @@ def add_service(name, cluster):
 
     clusters.load_cluster(cluster)
 
+    if check_service_cluster(name):
+        raise ex.CreationError(
+            'cluster', cluster, 'service', name, 'Installed')
+
     missing_serv, missing_comp = check_service_req_service(name)
     if missing_serv:
         raise ex.CreationError('service', name, 'services', missing_serv,
@@ -115,7 +123,7 @@ def add_service(name, cluster):
                                'ReqNotMet')
 
     ss.svars['services'].append(name)
-    ss.dump_config()
+    ss.dump_config(get_services_components_hosts())
 
     return switched
 
@@ -200,7 +208,7 @@ def remove_service(name, cluster):
                 m['components'].remove(c)
 
     ss.svars['services'].remove(name)
-    ss.dump_config()
+    ss.dump_config(get_services_components_hosts())
 
     return switched
 
@@ -234,7 +242,7 @@ def remove_component(name, machine, cluster):
                                'NotInstalled')
 
     ss.svars['machines'][m_index]['components'].remove(name)
-    ss.dump_config()
+    ss.dump_config(get_services_components_hosts())
 
     return switched
 
@@ -260,3 +268,19 @@ def list_components(machine, cluster):
             m_conf = m
 
     return m_conf['components']
+
+
+def get_services_components_hosts():
+    services_components_hosts = {}
+    print(ss.svars)
+    for s in ss.svars['services']:
+        services_components_hosts[s] = {}
+        components = get_service_components(s)
+        for c in components:
+            services_components_hosts[s][c] = []
+            for m in ss.svars['machines']:
+                if c in m['components']:
+                    services_components_hosts[s][c].append(m['name'])
+            if not len(services_components_hosts[s][c]):
+                services_components_hosts[s].pop(c)
+    return services_components_hosts

@@ -18,7 +18,7 @@ jinja_env = Environment(
 )
 
 
-def dump_config():
+def dump_config(services_components_hosts=None):
     '''Dump the session's cluster config and generates the project.
 
     :return: True on success
@@ -43,6 +43,9 @@ def dump_config():
                   '/playbooks/inventory/group_vars/all', 'w+') as vf:
             yaml.dump(generate_ansible_vars(), vf, default_flow_style=False,
                       explicit_start=True)
+
+        if services_components_hosts:
+            print(generate_blueprint_conf(services_components_hosts))
 
     except IOError:
         return False
@@ -140,3 +143,36 @@ def generate_ansible_vars():
             'pwd': 'admin'
         }
     }
+
+
+def generate_blueprint_conf(serv_comp_hosts):
+    conf = []
+    core_site_prop = {
+        'fs.trash.interval': '360',
+        # 'fs.defaultFS': 'hdfs://nn' + svars['domain'].replace('.', ''),
+        # 'hadoop.proxyuser.hive.hosts': '%HOSTGROUP::master02%,%HOSTGROUP::master03%',
+        # 'hadoop.proxyuser.oozie.hosts': '%HOSTGROUP::master02%',
+        # 'hadoop.proxyuser.hcat.hosts': '%HOSTGROUP::master02%,%HOSTGROUP::master03%',
+        # 'hadoop.proxyuser.yarn.hosts': '%HOSTGROUP::master01%,%HOSTGROUP::master02%'
+    }
+
+    if 'ZOOKEEPER' in serv_comp_hosts:
+        if 'ZOOKEEPER_SERVER' in serv_comp_hosts['ZOOKEEPER']:
+            core_site_prop['ha.zookeeper.quorum'] = generate_zookeeper_quorum(
+                serv_comp_hosts['ZOOKEEPER']['ZOOKEEPER_SERVER'], True)
+
+    conf.append({
+        'core-site': {
+            'properties': core_site_prop
+        }
+    })
+
+    return conf
+
+
+def generate_zookeeper_quorum(zk_hosts, add_port=False):
+    zk_quorum = []
+    for h in zk_hosts:
+        zk_quorum.append('{}.{}{}'.format(h, svars['domain'],
+                                          ':2181' if add_port else ''))
+    return ', '.join(zk_quorum)
