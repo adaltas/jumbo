@@ -3,6 +3,8 @@ import json
 import yaml
 
 from jumbo.utils.settings import JUMBODIR
+from jumbo.utils import exceptions as ex
+from jumbo.core import clusters
 
 svars = {
     'cluster': None,
@@ -19,10 +21,10 @@ jinja_env = Environment(
 
 
 def dump_config():
-    '''Dump the session's cluster config and generates the project.
+    """Dump the session's cluster config and generates the project.
 
     :return: True on success
-    '''
+    """
 
     try:
         generate_ansible_groups()
@@ -48,17 +50,26 @@ def dump_config():
         return False
 
 
-def load_config(name):
-    '''Load a cluster in the session.
+def load_config(cluster):
+    """Load a cluster in the session.
 
-    :param name: Cluster name
-    :type name: str
+    :param cluster: Cluster name
+    :type cluster: str
     :return: True on success
-    '''
-
+    """
     global svars
-    # not using 'with open()' because of a Python bug
-    svars = json.load(open(JUMBODIR + name + '/jumbo_config', 'r'))
+
+    if not clusters.check_cluster(cluster):
+        raise ex.LoadError('cluster', cluster, 'NotExist')
+
+    if not clusters.check_config(cluster):
+        raise ex.LoadError('cluster', cluster, 'NoConfFile')
+    else:
+        try:
+            # not using 'with open()' because of a Python bug
+            svars = json.load(open(JUMBODIR + cluster + '/jumbo_config', 'r'))
+        except IOError as e:
+            raise ex.LoadError('cluster', cluster, e.strerror)
 
     return True
 
@@ -140,3 +151,5 @@ def generate_ansible_vars():
             'pwd': 'admin'
         }
     }
+
+

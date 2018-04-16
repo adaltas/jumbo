@@ -1,11 +1,14 @@
 from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils.settings import JUMBODIR
+from jumbo.utils.checks import valid_cluster
 from jumbo.core import clusters
 
 import json
 
 
-def add_machine(name, ip, ram, disk, types, cluster, cpus=1):
+@valid_cluster
+def add_machine(name, ip, ram, disk, types, cpus=1, *,
+                cluster=ss.svars['cluster']):
     """Add a machine to a cluster.
 
     :param name: Machine name
@@ -30,18 +33,10 @@ def add_machine(name, ip, ram, disk, types, cluster, cpus=1):
 
     switched = False
 
-    if not cluster:
-        raise ex.LoadError('cluster', None, 'NoContext')
-    elif cluster != ss.svars['cluster']:
-        if ss.svars['cluster']:
-            raise ex.LoadError('cluster', ss.svars['cluster'], 'MustExit')
-        else:
-            switched = True
-
-    if check_machine(cluster, name):
+    if check_machine(cluster=cluster, machine=name):
         raise ex.CreationError('machine', name, 'name', name, 'Exists')
 
-    if check_ip(cluster, ip):
+    if check_ip(ip, cluster=cluster):
         raise ex.CreationError('machine', name, 'IP', ip, 'Exists')
 
     m = {
@@ -55,7 +50,7 @@ def add_machine(name, ip, ram, disk, types, cluster, cpus=1):
         'groups': []
     }
 
-    clusters.load_cluster(cluster)
+    ss.load_config(cluster=cluster)
 
     ss.add_machine(m)
     ss.dump_config()
@@ -63,7 +58,8 @@ def add_machine(name, ip, ram, disk, types, cluster, cpus=1):
     return switched
 
 
-def remove_machine(cluster, name):
+@valid_cluster
+def remove_machine(*, cluster, machine):
     """Remove a machine in a cluster.
 
     :param cluster: Cluster namee
@@ -76,29 +72,21 @@ def remove_machine(cluster, name):
     """
 
     switched = False
+    ss.load_config(cluster)
 
-    if not cluster:
-        raise ex.LoadError('cluster', None, 'NoContext')
-    elif cluster != ss.svars['cluster']:
-        if ss.svars['cluster']:
-            raise ex.LoadError('cluster', ss.svars['cluster'], 'MustExit')
-        else:
-            switched = True
-
-    if not check_machine(cluster, name):
-        raise ex.LoadError('machine', name, 'NotExist')
-
-    clusters.load_cluster(cluster)
+    if not check_machine(cluster=cluster, machine=machine):
+        raise ex.LoadError('machine', machine, 'NotExist')
 
     for i, m in enumerate(ss.svars['machines']):
-        if m['name'] == name:
+        if m['name'] == machine:
             del(ss.svars['machines'][i])
     ss.dump_config()
 
     return switched
 
 
-def check_machine(cluster, name):
+@valid_cluster
+def check_machine(*, cluster, machine):
     """
     Check if a machine with a specified name exists in a specific cluster.
 
@@ -110,24 +98,15 @@ def check_machine(cluster, name):
     :return: True if the machine exists
     :rtype: bool
     """
-
-    if cluster != ss.svars['cluster']:
-        if not clusters.check_cluster(cluster):
-            raise ex.LoadError('cluster', cluster, 'NotExist')
-
-        with open(JUMBODIR + cluster + '/jumbo_config', 'r') as clf:
-            cluster_conf = json.load(clf)
-    else:
-        cluster_conf = ss.svars
-
-    for m in cluster_conf['machines']:
-        if m['name'] == name:
+    for m in ss.svars['machines']:
+        if m['name'] == machine:
             return True
 
     return False
 
 
-def check_ip(cluster, ip):
+@valid_cluster
+def check_ip(ip, *, cluster):
     """
     Check if a machine with a specified ip is used in a specific cluster.
 
@@ -140,16 +119,7 @@ def check_ip(cluster, ip):
     :rtype: bool
     """
 
-    if cluster != ss.svars['cluster']:
-        if not clusters.check_cluster(cluster):
-            raise ex.LoadError('cluster', cluster, 'NotExist')
-
-        with open(JUMBODIR + cluster + '/jumbo_config', 'r') as clf:
-            cluster_conf = json.load(clf)
-    else:
-        cluster_conf = ss.svars
-
-    for m in cluster_conf['machines']:
+    for m in ss.svars['machines']:
         if m['ip'] == ip:
             return m['name']
 

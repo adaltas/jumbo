@@ -4,6 +4,7 @@ import json
 from jumbo.core import machines as vm, clusters
 from jumbo.utils import exceptions as ex, session as ss
 from jumbo.utils.settings import JUMBODIR
+from jumbo.utils.checks import valid_cluster
 
 
 def load_services_conf():
@@ -41,22 +42,14 @@ def check_component_machine(name, machine):
     return name in machine['components']
 
 
-def add_component(name, machine, cluster):
-
+@valid_cluster
+def add_component(name, *, machine, cluster):
     switched = False
 
-    if not cluster:
-        raise ex.LoadError('cluster', None, 'NoContext')
-    elif cluster != ss.svars['cluster']:
-        if ss.svars['cluster']:
-            raise ex.LoadError('cluster', ss.svars['cluster'], 'MustExit')
-        else:
-            switched = True
-
-    if not vm.check_machine(cluster, machine):
+    if not vm.check_machine(cluster=cluster, machine=machine):
         raise ex.LoadError('machine', machine, 'NotExist')
 
-    clusters.load_cluster(cluster)
+    ss.load_config(cluster)
 
     service = check_component(name)
     if not service:
@@ -87,21 +80,14 @@ def add_component(name, machine, cluster):
     return switched
 
 
-def add_service(name, cluster):
+@valid_cluster
+def add_service(name, *, cluster):
     switched = False
-
-    if not cluster:
-        raise ex.LoadError('cluster', None, 'NoContext')
-    elif cluster != ss.svars['cluster']:
-        if ss.svars['cluster']:
-            raise ex.LoadError('cluster', ss.svars['cluster'], 'MustExit')
-        else:
-            switched = True
 
     if not check_service(name):
         raise ex.LoadError('service', name, 'NotExist')
 
-    clusters.load_cluster(cluster)
+    ss.load_config(cluster)
 
     missing_serv, missing_comp = check_service_req_service(name)
     if missing_serv:
@@ -173,78 +159,62 @@ def get_service_components(name):
     return components
 
 
-def remove_service(name, cluster):
+@valid_cluster
+def remove_service(service, *, cluster):
     switched = False
 
-    if not cluster:
-        raise ex.LoadError('cluster', None, 'NoContext')
-    elif cluster != ss.svars['cluster']:
-        if ss.svars['cluster']:
-            raise ex.LoadError('cluster', ss.svars['cluster'], 'MustExit')
-        else:
-            switched = True
+    if not check_service(service):
+        raise ex.LoadError('service', service, 'NotExist')
 
-    if not check_service(name):
-        raise ex.LoadError('service', name, 'NotExist')
+    ss.load_config(cluster)
 
-    clusters.load_cluster(cluster)
-
-    if not check_service_cluster(name):
+    if not check_service_cluster(service):
         raise ex.CreationError(
-            'cluster', cluster, 'service', name, 'NotInstalled')
+            'cluster', cluster, 'service', service, 'NotInstalled')
 
-    serv_comp = get_service_components(name)
+    serv_comp = get_service_components(service)
     for m in ss.svars['machines']:
         for c in m['components']:
             if c in serv_comp:
                 m['components'].remove(c)
 
-    ss.svars['services'].remove(name)
+    ss.svars['services'].remove(service)
     ss.dump_config()
 
     return switched
 
 
-def remove_component(name, machine, cluster):
+@valid_cluster
+def remove_component(component, *, machine, cluster):
     switched = False
 
-    if not cluster:
-        raise ex.LoadError('cluster', None, 'NoContext')
-    elif cluster != ss.svars['cluster']:
-        if ss.svars['cluster']:
-            raise ex.LoadError('cluster', ss.svars['cluster'], 'MustExit')
-        else:
-            switched = True
-
-    if not vm.check_machine(cluster, machine):
+    if not vm.check_machine(cluster=cluster, machine=machine):
         raise ex.LoadError('machine', machine, 'NotExist')
 
-    clusters.load_cluster(cluster)
+    ss.load_config(cluster)
 
-    service = check_component(name)
+    service = check_component(component)
     if not service:
-        raise ex.LoadError('component', name, 'NotExist')
+        raise ex.LoadError('component', component, 'NotExist')
 
     for i, m in enumerate(ss.svars['machines']):
         if m['name'] == machine:
             m_index = i
 
-    if not check_component_machine(name, ss.svars['machines'][m_index]):
-        raise ex.CreationError('machine', machine, 'component', name,
+    if not check_component_machine(component, ss.svars['machines'][m_index]):
+        raise ex.CreationError('machine', machine, 'component', component,
                                'NotInstalled')
 
-    ss.svars['machines'][m_index]['components'].remove(name)
+    ss.svars['machines'][m_index]['components'].remove(component)
     ss.dump_config()
 
     return switched
 
 
-def list_components(machine, cluster):
-    if not cluster:
-        raise ex.LoadError('cluster', None, 'NoContext')
-
-    if not vm.check_machine(cluster, machine):
-        raise ex.LoadError('cluster', cluster, 'NotExist')
+@valid_cluster
+def list_components(*, machine, cluster):
+    if not vm.check_machine(cluster=cluster, machine=machine):
+        raise ex.LoadError('machine', machine, 'NotExist')
 
     if cluster != ss.svars['cluster']:
         try:

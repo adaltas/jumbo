@@ -8,6 +8,7 @@ from shutil import rmtree
 
 from jumbo.utils.settings import JUMBODIR
 from jumbo.utils import session as ss, exceptions as ex
+from jumbo.utils.checks import valid_cluster
 
 
 def check_cluster(name):
@@ -30,7 +31,7 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(name, domain):
+def create_cluster(cluster, domain):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -41,43 +42,21 @@ def create_cluster(name, domain):
     :return: True on creation success
     """
 
-    if check_cluster(name):
-        raise ex.CreationError('cluster', name, 'name', name, 'Exists')
+    if check_cluster(cluster):
+        raise ex.CreationError('cluster', cluster, 'name', cluster, 'Exists')
 
-    pathlib.Path(JUMBODIR + name).mkdir(parents=True)
+    pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
     data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../data/'
-    copy_tree(data_dir, JUMBODIR + name)
+    copy_tree(data_dir, JUMBODIR + cluster)
     ss.clear()
-    ss.svars['cluster'] = name
-    ss.svars['domain'] = domain if domain else '%s.local' % name
+    ss.svars['cluster'] = cluster
+    ss.svars['domain'] = domain if domain else '%s.local' % cluster
     ss.dump_config()
     return True
 
 
-def load_cluster(name):
-    """Load a cluster in the session.
-
-    :param name: Cluster name
-    :type name: str
-    :raises ex.LoadError: If creation failed
-    :return: True on loading success
-    """
-
-    if not check_cluster(name):
-        raise ex.LoadError('cluster', name, 'NotExist')
-
-    if not check_config(name):
-        raise ex.LoadError('cluster', name, 'NoConfFile')
-    else:
-        try:
-            ss.load_config(name)
-        except IOError as e:
-            raise ex.LoadError('cluster', name, e.strerror)
-
-    return True
-
-
-def repair_cluster(name, domain):
+@valid_cluster
+def repair_cluster(domain, *, cluster):
     """Recreate the cluster `jumbo_config` file if it doesn't exist.
 
     :param name: Cluster name
@@ -87,17 +66,18 @@ def repair_cluster(name, domain):
     :return: True if the `jumbo_config` has been recreated
     """
 
-    if not check_config(name):
+    if not check_config(cluster):
         ss.clear()
-        ss.svars['cluster'] = name
-        ss.svars['domain'] = domain if domain else '%s.local' % name
+        ss.svars['cluster'] = cluster
+        ss.svars['domain'] = domain if domain else '%s.local' % cluster
         ss.dump_config()
         return True
 
     return False
 
 
-def delete_cluster(name):
+@valid_cluster
+def delete_cluster(*, cluster):
     """Delete a cluster.
 
     :param name: Cluster name
@@ -106,12 +86,10 @@ def delete_cluster(name):
     :return: True if the deletion was successfull
     """
 
-    if not check_cluster(name):
-        raise ex.LoadError('cluster', name, 'NotExist')
     try:
-        rmtree(JUMBODIR + name)
+        rmtree(JUMBODIR + cluster)
     except IOError as e:
-        raise ex.LoadError('cluster', name, e.strerror)
+        raise ex.LoadError('cluster', cluster, e.strerror)
 
     ss.clear()
     return True
@@ -138,29 +116,14 @@ def list_clusters():
     return clusters
 
 
-def list_machines(cluster):
+@valid_cluster
+def list_machines(*, cluster):
     """List the machines of a cluster.
 
     :param cluster: Cluster name
     :type cluster: str
-    :raises ex.LoadError: If the cluster doesn't exist or is not given
     :return: The list of the cluster's machines
     :rtype: dict
     """
-
-    if not cluster:
-        raise ex.LoadError('cluster', None, 'NoContext')
-
-    if not check_cluster(cluster):
-        raise ex.LoadError('cluster', cluster, 'NotExist')
-
-    if cluster != ss.svars['cluster']:
-        try:
-            with open(JUMBODIR + cluster + '/jumbo_config', 'r') as clf:
-                cluster_conf = json.load(clf)
-        except IOError as e:
-            raise ex.LoadError('cluster', cluster, e.strerror)
-    else:
-        cluster_conf = ss.svars
-
-    return cluster_conf['machines']
+    ss.load_config(cluster)
+    return ss.svars['machines']

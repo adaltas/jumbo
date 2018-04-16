@@ -12,10 +12,10 @@ from jumbo.cli import printlogo
 @click.option('--cluster', '-c')
 @click.pass_context
 def jumbo(ctx, cluster):
-    '''
+    """
     Execute a Jumbo command.
     If no command is passed, start the Jumbo shell interactive mode.
-    '''
+    """
 
     # Create the shell
     sh = Shell(prompt=click.style('\njumbo > ',
@@ -56,10 +56,10 @@ def jumbo(ctx, cluster):
 @jumbo.command()
 @click.pass_context
 def exit(ctx):
-    '''Reset current context.
+    """Reset current context.
 
     :param ctx: Click context
-    '''
+    """
 
     if ss.svars.get('cluster'):
         ss.svars['cluster'] = None
@@ -87,7 +87,7 @@ def create(ctx, name, domain):
 
     click.echo('Creating %s...' % name)
     try:
-        clusters.create_cluster(name, domain)
+        clusters.create_cluster(cluster=name, domain=domain)
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
@@ -109,7 +109,7 @@ def manage(ctx, name):
     click.echo('Loading %s...' % name)
 
     try:
-        clusters.load_cluster(name)
+        ss.load_config(cluster=name)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
@@ -123,17 +123,17 @@ def manage(ctx, name):
 @click.argument('name')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 def delete(name, force):
-    '''Delete a cluster.
+    """Delete a cluster.
 
     :param name: Name of the cluster to delete
-    '''
+    """
 
     if not force:
         if not click.confirm(
                 'Are you sure you want to delete the cluster %s' % name):
             return
     try:
-        clusters.delete_cluster(name)
+        clusters.delete_cluster(cluster=name)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     else:
@@ -142,9 +142,7 @@ def delete(name, force):
 
 @jumbo.command()
 def listcl():
-    '''List clusters managed by Jumbo.
-    '''
-
+    """List clusters managed by Jumbo."""
     try:
         cluster_table = PrettyTable(['Name', 'Domain Name', 'VMs',
                                      'Services'])
@@ -165,12 +163,12 @@ def listcl():
 @click.argument('name')
 @click.option('--domain', '-d', help='Domain name of the cluster')
 def repair(name, domain):
-    '''Recreate `jumbo_config` if it doesn't exist.
+    """Recreate `jumbo_config` if it doesn't exist.
 
     :param name: Cluster name
-    '''
+    """
 
-    if clusters.repair_cluster(name, domain):
+    if clusters.repair_cluster(cluster=name, domain=domain):
         click.echo('Recreated `jumbo_config` from scratch '
                    'for cluster `{}` (domain name = "{}").'
                    .format(name, domain if domain else '%s.local' % name))
@@ -180,7 +178,7 @@ def repair(name, domain):
 # VM commands
 
 
-def validate_ip(ctx, param, value):
+def validate_ip_cb(ctx, param, value):
     try:
         ipadd.ip_address(value)
     except ValueError:
@@ -194,7 +192,7 @@ def validate_ip(ctx, param, value):
 @click.option('--types', '-t', multiple=True, type=click.Choice([
     'master', 'sidemaster', 'edge', 'worker', 'ldap', 'other']),
     required=True, help='VM host type(s)')
-@click.option('--ip', '-i',  callback=validate_ip, prompt='IP',
+@click.option('--ip', '-i',  callback=validate_ip_cb, prompt='IP',
               help='VM IP address')
 @click.option('--ram', '-r', type=int, prompt='RAM (MB)',
               help='RAM allocated to the VM in MB')
@@ -206,12 +204,12 @@ def validate_ip(ctx, param, value):
               help='Cluster in which the VM will be created')
 @click.pass_context
 def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
-    '''
+    """
     Create a new VM in the cluster being managed.
     Another cluster can be specified with "--cluster".
 
     :param name: New VM name
-    '''
+    """
 
     switched = False
 
@@ -219,7 +217,8 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        switched = vm.add_machine(name, ip, ram, disk, types, cluster, cpus)
+        switched = vm.add_machine(name, ip, ram, disk, types, cpus,
+                                  cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
@@ -227,7 +226,6 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
     else:
         click.echo('Machine `{}` added to cluster `{}`.'.format(name, cluster))
 
-        # TODO: Only echo if in shell mode
         if switched:
             set_context(ctx, cluster)
 
@@ -238,10 +236,10 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 @click.option('--cluster', '-c', help='Cluster of the VM to be deleted')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 def rmvm(ctx, name, cluster, force):
-    '''Removes a VM.
+    """Removes a VM.
 
     :param name: VM name
-    '''
+    """
 
     switched = False
 
@@ -255,7 +253,7 @@ def rmvm(ctx, name, cluster, force):
         cluster = ss.svars['cluster']
 
     try:
-        switched = vm.remove_machine(cluster, name)
+        switched = vm.remove_machine(cluster=cluster, machine=name)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
@@ -272,10 +270,10 @@ def rmvm(ctx, name, cluster, force):
 @jumbo.command()
 @click.option('--cluster', '-c', help='Cluster in which to list the VMs')
 def listvm(cluster):
-    '''
+    """
     List VMs in the cluster being managed.
     Another cluster can be specified with "--cluster".
-    '''
+    """
 
     if not cluster:
         cluster = ss.svars['cluster']
@@ -284,7 +282,7 @@ def listvm(cluster):
         vm_table = PrettyTable(
             ['Name', 'Types', 'IP', 'RAM (MB)', 'Disk (MB)', 'CPUs'])
 
-        for m in clusters.list_machines(cluster):
+        for m in clusters.list_machines(cluster=cluster):
             vm_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
                               m['ram'], m['disk'], m['cpus']])
     except ex.LoadError as e:
@@ -308,7 +306,7 @@ def addservice(ctx, name, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        switched = services.add_service(name, cluster)
+        switched = services.add_service(name, cluster=cluster)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     except ex.CreationError as e:
@@ -324,25 +322,25 @@ def addservice(ctx, name, cluster):
 
 
 @jumbo.command()
-@click.argument('name')
+@click.argument('service')
 @click.option('--cluster', '-c',
               help='The cluster in which to delete the service')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 @click.pass_context
-def rmservice(ctx, name, cluster, force):
+def rmservice(ctx, service, cluster, force):
     switched = False
 
     if not force:
         if not click.confirm(
                 'Are you sure you want to remove the service `{}` and all its '
-                'componenents of cluster `{}`?'.format(name, cluster)):
+                'componenents of cluster `{}`?'.format(service, cluster)):
             return
 
     if not cluster:
         cluster = ss.svars['cluster']
 
     try:
-        switched = services.remove_service(name, cluster)
+        switched = services.remove_service(service, cluster=cluster)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     except ex.CreationError as e:
@@ -350,7 +348,7 @@ def rmservice(ctx, name, cluster, force):
         switched = True
     else:
         click.echo('Service `{}` and its components removed from cluster `{}`.'
-                   .format(name, cluster))
+                   .format(service, cluster))
 
     # TODO: Only echo if in shell mode
     if switched:
@@ -369,7 +367,9 @@ def addcomp(ctx, name, machine, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        switched = services.add_component(name, machine, cluster)
+        switched = services.add_component(name=name,
+                                          machine=machine,
+                                          cluster=cluster)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     except ex.CreationError as e:
@@ -403,7 +403,9 @@ def rmcomp(ctx, name, machine, cluster, force):
         cluster = ss.svars['cluster']
 
     try:
-        switched = services.remove_component(name, machine, cluster)
+        switched = services.remove_component(name,
+                                             machine=machine,
+                                             cluster=cluster)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     except ex.CreationError as e:
@@ -429,7 +431,7 @@ def listcomp(machine, cluster):
         comp_table = PrettyTable(
             ['Component', 'Service'])
 
-        for c in services.list_components(machine, cluster):
+        for c in services.list_components(machine=machine, cluster=cluster):
             comp_table.add_row([c, services.check_component(c)])
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
