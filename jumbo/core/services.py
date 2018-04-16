@@ -44,20 +44,18 @@ def check_component_machine(name, machine):
 
 @valid_cluster
 def add_component(name, *, machine, cluster):
-    switched = False
-
-    if not vm.check_machine(cluster=cluster, machine=machine):
-        raise ex.LoadError('machine', machine, 'NotExist')
-
     ss.load_config(cluster)
-
-    service = check_component(name)
-    if not service:
-        raise ex.LoadError('component', name, 'NotExist')
 
     for i, m in enumerate(ss.svars['machines']):
         if m['name'] == machine:
             m_index = i
+            break
+    else:
+        raise ex.LoadError('machine', machine, 'NotExist')
+
+    service = check_component(name)
+    if not service:
+        raise ex.LoadError('component', name, 'NotExist')
 
     missing_serv, missing_comp = check_service_req_service(service)
     if missing_serv:
@@ -77,17 +75,13 @@ def add_component(name, *, machine, cluster):
     ss.svars['machines'][m_index]['components'].append(name)
     ss.dump_config()
 
-    return switched
-
 
 @valid_cluster
 def add_service(name, *, cluster):
-    switched = False
+    ss.load_config(cluster)
 
     if not check_service(name):
         raise ex.LoadError('service', name, 'NotExist')
-
-    ss.load_config(cluster)
 
     missing_serv, missing_comp = check_service_req_service(name)
     if missing_serv:
@@ -102,8 +96,6 @@ def add_service(name, *, cluster):
 
     ss.svars['services'].append(name)
     ss.dump_config()
-
-    return switched
 
 
 def check_service_req_service(name, ha=False):
@@ -161,12 +153,10 @@ def get_service_components(name):
 
 @valid_cluster
 def remove_service(service, *, cluster):
-    switched = False
+    ss.load_config(cluster)
 
     if not check_service(service):
         raise ex.LoadError('service', service, 'NotExist')
-
-    ss.load_config(cluster)
 
     if not check_service_cluster(service):
         raise ex.CreationError(
@@ -181,17 +171,13 @@ def remove_service(service, *, cluster):
     ss.svars['services'].remove(service)
     ss.dump_config()
 
-    return switched
-
 
 @valid_cluster
 def remove_component(component, *, machine, cluster):
-    switched = False
+    ss.load_config(cluster)
 
     if not vm.check_machine(cluster=cluster, machine=machine):
         raise ex.LoadError('machine', machine, 'NotExist')
-
-    ss.load_config(cluster)
 
     service = check_component(component)
     if not service:
@@ -207,8 +193,6 @@ def remove_component(component, *, machine, cluster):
 
     ss.svars['machines'][m_index]['components'].remove(component)
     ss.dump_config()
-
-    return switched
 
 
 @valid_cluster
