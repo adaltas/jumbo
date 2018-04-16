@@ -7,8 +7,8 @@ from jumbo.utils.settings import JUMBODIR
 
 
 def load_services_conf():
-    with open(os.path.dirname(os.path.abspath(__package__)) +
-              '/jumbo/config/services.json') as cfg:
+    with open(os.path.dirname(os.path.abspath(__file__)) +
+              '/../config/services.json') as cfg:
         return json.load(cfg)
 
 

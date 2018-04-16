@@ -45,8 +45,7 @@ def create_cluster(name, domain):
         raise ex.CreationError('cluster', name, 'name', name, 'Exists')
 
     pathlib.Path(JUMBODIR + name).mkdir(parents=True)
-    data_dir = os.path.dirname(os.path.abspath(__package__)) + \
-        '/jumbo/data/'
+    data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../data/'
     copy_tree(data_dir, JUMBODIR + name)
     ss.clear()
     ss.svars['cluster'] = name

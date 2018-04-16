@@ -5,21 +5,23 @@ from prettytable import PrettyTable
 
 from jumbo.core import clusters, machines as vm, services
 from jumbo.utils import session as ss, exceptions as ex
+from jumbo.cli import printlogo
 
 
 @click.group(invoke_without_command=True)
 @click.option('--cluster', '-c')
 @click.pass_context
 def jumbo(ctx, cluster):
-    """
+    '''
     Execute a Jumbo command.
     If no command is passed, start the Jumbo shell interactive mode.
-    """
+    '''
 
     # Create the shell
-    sh = Shell(prompt=click.style('jumbo > ', fg='green'),
-               intro=click.style('Jumbo shell v0.1',
-                                 fg='cyan'))
+    sh = Shell(prompt=click.style('\njumbo > ',
+                                  fg='green'),
+               intro=printlogo.jumbo_ascii() + click.style('\nJumbo v0.1',
+                                                           fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
     ctx.meta['jumbo_shell'] = sh.shell
     # Register commands that can be used in the shell
@@ -54,10 +56,10 @@ def jumbo(ctx, cluster):
 @jumbo.command()
 @click.pass_context
 def exit(ctx):
-    """Reset current context.
+    '''Reset current context.
 
     :param ctx: Click context
-    """
+    '''
 
     if ss.svars.get('cluster'):
         ss.svars['cluster'] = None
@@ -78,10 +80,10 @@ def set_context(ctx, name):
 @click.option('--domain', '-d', help='Domain name of the cluster')
 @click.pass_context
 def create(ctx, name, domain):
-    """Create a new cluster.
+    '''Create a new cluster.
 
     :param name: New cluster name
-    """
+    '''
 
     click.echo('Creating %s...' % name)
     try:
@@ -99,10 +101,10 @@ def create(ctx, name, domain):
 @click.argument('name')
 @click.pass_context
 def manage(ctx, name):
-    """Set a cluster to manage. Persist --cluster option.
+    '''Set a cluster to manage. Persist --cluster option.
 
     :param name: Cluster name
-    """
+    '''
 
     click.echo('Loading %s...' % name)
 
@@ -121,10 +123,10 @@ def manage(ctx, name):
 @click.argument('name')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 def delete(name, force):
-    """Delete a cluster.
+    '''Delete a cluster.
 
     :param name: Name of the cluster to delete
-    """
+    '''
 
     if not force:
         if not click.confirm(
@@ -140,8 +142,8 @@ def delete(name, force):
 
 @jumbo.command()
 def listcl():
-    """List clusters managed by Jumbo.
-    """
+    '''List clusters managed by Jumbo.
+    '''
 
     try:
         cluster_table = PrettyTable(['Name', 'Domain Name', 'VMs',
@@ -163,10 +165,10 @@ def listcl():
 @click.argument('name')
 @click.option('--domain', '-d', help='Domain name of the cluster')
 def repair(name, domain):
-    """Recreate `jumbo_config` if it doesn't exist.
+    '''Recreate `jumbo_config` if it doesn't exist.
 
     :param name: Cluster name
-    """
+    '''
 
     if clusters.repair_cluster(name, domain):
         click.echo('Recreated `jumbo_config` from scratch '
@@ -204,12 +206,12 @@ def validate_ip(ctx, param, value):
               help='Cluster in which the VM will be created')
 @click.pass_context
 def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
-    """
+    '''
     Create a new VM in the cluster being managed.
     Another cluster can be specified with "--cluster".
 
     :param name: New VM name
-    """
+    '''
 
     switched = False
 
@@ -218,7 +220,7 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 
     try:
         switched = vm.add_machine(name, ip, ram, disk, types, cluster, cpus)
-    except ex.LoadError as e:
+    except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
             click.secho('Use "repair" to regenerate `jumbo_config`.')
@@ -236,10 +238,10 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 @click.option('--cluster', '-c', help='Cluster of the VM to be deleted')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 def rmvm(ctx, name, cluster, force):
-    """Removes a VM.
+    '''Removes a VM.
 
     :param name: VM name
-    """
+    '''
 
     switched = False
 
@@ -270,10 +272,10 @@ def rmvm(ctx, name, cluster, force):
 @jumbo.command()
 @click.option('--cluster', '-c', help='Cluster in which to list the VMs')
 def listvm(cluster):
-    """
+    '''
     List VMs in the cluster being managed.
     Another cluster can be specified with "--cluster".
-    """
+    '''
 
     if not cluster:
         cluster = ss.svars['cluster']
