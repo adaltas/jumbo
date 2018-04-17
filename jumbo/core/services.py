@@ -19,7 +19,7 @@ config = load_services_conf()
 def check_service(name):
     for s in config['services']:
         if s['name'] == name:
-            return True
+            return s
     return False
 
 
@@ -212,5 +212,64 @@ def list_components(*, machine, cluster):
     for m in cluster_conf['machines']:
         if m['name'] == machine:
             m_conf = m
+            break
 
     return m_conf['components']
+
+
+@valid_cluster
+def auto_assign(service, *, cluster):
+    ss.load_config(cluster)
+
+    scfg = check_service(service)
+    if not scfg:
+        raise ex.LoadError('service', service, 'NotExist')
+
+    # dist is 'default' or 'ha'
+    dist = 'default'
+    # Check loop for atomicity
+    for component in scfg['components']:
+        left = auto_assign_service_comp(component, dist, cluster, check=True)
+        if left == -1:
+            raise ex.CreationError('component', component['name'],
+                                   'hosts type (need at least 1 of them)',
+                                   component['hosts_types'],
+                                   'ReqNotMet')
+        elif left > 0:
+            raise ex.CreationError('component', component['name'],
+                                   'hosts type (need ' + str(left) +
+                                   ' of them)',
+                                   component['hosts_types'],
+                                   'ReqNotMet')
+
+    for component in scfg['components']:
+        auto_assign_service_comp(component, dist, cluster, check=False)
+
+
+def auto_assign_service_comp(component, dist, cluster, check):
+    """
+
+    :param component: component dict from services.json
+    :type component dict
+    :param dist:
+    :param cluster
+    """
+    count = component['number'][dist]  # -1 = everywhere
+    if count == 0:
+        return 0
+    for host_type in component['hosts_types']:
+        for m in ss.svars['machines']:
+            if host_type in m['types']:
+                try:
+                    if not check:
+                        add_component(component['name'],
+                                      machine=m['name'],
+                                      cluster=cluster)
+                # Ignore error when adding already existing component
+                except ex.CreationError as e:
+                    pass
+                count -= 1
+                if count == 0:
+                    return 0
+
+    return count

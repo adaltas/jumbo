@@ -300,8 +300,9 @@ def listvm(cluster):
 @click.argument('name')
 @click.option('--cluster', '-c',
               help='The cluster in which to add the service')
+@click.option('--auto', is_flag=True, help='Assign components automatically')
 @click.pass_context
-def addservice(ctx, name, cluster):
+def addservice(ctx, name, cluster, auto):
     """
     Add service to a cluster.
     """
@@ -311,6 +312,8 @@ def addservice(ctx, name, cluster):
 
     try:
         services.add_service(name, cluster=cluster)
+        if auto:
+            services.auto_assign(name, cluster=cluster)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         switched = False
@@ -322,6 +325,7 @@ def addservice(ctx, name, cluster):
     finally:
         if switched:
             set_context(ctx, cluster)
+
 
 
 @jumbo.command()
@@ -343,7 +347,6 @@ def rmservice(ctx, service, cluster, force):
                 'Are you sure you want to remove the service `{}` and all its '
                 'components of cluster `{}`?'.format(service, cluster)):
             return
-
 
     try:
         switched = services.remove_service(service, cluster=cluster)

@@ -37,7 +37,7 @@ class CreationError(Error):
                              .format(self.conflict['property'],
                                      self.conflict['value'],
                                      self.object['type'],
-                                     self.object['name']))
+                                     self.object['name'])),
         }
 
         return switcher.get(self.type, self.type)
@@ -67,3 +67,5 @@ class LoadError(Error):
                            .format(self.object['name']))
         }
         return switcher.get(self.type, self.type)
+
+
