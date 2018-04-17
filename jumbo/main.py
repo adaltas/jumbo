@@ -461,8 +461,3 @@ def listcomp(machine, cluster, all):
             click.secho(e.message, fg='red', err=True)
         else:
             click.echo(comp_table)
-
-
-@jumbo.command()
-def logo():
-    click.echo(printlogo.jumbo_ascii())
