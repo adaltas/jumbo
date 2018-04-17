@@ -429,22 +429,35 @@ def rmcomp(ctx, name, machine, cluster, force):
 
 
 @jumbo.command()
-@click.argument('machine')
+@click.argument('machine', required=False)
 @click.option('--cluster', '-c')
-def listcomp(machine, cluster):
+@click.option('--all', is_flag=True)
+def listcomp(machine, cluster, all):
     """
     List compononents on the given machine.
     """
     if not cluster:
         cluster = ss.svars['cluster']
-
-    try:
-        comp_table = PrettyTable(
-            ['Component', 'Service'])
-
-        for c in services.list_components(machine=machine, cluster=cluster):
-            comp_table.add_row([c, services.check_component(c)])
-    except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
     else:
-        click.echo(comp_table)
+        ss.load_config(cluster)
+
+    if all:
+        for m in ss.svars['machines']:
+            comp_table = PrettyTable(['Component', 'Service'])
+            click.echo(m['name'] + ':')
+            try:
+                for c in services.list_components(machine=machine, cluster=cluster):
+                    comp_table.add_row([c, services.check_component(c)])
+            except ex.LoadError as e:
+                click.secho(e.message, fg='red', err=True)
+            else:
+                click.echo(comp_table)
+    else:
+        try:
+            comp_table = PrettyTable(['Component', 'Service'])
+            for c in services.list_components(machine=machine, cluster=cluster):
+                comp_table.add_row([c, services.check_component(c)])
+        except ex.LoadError as e:
+            click.secho(e.message, fg='red', err=True)
+        else:
+            click.echo(comp_table)

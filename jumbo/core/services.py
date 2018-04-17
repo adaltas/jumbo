@@ -83,6 +83,11 @@ def add_service(name, *, cluster):
     if not check_service(name):
         raise ex.LoadError('service', name, 'NotExist')
 
+    if name in ss.svars['services']:
+        raise ex.CreationError('cluster', cluster,
+                               'service', name,
+                               'Installed')
+
     missing_serv, missing_comp = check_service_req_service(name)
     if missing_serv:
         raise ex.CreationError('service', name, 'services', missing_serv,
@@ -248,7 +253,6 @@ def auto_assign(service, *, cluster):
 
 def auto_assign_service_comp(component, dist, cluster, check):
     """
-
     :param component: component dict from services.json
     :type component dict
     :param dist:
