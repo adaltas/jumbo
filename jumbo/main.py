@@ -302,6 +302,9 @@ def listvm(cluster):
               help='The cluster in which to add the service')
 @click.pass_context
 def addservice(ctx, name, cluster):
+    """
+    Add service to a cluster.
+    """
     switched = True if cluster else False
     if not cluster:
         cluster = ss.svars['cluster']
@@ -328,6 +331,9 @@ def addservice(ctx, name, cluster):
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 @click.pass_context
 def rmservice(ctx, service, cluster, force):
+    """
+    Removes service from cluster.
+    """
     switched = True if cluster else False
     if not cluster:
         cluster = ss.svars['cluster']
@@ -360,6 +366,9 @@ def rmservice(ctx, service, cluster, force):
 @click.option('--cluster', '-c')
 @click.pass_context
 def addcomp(ctx, name, machine, cluster):
+    """
+    Add component to a machine.
+    """
     switched = True if cluster else False
     if not cluster:
         cluster = ss.svars['cluster']
@@ -386,6 +395,9 @@ def addcomp(ctx, name, machine, cluster):
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 @click.pass_context
 def rmcomp(ctx, name, machine, cluster, force):
+    """
+    Remove component from specified machine.
+    """
     switched = True if cluster else False
     if not cluster:
         cluster = ss.svars['cluster']
@@ -417,6 +429,9 @@ def rmcomp(ctx, name, machine, cluster, force):
 @click.argument('machine')
 @click.option('--cluster', '-c')
 def listcomp(machine, cluster):
+    """
+    List compononents on the given machine.
+    """
     if not cluster:
         cluster = ss.svars['cluster']
 

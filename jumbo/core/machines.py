@@ -30,9 +30,6 @@ def add_machine(name, ip, ram, disk, types, cpus=1, *,
     :return: True if the session context has changed
     :rtype: bool
     """
-
-    switched = False
-
     if check_machine(cluster=cluster, machine=name):
         raise ex.CreationError('machine', name, 'name', name, 'Exists')
 
@@ -51,11 +48,8 @@ def add_machine(name, ip, ram, disk, types, cpus=1, *,
     }
 
     ss.load_config(cluster=cluster)
-
     ss.add_machine(m)
     ss.dump_config()
-
-    return switched
 
 
 @valid_cluster
@@ -70,8 +64,6 @@ def remove_machine(*, cluster, machine):
     :return: True if the session context has changed
     :rtype: bool
     """
-
-    switched = False
     ss.load_config(cluster)
 
     if not check_machine(cluster=cluster, machine=machine):
@@ -80,9 +72,8 @@ def remove_machine(*, cluster, machine):
     for i, m in enumerate(ss.svars['machines']):
         if m['name'] == machine:
             del(ss.svars['machines'][i])
-    ss.dump_config()
 
-    return switched
+    ss.dump_config()
 
 
 @valid_cluster
@@ -118,7 +109,6 @@ def check_ip(ip, *, cluster):
     :return: True if the ip is used
     :rtype: bool
     """
-
     for m in ss.svars['machines']:
         if m['ip'] == ip:
             return m['name']

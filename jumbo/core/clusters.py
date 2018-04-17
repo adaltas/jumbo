@@ -17,7 +17,6 @@ def check_cluster(name):
     :param name: Cluster name
     :type name: str
     """
-
     return os.path.isdir(JUMBODIR + name)
 
 
@@ -27,7 +26,6 @@ def check_config(name):
     :param name: Cluster name
     :type name: str
     """
-
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
@@ -41,7 +39,6 @@ def create_cluster(cluster, domain):
     :raises ex.CreationError: If name already used
     :return: True on creation success
     """
-
     if check_cluster(cluster):
         raise ex.CreationError('cluster', cluster, 'name', cluster, 'Exists')
 
@@ -65,7 +62,6 @@ def repair_cluster(domain, *, cluster):
     :type domain: str
     :return: True if the `jumbo_config` has been recreated
     """
-
     if not check_config(cluster):
         ss.clear()
         ss.svars['cluster'] = cluster
@@ -85,7 +81,6 @@ def delete_cluster(*, cluster):
     :raises ex.LoadError: If the cluster doesn't exist
     :return: True if the deletion was successfull
     """
-
     try:
         rmtree(JUMBODIR + cluster)
     except IOError as e:
@@ -102,7 +97,6 @@ def list_clusters():
     :return: The list of clusters' configurations
     :rtype: dict
     """
-
     path_list = [f.path for f in os.scandir(JUMBODIR) if f.is_dir()]
     clusters = []
 
