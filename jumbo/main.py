@@ -18,8 +18,7 @@ def jumbo(ctx, cluster):
     '''
 
     # Create the shell
-    sh = Shell(prompt=click.style('\njumbo > ',
-                                  fg='green'),
+    sh = Shell(prompt=click.style('\njumbo > ', fg='green'),
                intro=printlogo.jumbo_ascii() + click.style('\nJumbo v0.1',
                                                            fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
@@ -238,7 +237,7 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 @click.option('--cluster', '-c', help='Cluster of the VM to be deleted')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 def rmvm(ctx, name, cluster, force):
-    '''Removes a VM.
+    '''Remove a VM.
 
     :param name: VM name
     '''

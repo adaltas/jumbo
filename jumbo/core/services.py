@@ -7,6 +7,12 @@ from jumbo.utils.settings import JUMBODIR
 
 
 def load_services_conf():
+    """Load the global services configuration.
+
+    :return: The configuration JSON file
+    :rtype: json
+    """
+
     with open(os.path.dirname(os.path.abspath(__file__)) +
               '/../config/services.json') as cfg:
         return json.load(cfg)
@@ -16,6 +22,13 @@ config = load_services_conf()
 
 
 def check_service(name):
+    """Check if a service exists.
+
+    :param name: Service name
+    :type name: str
+    :return: True if the service exists
+    """
+
     for s in config['services']:
         if s['name'] == name:
             return True
@@ -23,6 +36,13 @@ def check_service(name):
 
 
 def check_service_cluster(name):
+    """Check if a service is installed on the session cluster.
+
+    :param name: Service name
+    :type name: str
+    :return: True if the service is installed
+    """
+
     for s in ss.svars['services']:
         if s == name:
             return True
@@ -30,6 +50,13 @@ def check_service_cluster(name):
 
 
 def check_component(name):
+    """Check if a component exists.
+
+    :param name: Component name
+    :type name: str
+    :return: True if the component exists
+    """
+
     for s in config['services']:
         for c in s['components']:
             if name == c['name']:
@@ -37,11 +64,18 @@ def check_component(name):
     return False
 
 
-def check_component_machine(name, machine):
-    return name in machine['components']
-
-
 def add_component(name, machine, cluster):
+    """Add a component to a specified machine of a specified.
+
+    :param name: Component name
+    :type name: str
+    :param machine: Machine name
+    :type machine: str
+    :param cluster: Cluster name
+    :type cluster: str
+    :raises ex.LoadError: [description]
+    :raises ex.CreationError: [description]
+    """
 
     switched = False
 
@@ -81,7 +115,7 @@ def add_component(name, machine, cluster):
         raise ex.CreationError('component', name, 'components', print_missing,
                                'ReqNotMet')
 
-    if check_component_machine(name, ss.svars['machines'][m_index]):
+    if name in ss.svars['machines'][m_index]['components']:
         raise ex.CreationError('machine', machine, 'component', name,
                                'Installed')
 
@@ -92,6 +126,16 @@ def add_component(name, machine, cluster):
 
 
 def add_service(name, cluster):
+    """Add a service to a specified cluster.
+
+    :param name: Service name
+    :type name: str
+    :param cluster: Cluster name
+    :type cluster: str
+    :raises ex.LoadError: [description]
+    :raises ex.CreationError: [description]
+    """
+
     switched = False
 
     if not cluster:
@@ -129,6 +173,16 @@ def add_service(name, cluster):
 
 
 def check_service_req_service(name, ha=False):
+    """Check if a service requirements are satisfied.
+
+    :param name: Service name
+    :type name: str
+    :param ha: Weither the service is in HA, defaults to False
+    :raises ex.LoadError: If the service doesn't exist
+    :return: The misssing services and components needed to install the service
+    :rtype: dict
+    """
+
     req = 'ha' if ha else 'default'
     missing_serv = []
     missing_comp = {}
@@ -143,6 +197,16 @@ def check_service_req_service(name, ha=False):
 
 
 def check_service_req_comp(name, ha=False):
+    """Check if the components required to install a service are satisfied.
+
+    :param name: Service name
+    :type name: str
+    :param ha: Weither the service is in HA, defaults to False
+    :raises ex.LoadError: If the service doesn't exist
+    :return: The missing components needed to install the service
+    :rtype: dict
+    """
+
     req = 'ha' if ha else 'default'
     missing = {}
     comp_count = count_components()
@@ -157,6 +221,12 @@ def check_service_req_comp(name, ha=False):
 
 
 def count_components():
+    """Count the number of instance for each component.
+
+    :return: The components and their cardinality
+    :rtype: dict
+    """
+
     components = get_available_components()
     for machine in ss.svars['machines']:
         for c in machine['components']:
@@ -165,6 +235,12 @@ def count_components():
 
 
 def get_available_components():
+    """Get the available components (based on services config file).
+
+    :return: The list of available components
+    :rtype: dict
+    """
+
     components = {}
     for s in config['services']:
         for c in s['components']:
@@ -173,6 +249,14 @@ def get_available_components():
 
 
 def get_service_components(name):
+    """Get the components of a specified service.
+
+    :param name: Service name
+    :type name: str
+    :return: The list of components of this service
+    :rtype: list
+    """
+
     components = []
     for s in config['services']:
         if s['name'] == name:
@@ -182,6 +266,16 @@ def get_service_components(name):
 
 
 def remove_service(name, cluster):
+    """Remove a service of a specified cluster.
+
+    :param name: Service name
+    :type name: str
+    :param cluster: Cluster name
+    :type cluster: str
+    :raises ex.LoadError: [description]
+    :raises ex.CreationError: [description]
+    """
+
     switched = False
 
     if not cluster:
@@ -214,6 +308,18 @@ def remove_service(name, cluster):
 
 
 def remove_component(name, machine, cluster):
+    """Remove a service of a specified machine in a specified cluster.
+
+    :param name: Service name
+    :type name: str
+    :param machine: Machine name
+    :type machine: str
+    :param cluster: Cluster name
+    :type cluster: str
+    :raises ex.LoadError: [description]
+    :raises ex.CreationError: [description]
+    """
+
     switched = False
 
     if not cluster:
@@ -237,7 +343,7 @@ def remove_component(name, machine, cluster):
         if m['name'] == machine:
             m_index = i
 
-    if not check_component_machine(name, ss.svars['machines'][m_index]):
+    if name not in ss.svars['machines'][m_index]['components']:
         raise ex.CreationError('machine', machine, 'component', name,
                                'NotInstalled')
 
@@ -248,6 +354,17 @@ def remove_component(name, machine, cluster):
 
 
 def list_components(machine, cluster):
+    """List the components installed on a machine of a specified cluster.
+
+    :param machine: Machine name
+    :type machine: str
+    :param cluster: Cluster name
+    :type cluster: str
+    :raises ex.LoadError: [description]
+    :return: The list of the components installed on the machine
+    :rtype: list
+    """
+
     if not cluster:
         raise ex.LoadError('cluster', None, 'NoContext')
 
@@ -271,8 +388,13 @@ def list_components(machine, cluster):
 
 
 def get_services_components_hosts():
+    """Generate the list services->components->hosts of the session cluster.
+
+    :return: The list services->components->hosts
+    :rtype: dict
+    """
+
     services_components_hosts = {}
-    print(ss.svars)
     for s in ss.svars['services']:
         services_components_hosts[s] = {}
         components = get_service_components(s)

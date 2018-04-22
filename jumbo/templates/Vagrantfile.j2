@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
   end
   {% set host_nb = 24010 %}
   {% for host in hosts %}
-  config.vm.define :{{ host.name }} do |node|
+  config.vm.define :{{ host.name }}_{{ cluster }} do |node|
     node.vm.box = box
     node.vm.network :private_network, ip: "{{ host.ip }}"
     node.vm.network :forwarded_port, guest: 22, host: {{ host_nb + loop.index }}, auto_correct: true
@@ -44,7 +44,7 @@ Vagrant.configure("2") do |config|
       d.cpus = {{ host.cpus }}
       d.customize ["modifyvm", :id, "--ioapic", "on"]
     end
-      {% if 'edge' in host.types %}
+      {% if 'ansiblehost' in host.groups %}
     node.vm.provision "Import vagrant_insecure_key", type: "shell" do |s|
       s.inline = <<-SHELL
         sudo mkdir -p /root/.ssh/
