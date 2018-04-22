@@ -39,7 +39,7 @@
 
 [ambariclients]
 {% for host in hosts %}
-	{% if 'ambariclients' in host.groups %}
+	{% if 'ambariclient' in host.groups %}
 {{ host.name }}
 	{% endif %}
 {% endfor %}

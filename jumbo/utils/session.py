@@ -167,10 +167,9 @@ def generate_ansible_groups():
 
     if ambariserver:
         for machine in svars['machines']:
-            if not machine['name'] == ambariserver \
-                    and 'ldap' not in machine['types'] \
-                    and 'ambariclients' not in machine['groups']:
-                machine['groups'].append('ambariclients')
+            if 'ldap' not in machine['types'] \
+                    and 'ambariclient' not in machine['groups']:
+                machine['groups'].append('ambariclient')
 
     # TODO: IPA groups
 
