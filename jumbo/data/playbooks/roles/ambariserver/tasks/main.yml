@@ -26,7 +26,7 @@
 - name: Ambari setup
   command: ambari-server setup \
     --database=postgres \
-    --databasehost=master03.hdp.local \
+    --databasehost={{ pgsqlserver }} \
     --databaseport=5432 \
     --databasename=ambari \
     --postgresschema=ambarischema \

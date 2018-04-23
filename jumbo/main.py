@@ -18,8 +18,7 @@ def jumbo(ctx, cluster):
     """
 
     # Create the shell
-    sh = Shell(prompt=click.style('\njumbo > ',
-                                  fg='green'),
+    sh = Shell(prompt=click.style('\njumbo > ', fg='green'),
                intro=printlogo.jumbo_ascii() + click.style('\nJumbo v0.1',
                                                            fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
@@ -97,6 +96,7 @@ def create(ctx, name, domain):
             name,
             domain if domain else '%s.local' % name))
         set_context(ctx, name)
+
 
 @jumbo.command()
 @click.argument('name')
@@ -291,7 +291,6 @@ def listvm(cluster):
         click.echo(vm_table)
 
 
-
 #####################
 # services commands #
 #####################
@@ -327,7 +326,6 @@ def addservice(ctx, name, cluster, auto):
             set_context(ctx, cluster)
 
 
-
 @jumbo.command()
 @click.argument('service')
 @click.option('--cluster', '-c',
@@ -349,7 +347,7 @@ def rmservice(ctx, service, cluster, force):
             return
 
     try:
-        switched = services.remove_service(service, cluster=cluster)
+        services.remove_service(service, cluster=cluster)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     except ex.CreationError as e:
@@ -446,7 +444,8 @@ def listcomp(machine, cluster, all):
             comp_table = PrettyTable(['Component', 'Service'])
             click.echo('\n' + m['name'] + ':')
             try:
-                for c in services.list_components(machine=m['name'], cluster=cluster):
+                for c in services.list_components(machine=m['name'],
+                                                  cluster=cluster):
                     comp_table.add_row([c, services.check_component(c)])
             except ex.LoadError as e:
                 click.secho(e.message, fg='red', err=True)
@@ -459,7 +458,8 @@ def listcomp(machine, cluster, all):
             return
         try:
             comp_table = PrettyTable(['Component', 'Service'])
-            for c in services.list_components(machine=machine, cluster=cluster):
+            for c in services.list_components(machine=machine,
+                                              cluster=cluster):
                 comp_table.add_row([c, services.check_component(c)])
         except ex.LoadError as e:
             click.secho(e.message, fg='red', err=True)
@@ -470,5 +470,3 @@ def listcomp(machine, cluster, all):
 @jumbo.command()
 def logo():
     click.echo(printlogo.jumbo_ascii())
-
-
