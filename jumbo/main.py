@@ -444,15 +444,19 @@ def listcomp(machine, cluster, all):
     if all:
         for m in ss.svars['machines']:
             comp_table = PrettyTable(['Component', 'Service'])
-            click.echo(m['name'] + ':')
+            click.echo('\n' + m['name'] + ':')
             try:
-                for c in services.list_components(machine=machine, cluster=cluster):
+                for c in services.list_components(machine=m['name'], cluster=cluster):
                     comp_table.add_row([c, services.check_component(c)])
             except ex.LoadError as e:
                 click.secho(e.message, fg='red', err=True)
             else:
                 click.echo(comp_table)
     else:
+        if machine is None:
+            click.secho('You need to specify a machine name. Use --all to list'
+                        ' all machines', fg='red', err=True)
+            return
         try:
             comp_table = PrettyTable(['Component', 'Service'])
             for c in services.list_components(machine=machine, cluster=cluster):
@@ -466,3 +470,5 @@ def listcomp(machine, cluster, all):
 @jumbo.command()
 def logo():
     click.echo(printlogo.jumbo_ascii())
+
+
