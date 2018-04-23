@@ -124,7 +124,7 @@
         {
           "name": "SNAMENODE",
           "hosts_types": [
-            "master"
+            "sidemaster"
           ],
           "abbr": "SNN",
           "number": {
@@ -147,7 +147,7 @@
           "name": "JOURNALNODE",
           "hosts_types": [
             "master",
-            "sideMaster"
+            "sidemaster"
           ],
           "abbr": "JN",
           "number": {
