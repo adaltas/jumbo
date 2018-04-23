@@ -58,6 +58,18 @@ def dump_config(services_components_hosts=None):
             yaml.dump(generate_ansible_vars(), vf, default_flow_style=False,
                       explicit_start=True)
 
+        if services_components_hosts:
+            clear_bp()
+            generate_blueprint(services_components_hosts)
+            with open(JUMBODIR + svars['cluster'] +
+                      '/playbooks/roles/postblueprint/templates/blueprint.j2',
+                      'w') as bpf:
+                json.dump(bp, bpf)
+            with open(JUMBODIR + svars['cluster'] +
+                      '/playbooks/roles/postblueprint/templates/cluster.j2',
+                      'w') as clf:
+                json.dump(generate_cluster(), clf)
+
     except IOError:
         return False
 
