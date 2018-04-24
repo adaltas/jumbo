@@ -277,6 +277,14 @@ def generate_blueprint_conf(serv_comp_hosts):
         })
         complete_conf_hdfs(serv_comp_hosts)
 
+    if 'YARN' in serv_comp_hosts:
+        bp.get('configurations').append({
+            'yarn-site': {
+                'properties': {}
+            }
+        })
+        complete_conf_yarn(serv_comp_hosts)
+
 
 def complete_conf_zookeeper(serv_comp_hosts):
     if 'ZOOKEEPER_SERVER' in serv_comp_hosts['ZOOKEEPER']:
@@ -301,21 +309,98 @@ def complete_conf_hdfs(serv_comp_hosts):
             generate_hdfssite_ha(serv_comp_hosts['HDFS'])
         else:
             bp_set_conf_prop('core-site', 'fs.defaultFS',
-                             'hdfs://{}:8028'.format(
+                             'hdfs://{}:8020'.format(
                                  fqdn(serv_comp_hosts['HDFS']['NAMENODE'][0])))
             generate_hdfssite(serv_comp_hosts['HDFS'])
 
 
 def generate_hdfssite(hdfs_comp):
-    bp_set_conf_prop('hdfs-site', 'dfs.namenode.http-address',
-                     '%s:50070' % fqdn(hdfs_comp['NAMENODE'][0]))
-    bp_set_conf_prop('hdfs-site', 'dfs.namenode.https-address',
-                     '%s:50470' % fqdn(hdfs_comp['NAMENODE'][0]))
-    bp_set_conf_prop('hdfs-site', 'dfs.namenode.rpc-addres',
-                     '%s:8020' % fqdn(hdfs_comp['NAMENODE'][0]))
+    nn = fqdn(hdfs_comp['NAMENODE'][0])
+    snn = fqdn(hdfs_comp['SECONDARY_NAMENODE'][0])
+    bp_set_conf_prop('hdfs-site',
+                     'dfs.namenode.http-address',
+                     '%s:50070' % nn)
+    bp_set_conf_prop('hdfs-site',
+                     'dfs.namenode.https-address',
+                     '%s:50470' % nn)
+    bp_set_conf_prop('hdfs-site',
+                     'dfs.namenode.rpc-addres',
+                     '%s:8020' % nn)
     if hdfs_comp.get('SECONDARY_NAMENODE'):
-        bp_set_conf_prop('hdfs-site', 'dfs.namenode.secondary.http-address',
-                         '%s:50090' % fqdn(hdfs_comp['SECONDARY_NAMENODE'][0]))
+        bp_set_conf_prop('hdfs-site',
+                         'dfs.namenode.secondary.http-address',
+                         '%s:50090' % snn)
+
+
+def generate_hdfssite_ha(hdfs_comp):
+    raise ex.CreationError('service', 'HDFS', 'mode', 'High Availability',
+                           'NotSupported')
+
+
+def complete_conf_yarn(serv_comp_hosts):
+    if 'RESOURCEMANAGER' in serv_comp_hosts['YARN']:
+        if len(serv_comp_hosts['YARN']['RESOURCEMANAGER']) > 1:
+            generate_yarnsite_ha(serv_comp_hosts['YARN'])
+        else:
+            bp_set_conf_prop('core-site',
+                             'hadoop.proxyuser.yarn.hosts',
+                             fqdn(serv_comp_hosts['YARN']
+                                  .get('RESOURCEMANAGER')[0]))
+            generate_yarnsite(serv_comp_hosts['YARN'])
+
+
+def generate_yarnsite(yarn_comp):
+    rm = fqdn(yarn_comp['RESOURCEMANAGER'][0])
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.ha.enabled',
+                     'false')
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.recovery.enabled',
+                     'true')
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.store.class',
+                     'org.apache.hadoop.yarn.server.resourcemanager.'
+                     'recovery.ZKRMStateStore')
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.address',
+                     '%s:8050' % rm)
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.admin.address',
+                     '%s:8141' % rm)
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.hostname',
+                     '%s' % rm)
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.resource-tracker.address',
+                     '%s:8025' % rm)
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.scheduler.address',
+                     '%s:8030' % rm)
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.webapp.address',
+                     '%s:8088' % rm)
+    bp_set_conf_prop('yarn-site',
+                     'yarn.resourcemanager.webapp.https.address',
+                     '%s:8090' % rm)
+    bp_set_conf_prop('yarn-site',
+                     'yarn.log.server.url',
+                     'http://%s:19888/jobhistory/logs' % rm)
+    if yarn_comp.get('APP_TIMELINE_SERVER'):
+        timeline = fqdn(yarn_comp['APP_TIMELINE_SERVER'][0])
+        bp_set_conf_prop('yarn-site',
+                         'yarn.timeline-service.address',
+                         '%s:10200' % timeline)
+        bp_set_conf_prop('yarn-site',
+                         'yarn.timeline-service.webapp.address',
+                         '%s:8188' % timeline)
+        bp_set_conf_prop('yarn-site',
+                         'yarn.timeline-service.webapp.https.address',
+                         '%s:8190' % timeline)
+
+
+def generate_yarnsite_ha(yarn_comp):
+    raise ex.CreationError('service', 'YARN', 'mode', 'High Availability',
+                           'NotSupported')
 
 
 def generate_blueprint_hostgroups():
@@ -350,10 +435,6 @@ def generate_blueprint_settings():
     pass
 
 
-def generate_hdfssite_ha(hdfs_comp):
-    return 'HA clusters not supported yet'
-
-
 def generate_cluster():
     host_groups = []
     for hg in bp['host_groups']:
@@ -370,6 +451,8 @@ def generate_cluster():
         'blueprint': svars['domain'].replace('.', '-') + '-blueprint',
         'repository_version_id': 1,
         'host_groups': host_groups,
+        'config_recommendation_strategy':
+        'ALWAYS_APPLY_DONT_OVERRIDE_CUSTOM_VALUES',
         'configurations': [
             {
                 "hive-site": {

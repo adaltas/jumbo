@@ -37,6 +37,11 @@ class CreationError(Error):
                              .format(self.conflict['property'],
                                      self.conflict['value'],
                                      self.object['type'],
+                                     self.object['name'])),
+            'NotSupported': ('The `{}` {} is not supported for the {} `{}`!'
+                             .format(self.conflict['value'],
+                                     self.conflict['property'],
+                                     self.object['type'],
                                      self.object['name']))
         }
 

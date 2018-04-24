@@ -253,6 +253,118 @@
           "ha": []
         }
       }
+    },
+    {
+      "name": "YARN",
+      "components": [
+        {
+          "name": "RESOURCEMANAGER",
+          "hosts_types": [
+            "master"
+          ],
+          "abbr": "RM",
+          "number": {
+            "default": 1,
+            "ha": 2
+          }
+        },
+        {
+          "name": "NODEMANAGER",
+          "hosts_types": [
+            "worker"
+          ],
+          "abbr": "NM",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "HISTORYSERVER",
+          "hosts_types": [
+            "edge"
+          ],
+          "abbr": "MRHS",
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        },
+        {
+          "name": "APP_TIMELINE_SERVER",
+          "hosts_types": [
+            "edge"
+          ],
+          "abbr": "TLS",
+          "number": {
+            "default": 0,
+            "ha": 2
+          }
+        },
+        {
+          "name": "YARN_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "YARNC",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "MAPREDUCE2_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "MRC",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "SLIDER",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "SLIDER",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "machines": {
+          "default": {
+            "master": 1
+          },
+          "ha": {
+            "master": 2,
+            "sidemaster": 1
+          }
+        },
+        "services": {
+          "default": [
+            "AMBARI"
+          ],
+          "ha": [
+            "AMBARI"
+          ]
+        }
+      }
     }
   ]
 }

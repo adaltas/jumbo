@@ -55,7 +55,7 @@ def check_component(name):
 
     :param name: Component name
     :type name: str
-    :return: True if the component exists
+    :return: The service of the component if the component exists
     """
 
     for s in config['services']:
@@ -77,8 +77,6 @@ def add_component(name, machine, cluster):
     :raises ex.LoadError: [description]
     :raises ex.CreationError: [description]
     """
-
-    switched = False
 
     for i, m in enumerate(ss.svars['machines']):
         if m['name'] == machine:
@@ -420,7 +418,7 @@ def auto_assign_service_comp(component, dist, cluster, check):
                                       machine=m['name'],
                                       cluster=cluster)
                 # Ignore error when adding already existing component
-                except ex.CreationError as e:
+                except ex.CreationError:
                     pass
                 count -= 1
                 if count == 0:
