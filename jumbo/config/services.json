@@ -311,8 +311,8 @@
           ],
           "abbr": "TLS",
           "number": {
-            "default": 0,
-            "ha": 2
+            "default": 1,
+            "ha": 1
           }
         },
         {

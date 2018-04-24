@@ -221,13 +221,17 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
 
     try:
         vm.add_machine(name, ip, ram, disk, types, cpus, cluster=cluster)
+        count = services.auto_install_machine(name, cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
             click.secho('Use "repair" to regenerate `jumbo_config`.')
         switched = False
     else:
-        click.echo('Machine `{}` added to cluster `{}`.'.format(name, cluster))
+        click.echo('Machine `{}` added to cluster `{}`. {}'
+                   .format(name, cluster,
+                           '{} clients auto installed on `{}`.'
+                           .format(count, name) if count else ''))
     finally:
         if switched:
             set_context(ctx, cluster)
@@ -319,7 +323,7 @@ def addservice(ctx, name, cluster, auto):
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Service `{}` added to cluster `{}`'
+        click.echo('Service `{}` and related clients added to cluster `{}`.'
                    .format(name, cluster))
     finally:
         if switched:

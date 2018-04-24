@@ -154,14 +154,7 @@ def add_service(name, *, cluster):
                                'ReqNotMet')
 
     ss.svars['services'].append(name)
-
-    for s in config['services']:
-        if s['name'] == name:
-            for c in s['components']:
-                if c['name'] in s['auto_install']:
-                    auto_assign_service_comp(c, 'default', cluster,
-                                             check=False)
-
+    auto_install_service(name, cluster)
     ss.dump_config(get_services_components_hosts())
 
 
@@ -431,5 +424,26 @@ def auto_assign_service_comp(component, dist, cluster, check):
                 count -= 1
                 if count == 0:
                     return 0
+
+    return count
+
+
+def auto_install_service(service, cluster):
+    for s in config['services']:
+        if s['name'] == service:
+            for c in s['components']:
+                if c['name'] in s['auto_install']:
+                    auto_assign_service_comp(c, 'default', cluster,
+                                             check=False)
+
+
+def auto_install_machine(machine, cluster):
+    count = 0
+    for s in config['services']:
+        if s['name'] in ss.svars['services']:
+            for c in s['auto_install']:
+                add_component(c, machine=machine,
+                              cluster=cluster)
+                count += 1
 
     return count
