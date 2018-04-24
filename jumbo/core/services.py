@@ -154,6 +154,14 @@ def add_service(name, *, cluster):
                                'ReqNotMet')
 
     ss.svars['services'].append(name)
+
+    for s in config['services']:
+        if s['name'] == name:
+            for c in s['components']:
+                if c['name'] in s['auto_install']:
+                    auto_assign_service_comp(c, 'default', cluster,
+                                             check=False)
+
     ss.dump_config(get_services_components_hosts())
 
 
@@ -278,7 +286,7 @@ def remove_service(service, *, cluster):
                 m['components'].remove(c)
 
     ss.svars['services'].remove(service)
-    ss.dump_config()
+    ss.dump_config(get_services_components_hosts())
 
 
 @valid_cluster
@@ -313,7 +321,7 @@ def remove_component(component, *, machine, cluster):
                                'NotInstalled')
 
     ss.svars['machines'][m_index]['components'].remove(component)
-    ss.dump_config()
+    ss.dump_config(get_services_components_hosts())
 
 
 @valid_cluster

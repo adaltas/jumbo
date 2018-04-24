@@ -36,7 +36,8 @@
           "default": [],
           "ha": []
         }
-      }
+      },
+      "auto_install": []
     },
     {
       "name": "POSTGRESQL",
@@ -71,7 +72,8 @@
             "ANSIBLE"
           ]
         }
-      }
+      },
+      "auto_install": []
     },
     {
       "name": "AMBARI",
@@ -104,7 +106,8 @@
             "POSTGRESQL"
           ]
         }
-      }
+      },
+      "auto_install": []
     },
     {
       "name": "HDFS",
@@ -190,10 +193,14 @@
             "AMBARI"
           ],
           "ha": [
+            "AMBARI",
             "ZOOKEEPER"
           ]
         }
-      }
+      },
+      "auto_install": [
+        "HDFS_CLIENT"
+      ]
     },
     {
       "name": "ZOOKEEPER",
@@ -249,10 +256,17 @@
           }
         },
         "services": {
-          "default": [],
-          "ha": []
+          "default": [
+            "AMBARI"
+          ],
+          "ha": [
+            "AMBARI"
+          ]
         }
-      }
+      },
+      "auto_install": [
+        "ZOOKEEPER_CLIENT"
+      ]
     },
     {
       "name": "YARN",
@@ -342,6 +356,34 @@
             "default": -1,
             "ha": -1
           }
+        },
+        {
+          "name": "PIG",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "PIG",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "TEZ_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "TEZC",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
         }
       ],
       "requirements": {
@@ -358,13 +400,123 @@
         },
         "services": {
           "default": [
-            "AMBARI"
+            "AMBARI",
+            "HDFS"
           ],
           "ha": [
-            "AMBARI"
+            "AMBARI",
+            "HDFS",
+            "ZOOKEEPER"
           ]
         }
-      }
+      },
+      "auto_install": [
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "TEZ_CLIENT",
+        "PIG",
+        "SLIDER"
+      ]
+    },
+    {
+      "name": "HIVE",
+      "components": [
+        {
+          "name": "HIVE_METASTORE",
+          "hosts_types": [
+            "smaster",
+            "master"
+          ],
+          "abbr": "H_MSTORE",
+          "number": {
+            "default": 1,
+            "ha": 2
+          }
+        },
+        {
+          "name": "HIVE_SERVER",
+          "hosts_types": [
+            "edge",
+            "smaster"
+          ],
+          "abbr": "H_SERVER",
+          "number": {
+            "default": 1,
+            "ha": 2
+          }
+        },
+        {
+          "name": "WEBHCAT_SERVER",
+          "hosts_types": [
+            "edge"
+          ],
+          "abbr": "WEBHCAT_S",
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        },
+        {
+          "name": "HCAT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "worker",
+            "edge"
+          ],
+          "abbr": "HCAT",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "HIVE_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "HIVE_CLIENT",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "machines": {
+          "default": {
+            "sidemaster": 1,
+            "edge": 1
+          },
+          "ha": {
+            "master": 1,
+            "sidemaster": 1,
+            "edge": 1
+          }
+        },
+        "services": {
+          "default": [
+            "AMBARI",
+            "HDFS",
+            "YARN"
+          ],
+          "ha": [
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "ZOOKEEPER"
+          ]
+        }
+      },
+      "auto_install": [
+        "HIVE_CLIENT",
+        "HCAT"
+      ]
     }
   ]
 }

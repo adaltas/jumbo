@@ -42,13 +42,49 @@ A `vm` must have at least one of the following types:
 
 ## Installation
 
-```
-git clone jumbo
+**Requirement:** Vagrant has to be installed on your local machine.
+
+```shell
+git clone jumbo jumbo_dir
 cd jumbo_dir
 pip install .
 ```
 
 ## Quick Start Guide
+
+### Configure your cluster
+
+### Launch the installation
+
+Each cluster created with Jumbo has a dedicated folder in `~/.jumbo/`. Jumbo generates all the configuration files needed in this folder. You just have to start the Vagrant provisioning of the cluster and watch the magic in action:
+```
+cd ~/.jumbo/mycluster
+vagrant up
+```
+
+
+## Supported services and components
+
+| Service            | Components          |
+| ------------------ | ------------------- |
+| ANSIBLE            | ANSIBLE_CLIENT      |
+| POSTGRESQL         | PSQL_SERVER         |
+| AMBARI             | AMBARI_SERVER       |
+| HDFS               | NAMENODE            |
+|                    | SECONDARY_NAMENODE  |
+|                    | DATANODE            |
+|                    | JOURNALNODE         |
+|                    | HDFS_CLIENT         |
+| YARN (+MAPREDUCE2) | RESOURCEMANAGER     |
+|                    | NODEMANAGER         |
+|                    | HISTORYSERVER       |
+|                    | APP_TIMELINE_SERVER |
+|                    | YARN_CLIENT         |
+|                    | MAPREDUCE2_CLIENT   |
+|                    | SLIDER              |
+| ZOOKEEPER          | ZOOKEEPER_SERVER    |
+|                    | ZOOKEEPER_CLIENT    |
+|                    | ZKFC                |
 
 
 
@@ -57,5 +93,5 @@ pip install .
 
 - [ ] Secure the cluster with Kerberos;
 - [ ] Add more supported services;
-- [ ] Edit a wiki;
+- [ ] Publish a wiki;
 - [ ] Complete the user assistance;

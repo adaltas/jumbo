@@ -316,7 +316,6 @@ def complete_conf_hdfs(serv_comp_hosts):
 
 def generate_hdfssite(hdfs_comp):
     nn = fqdn(hdfs_comp['NAMENODE'][0])
-    snn = fqdn(hdfs_comp['SECONDARY_NAMENODE'][0])
     bp_set_conf_prop('hdfs-site',
                      'dfs.namenode.http-address',
                      '%s:50070' % nn)
@@ -327,6 +326,7 @@ def generate_hdfssite(hdfs_comp):
                      'dfs.namenode.rpc-addres',
                      '%s:8020' % nn)
     if hdfs_comp.get('SECONDARY_NAMENODE'):
+        snn = fqdn(hdfs_comp['SECONDARY_NAMENODE'][0])
         bp_set_conf_prop('hdfs-site',
                          'dfs.namenode.secondary.http-address',
                          '%s:50090' % snn)
