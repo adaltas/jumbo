@@ -386,7 +386,7 @@ def addcomp(ctx, name, machine, cluster):
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Component `{}` added to machine `{}/{}`'
+        click.echo('Component `{}` added to machine `{}/{}`.'
                    .format(name, cluster, machine))
     finally:
         if switched:
