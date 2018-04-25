@@ -433,7 +433,7 @@ def rmcomp(ctx, name, machine, cluster, force):
 @jumbo.command()
 @click.argument('machine', required=False)
 @click.option('--cluster', '-c')
-@click.option('--all', is_flag=True)
+@click.option('--all', '-a', is_flag=True)
 def listcomp(machine, cluster, all):
     """
     List compononents on the given machine.

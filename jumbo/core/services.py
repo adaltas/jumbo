@@ -113,6 +113,7 @@ def add_component(name, machine, cluster):
                                'Installed')
 
     ss.svars['machines'][m_index]['components'].append(name)
+    auto_install_component(name, machine, service, cluster)
     ss.dump_config(get_services_components_hosts())
 
 
@@ -435,6 +436,17 @@ def auto_install_service(service, cluster):
                 if c['name'] in s['auto_install']:
                     auto_assign_service_comp(c, 'default', cluster,
                                              check=False)
+
+
+def auto_install_component(component, machine, service, cluster):
+    for s in config['services']:
+        if s['name'] == service:
+            for c in s['components']:
+                if c['name'] == component:
+                    if c.get('auto_install'):
+                        for auto in c['auto_install']:
+                            add_component(auto, machine=machine,
+                                          cluster=cluster)
 
 
 def auto_install_machine(machine, cluster):

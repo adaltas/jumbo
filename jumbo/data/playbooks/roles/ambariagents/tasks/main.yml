@@ -21,3 +21,4 @@
 
 - name: Start ambari-agent
   command: ambari-agent start
+  ignore_errors: yes

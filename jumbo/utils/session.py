@@ -185,6 +185,12 @@ def generate_ansible_groups():
     # TODO: IPA groups
 
 
+def get_pgsqlserver_host():
+    for machine in svars['machines']:
+        if 'pgsqlserver' in machine['groups']:
+            return fqdn(machine['name'])
+
+
 def generate_ansible_vars():
     """Generate the group_vars/all variables for Ansible playbooks
 
@@ -266,9 +272,6 @@ def generate_blueprint_conf(serv_comp_hosts):
 
     bp_set_conf_prop('core-site', 'fs.trash.interval', '360')
 
-    if 'ZOOKEEPER' in serv_comp_hosts:
-        complete_conf_zookeeper(serv_comp_hosts)
-
     if 'HDFS' in serv_comp_hosts:
         bp.get('configurations').append({
             'hdfs-site': {
@@ -285,13 +288,43 @@ def generate_blueprint_conf(serv_comp_hosts):
         })
         complete_conf_yarn(serv_comp_hosts)
 
+    if 'HIVE' in serv_comp_hosts:
+        bp.get('configurations').append({
+            'hive-site': {
+                'properties': {}
+            }
+        })
+        bp.get('configurations').append({
+            'hive-env': {
+                'properties': {}
+            }
+        })
+        bp.get('configurations').append({
+            'webhcat-site': {
+                'properties': {}
+            }
+        })
+        complete_conf_hive(serv_comp_hosts)
+
+    if 'ZOOKEEPER' in serv_comp_hosts:
+        complete_conf_zookeeper(serv_comp_hosts)
+
 
 def complete_conf_zookeeper(serv_comp_hosts):
     if 'ZOOKEEPER_SERVER' in serv_comp_hosts['ZOOKEEPER']:
-        bp_set_conf_prop('core-site', 'ha.zookeeper.quorum',
-                         generate_zookeeper_quorum(
-                             serv_comp_hosts['ZOOKEEPER']['ZOOKEEPER_SERVER'],
-                             True))
+        zk_quorum = generate_zookeeper_quorum(
+            serv_comp_hosts['ZOOKEEPER']['ZOOKEEPER_SERVER'],
+            True)
+        bp_set_conf_prop('core-site',
+                         'ha.zookeeper.quorum',
+                         zk_quorum)
+        if 'HIVE' in serv_comp_hosts:
+            bp_set_conf_prop('hive-site',
+                             'hive.zookeeper.quorum',
+                             zk_quorum)
+            bp_set_conf_prop('webhcat-site',
+                             'templeton.zookeeper.hosts',
+                             zk_quorum)
 
 
 def generate_zookeeper_quorum(zk_hosts, add_port=False):
@@ -400,6 +433,71 @@ def generate_yarnsite(yarn_comp):
 
 def generate_yarnsite_ha(yarn_comp):
     raise ex.CreationError('service', 'YARN', 'mode', 'High Availability',
+                           'NotSupported')
+
+
+def complete_conf_hive(serv_comp_hosts):
+    if 'HIVE_METASTORE' in serv_comp_hosts['HIVE'] and \
+            'HIVE_SERVER' in serv_comp_hosts['HIVE']:
+        if len(serv_comp_hosts['HIVE']['HIVE_METASTORE']) > 1 or \
+                len(serv_comp_hosts['HIVE']['HIVE_SERVER']) > 1:
+            generate_hivesite_ha(serv_comp_hosts['HIVE'])
+        else:
+            bp_set_conf_prop('core-site',
+                             'hadoop.proxyuser.yarn.hosts',
+                             fqdn(serv_comp_hosts['YARN']
+                                  .get('RESOURCEMANAGER')[0]))
+            generate_hivesite(serv_comp_hosts['HIVE'])
+            generate_hiveenv(serv_comp_hosts['HIVE'])
+            generate_webhcatsite(serv_comp_hosts['HIVE'])
+
+
+def generate_hivesite(hive_comp):
+    hm = fqdn(hive_comp['HIVE_METASTORE'][0])
+    bp_set_conf_prop('hive-site',
+                     'hive.exec.compress.output',
+                     'false')
+    bp_set_conf_prop('hive-site',
+                     'hive.merge.mapfiles',
+                     'true')
+    bp_set_conf_prop('hive-site',
+                     'hive.server2.tez.initialize.default.sessions',
+                     'false')
+    bp_set_conf_prop('hive-site',
+                     'hive.server2.transport.mode',
+                     'binary')
+    bp_set_conf_prop('hive-site',
+                     'javax.jdo.option.ConnectionDriverName',
+                     'org.postgresql.Driver')
+    bp_set_conf_prop('hive-site',
+                     'javax.jdo.option.ConnectionURL',
+                     'jdbc:postgresql://%s:5432/hive' % get_pgsqlserver_host())
+    bp_set_conf_prop('hive-site',
+                     'javax.jdo.option.ConnectionUserName',
+                     'hive')
+    bp_set_conf_prop('hive-site',
+                     'hive.metastore.uris',
+                     'thrift://%s:9083' % hm)
+
+
+def generate_hiveenv(hive_comp):
+    bp_set_conf_prop('hive-env',
+                     'hive_database',
+                     'Existing PostgreSQL Database')
+    bp_set_conf_prop('hive-env',
+                     'hive_database_name',
+                     'hive')
+    bp_set_conf_prop('hive-env',
+                     'hive_database_type',
+                     'postgres')
+
+
+def generate_webhcatsite(hive_comp):
+    pass
+
+
+def generate_hivesite_ha(hive_comp):
+    raise ex.CreationError('service', 'HIVE', 'mode', 'High Availability',
                            'NotSupported')
 
 
