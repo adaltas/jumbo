@@ -126,9 +126,10 @@
     body: " {{ lookup('file', '/tmp/hdp-cluster.json')}}"
     body_format: raw
     status_code: 200, 201, 202
-    return_content: yes
-  register: cluster_resp
 
 - name: Waiting for HDP install
   debug:
-    msg: "Installation of cluster {{ cluster_name }} in progress. Request id: {{ (cluster_resp.content|from_json).Requests.id }}"
+    msg:
+      - "Installation of cluster `{{ cluster_name }}` in progress."
+      - "Ambari WebUI: http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080"
+      - "User: 'admin', Password: 'admin'"
