@@ -96,17 +96,15 @@ Now that we have created our cluster, lets add 3 virtual machines to it:
 *Adjust the RAM of VMs to your local machine*
 
 ```shell
-jumbo (mycluster) > addvm master --types master --ip 10.10.10.11 --ram 2000 --disk 10000
+jumbo (mycluster) > addvm master --types master --ip 10.10.10.11 --ram 2000
 Machine `master` added to cluster `mycluster`.
 jumbo (mycluster) > addvm smaster -t sidemaster -t edge
 IP: 10.10.10.12
 RAM (MB): 3000
-Disk (MB): 10000
 Machine `smaster` added to cluster `mycluster`.
 jumbo (mycluster) > addvm worker -t worker --cpus 2
 IP: 10.10.10.13
 RAM (MB): 3000
-Disk (MB): 10000
 Machine `worker` added to cluster `mycluster`.
 ```
 
@@ -114,13 +112,13 @@ We now have all the machines needed to deploy a functional Hadoop cluster. Use `
 
 ```shell
 jumbo (mycluster) > listvm
-+---------+------------------+-------------+----------+-----------+------+
-|   Name  |      Types       |      IP     | RAM (MB) | Disk (MB) | CPUs |
-+---------+------------------+-------------+----------+-----------+------+
-|  master |      master      | 10.10.10.11 |   2000   |   10000   |  1   |
-| smaster | sidemaster, edge | 10.10.10.12 |   3000   |   10000   |  1   |
-|  worker |      worker      | 10.10.10.13 |   3000   |   10000   |  2   |
-+---------+------------------+-------------+----------+-----------+------+
++---------+------------------+-------------+----------+------+
+|   Name  |      Types       |      IP     | RAM (MB) | CPUs |
++---------+------------------+-------------+----------+------+
+|  master |      master      | 10.10.10.11 |   2000   |  1   |
+| smaster | sidemaster, edge | 10.10.10.12 |   3000   |  1   |
+|  worker |      worker      | 10.10.10.13 |   3000   |  2   |
++---------+------------------+-------------+----------+------+
 ```
 
 #### Service installation

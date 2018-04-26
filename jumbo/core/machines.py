@@ -7,7 +7,7 @@ import json
 
 
 @valid_cluster
-def add_machine(name, ip, ram, disk, types, cpus=1, *,
+def add_machine(name, ip, ram, types, cpus=1, *,
                 cluster):
     """Add a machine to a cluster.
 
@@ -17,8 +17,6 @@ def add_machine(name, ip, ram, disk, types, cpus=1, *,
     :type ip: str
     :param ram: Machine's allocated RAM in MB
     :type ram: int
-    :param disk: Machine's allocated disk in MB
-    :type disk: int
     :param types: Machine's types
     :type types: list str
     :param cluster: Cluster in which to create the machine
@@ -40,7 +38,6 @@ def add_machine(name, ip, ram, disk, types, cpus=1, *,
         'name': name,
         'ip': ip,
         'ram': ram,
-        'disk': disk,
         'types': types,
         'cpus': cpus,
         'components': [],

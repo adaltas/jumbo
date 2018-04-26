@@ -202,14 +202,12 @@ def validate_ip_cb(ctx, param, value):
               help='VM IP address')
 @click.option('--ram', '-r', type=int, prompt='RAM (MB)',
               help='RAM allocated to the VM in MB')
-@click.option('--disk', '-d', type=int, prompt='Disk (MB)',
-              help='Disk allocated to the VM in MB')
 @click.option('--cpus', '-p', default=1,
               help='Number of CPUs allocated to the VM')
 @click.option('--cluster', '-c',
               help='Cluster in which the VM will be created')
 @click.pass_context
-def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
+def addvm(ctx, name, types, ip, ram, cpus, cluster):
     """
     Create a new VM in the cluster being managed.
     Another cluster can be specified with "--cluster".
@@ -221,7 +219,7 @@ def addvm(ctx, name, types, ip, ram, disk, cpus, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        vm.add_machine(name, ip, ram, disk, types, cpus, cluster=cluster)
+        vm.add_machine(name, ip, ram, types, cpus, cluster=cluster)
         count = services.auto_install_machine(name, cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
@@ -285,11 +283,11 @@ def listvm(cluster):
 
     try:
         vm_table = PrettyTable(
-            ['Name', 'Types', 'IP', 'RAM (MB)', 'Disk (MB)', 'CPUs'])
+            ['Name', 'Types', 'IP', 'RAM (MB)', 'CPUs'])
 
         for m in clusters.list_machines(cluster=cluster):
             vm_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
-                              m['ram'], m['disk'], m['cpus']])
+                              m['ram'], m['cpus']])
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     else:
