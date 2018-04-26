@@ -11,6 +11,8 @@ Jumbo is written in Python and relies on other tools that it coordinates:
 
 The distribution used for the Hadoop cluster is [Hortonworks Data Platform](https://hortonworks.com/products/data-platforms/hdp/).
 
+Check all the underlying tools versions used [here]().
+
 ## Key principles
 
 Jumbo manages the following types of items:
@@ -180,7 +182,7 @@ You will see a thread of operations ran by Ansible. At the end of the thread, Ju
 TASK [postblueprint : Waiting for HDP install] *********************************
 ok: [smaster] => {
     "msg": [
-        "Installation of cluster `test2localcluster` in progress.", 
+        "Installation of cluster `myclusterlocalcluster` in progress.", 
         "Ambari WebUI: http://10.10.10.12:8080", 
         "User: 'admin', Password: 'admin'"
     ]
@@ -219,14 +221,44 @@ Use the commands `rmvm`, `rmservice`, or `rmcomp` to remove items.
 |                    | WEBHCAT_SERVER      |
 |                    | HCAT                |
 |                    | HIVE_CLIENT         |
+| HBASE              | HBASE_MASTER        |
+|                    | HBASE_REGIONSERVER  |
+|                    | HBASE_CLIENT        |
 
+## Underlying tools versions
+
+### Vagrant
+
+Vagrant box: [`centos/7`](https://app.vagrantup.com/centos/boxes/7) (32 GB of disk per VM)
+
+### Ansible
+
+The latest stable release of Ansible is auto-provisioned by Vagrant on `vagrant up`.
+
+### PostgreSQL
+
+The latest stable release of PostgreSQL is installed with yum via Ansible.
+
+### Ambari and HDP
+
+Postgre JDBC Driver:
+- Version: 42.2.1
+- JAR: https://jdbc.postgresql.org/download/postgresql-42.2.1.jar
+
+Ambari:
+- Version: 2.6.1.5
+- Repository: http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo
+
+HDP:
+- Version: 2.6.4.0
+- VDF file: http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml
 
 
 
 ## TO DO
 
-- [ ] Add more supported services;
+- [ ] Add support for all Ambari services;
 - [ ] Add support for HA clusters;
-- [ ] Secure the cluster with Kerberos;
+- [ ] Add Kerberos support;
 - [ ] Publish a wiki;
-- [ ] Complete the user assistance;
+- [ ] Complete the user assistance process;

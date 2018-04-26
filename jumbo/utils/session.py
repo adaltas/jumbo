@@ -210,6 +210,7 @@ def generate_ansible_vars():
         'ipa_dm_password': 'dm_p4ssw0rd',
         'ipa_admin_password': 'adm1n_p4ssw0rd',
         'pgsqlserver': fqdn(pgsqlserver),
+        'jdbc_driver': 'postgresql-42.2.1.jar',
         'ambari_repo_url': ('http://public-repo-1.hortonworks.com/ambari/'
                             'centos7/2.x/updates/2.6.1.5/ambari.repo'),
         'use_blueprint': True,

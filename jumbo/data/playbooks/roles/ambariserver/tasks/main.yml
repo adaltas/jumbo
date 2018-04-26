@@ -15,12 +15,12 @@
 
 - name: Download PostgreSQL JDBC driver
   get_url:
-    url: https://jdbc.postgresql.org/download/postgresql-42.2.1.jar
+    url: https://jdbc.postgresql.org/download/{{ jdbc_driver }}
     dest: /var/lib/ambari-server
 
 - name: Set jdbc driver
   command: ambari-server setup \
-    --jdbc-driver=/var/lib/ambari-server/postgresql-42.2.1.jar \
+    --jdbc-driver=/var/lib/ambari-server/{{ jdbc_driver }} \
     --jdbc-db=postgres
 
 - name: Ambari setup
