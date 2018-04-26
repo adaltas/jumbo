@@ -15,7 +15,7 @@
 
 - name: Download PostgreSQL JDBC driver
   get_url:
-    url: https://jdbc.postgresql.org/download/{{ jdbc_driver }}
+    url: "https://jdbc.postgresql.org/download/{{ jdbc_driver }}"
     dest: /var/lib/ambari-server
 
 - name: Set jdbc driver

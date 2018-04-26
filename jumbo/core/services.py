@@ -200,7 +200,9 @@ def check_service_req_comp(name, ha=False):
     for s in config['services']:
         if s['name'] == name:
             for comp in s['components']:
-                missing_count = comp['number'][req] - comp_count[comp['name']]
+                req_number = comp['number'][req] if comp['number'][req] != -1 \
+                    else 1
+                missing_count = req_number - comp_count[comp['name']]
                 if missing_count > 0:
                     missing[comp['name']] = missing_count
             return missing

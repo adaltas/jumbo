@@ -158,7 +158,6 @@ def generate_ansible_groups():
 
     ansiblehost = None
     pgsqlserver = None
-    ipaserver = None
     ambariserver = None
 
     for machine in svars['machines']:
