@@ -38,6 +38,7 @@ def jumbo(ctx, cluster):
     sh.add_command(listcomp)
     sh.add_command(rmservice)
     sh.add_command(rmcomp)
+    sh.add_command(checkservice)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -469,6 +470,27 @@ def listcomp(machine, cluster, all):
             click.secho(e.message, fg='red', err=True)
         else:
             click.echo(comp_table)
+
+
+@jumbo.command()
+@click.argument('name')
+@click.option('--cluster', '-c')
+def checkservice(name, cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+    else:
+        ss.load_config(cluster)
+
+    try:
+        missing_comp = services.check_service_complete(name)
+    except (ex.LoadError, ex.CreationError) as e:
+        click.secho(e.message, fg='red', err=True)
+    else:
+        if missing_comp:
+            click.echo('The service `{}` misses:\n - {}'
+                       .format(name, ',\n - '.join(missing_comp)))
+        else:
+            click.echo('The service `%s` is complete.' % name)
 
 
 @jumbo.command()

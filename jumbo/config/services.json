@@ -520,6 +520,75 @@
         "HIVE_CLIENT",
         "HCAT"
       ]
+    },
+    {
+      "name": "HBASE",
+      "components": [
+        {
+          "name": "HBASE_MASTER",
+          "hosts_types": [
+            "master"
+          ],
+          "abbr": "HMASTER",
+          "number": {
+            "default": 1,
+            "ha": 2
+          }
+        },
+        {
+          "name": "HBASE_REGIONSERVER",
+          "hosts_types": [
+            "worker"
+          ],
+          "abbr": "REGIONS",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "HBASE_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "HBASE_CLIENT",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "machines": {
+          "default": {
+            "master": 1
+          },
+          "ha": {
+            "master": 2
+          }
+        },
+        "services": {
+          "default": [
+            "AMBARI",
+            "HDFS",
+            "YARN"
+          ],
+          "ha": [
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "ZOOKEEPER"
+          ]
+        }
+      },
+      "auto_install": [
+        "HBASE_CLIENT"
+      ]
     }
   ]
 }

@@ -306,6 +306,19 @@ def generate_blueprint_conf(serv_comp_hosts):
         })
         complete_conf_hive(serv_comp_hosts)
 
+    if 'HBASE' in serv_comp_hosts:
+        bp.get('configurations').append({
+            'hbase-site': {
+                'properties': {}
+            }
+        })
+        bp.get('configurations').append({
+            'hbase-env': {
+                'properties': {}
+            }
+        })
+        complete_conf_hbase(serv_comp_hosts)
+
     if 'ZOOKEEPER' in serv_comp_hosts:
         complete_conf_zookeeper(serv_comp_hosts)
 
@@ -315,6 +328,9 @@ def complete_conf_zookeeper(serv_comp_hosts):
         zk_quorum = generate_zookeeper_quorum(
             serv_comp_hosts['ZOOKEEPER']['ZOOKEEPER_SERVER'],
             True)
+        zk_quorum_noport = generate_zookeeper_quorum(
+            serv_comp_hosts['ZOOKEEPER']['ZOOKEEPER_SERVER'],
+            False)
         bp_set_conf_prop('core-site',
                          'ha.zookeeper.quorum',
                          zk_quorum)
@@ -325,6 +341,10 @@ def complete_conf_zookeeper(serv_comp_hosts):
             bp_set_conf_prop('webhcat-site',
                              'templeton.zookeeper.hosts',
                              zk_quorum)
+        if 'HBASE' in serv_comp_hosts:
+            bp_set_conf_prop('hbase-site',
+                             'hbase.zookeeper.quorum',
+                             zk_quorum_noport)
 
 
 def generate_zookeeper_quorum(zk_hosts, add_port=False):
@@ -349,18 +369,19 @@ def complete_conf_hdfs(serv_comp_hosts):
 
 def generate_hdfssite(hdfs_comp):
     nn = fqdn(hdfs_comp['NAMENODE'][0])
-    bp_set_conf_prop('hdfs-site',
+    site = 'hdfs-site'
+    bp_set_conf_prop(site,
                      'dfs.namenode.http-address',
                      '%s:50070' % nn)
-    bp_set_conf_prop('hdfs-site',
+    bp_set_conf_prop(site,
                      'dfs.namenode.https-address',
                      '%s:50470' % nn)
-    bp_set_conf_prop('hdfs-site',
+    bp_set_conf_prop(site,
                      'dfs.namenode.rpc-addres',
                      '%s:8020' % nn)
     if hdfs_comp.get('SECONDARY_NAMENODE'):
         snn = fqdn(hdfs_comp['SECONDARY_NAMENODE'][0])
-        bp_set_conf_prop('hdfs-site',
+        bp_set_conf_prop(site,
                          'dfs.namenode.secondary.http-address',
                          '%s:50090' % snn)
 
@@ -384,49 +405,50 @@ def complete_conf_yarn(serv_comp_hosts):
 
 def generate_yarnsite(yarn_comp):
     rm = fqdn(yarn_comp['RESOURCEMANAGER'][0])
-    bp_set_conf_prop('yarn-site',
+    site = 'yarn-site'
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.ha.enabled',
                      'false')
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.recovery.enabled',
                      'true')
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.store.class',
                      'org.apache.hadoop.yarn.server.resourcemanager.'
                      'recovery.ZKRMStateStore')
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.address',
                      '%s:8050' % rm)
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.admin.address',
                      '%s:8141' % rm)
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.hostname',
                      '%s' % rm)
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.resource-tracker.address',
                      '%s:8025' % rm)
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.scheduler.address',
                      '%s:8030' % rm)
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.webapp.address',
                      '%s:8088' % rm)
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.resourcemanager.webapp.https.address',
                      '%s:8090' % rm)
-    bp_set_conf_prop('yarn-site',
+    bp_set_conf_prop(site,
                      'yarn.log.server.url',
                      'http://%s:19888/jobhistory/logs' % rm)
     if yarn_comp.get('APP_TIMELINE_SERVER'):
         timeline = fqdn(yarn_comp['APP_TIMELINE_SERVER'][0])
-        bp_set_conf_prop('yarn-site',
+        bp_set_conf_prop(site,
                          'yarn.timeline-service.address',
                          '%s:10200' % timeline)
-        bp_set_conf_prop('yarn-site',
+        bp_set_conf_prop(site,
                          'yarn.timeline-service.webapp.address',
                          '%s:8188' % timeline)
-        bp_set_conf_prop('yarn-site',
+        bp_set_conf_prop(site,
                          'yarn.timeline-service.webapp.https.address',
                          '%s:8190' % timeline)
 
@@ -444,9 +466,13 @@ def complete_conf_hive(serv_comp_hosts):
             generate_hivesite_ha(serv_comp_hosts['HIVE'])
         else:
             bp_set_conf_prop('core-site',
-                             'hadoop.proxyuser.yarn.hosts',
-                             fqdn(serv_comp_hosts['YARN']
-                                  .get('RESOURCEMANAGER')[0]))
+                             'hadoop.proxyuser.hive.hosts',
+                             fqdn(serv_comp_hosts['HIVE']
+                                  .get('HIVE_METASTORE')[0]))
+            bp_set_conf_prop('core-site',
+                             'hadoop.proxyuser.hcat.hosts',
+                             fqdn(serv_comp_hosts['HIVE']
+                                  .get('WEBHCAT_SERVER')[0]))
             generate_hivesite(serv_comp_hosts['HIVE'])
             generate_hiveenv(serv_comp_hosts['HIVE'])
             generate_webhcatsite(serv_comp_hosts['HIVE'])
@@ -454,40 +480,42 @@ def complete_conf_hive(serv_comp_hosts):
 
 def generate_hivesite(hive_comp):
     hm = fqdn(hive_comp['HIVE_METASTORE'][0])
-    bp_set_conf_prop('hive-site',
+    site = 'hive-site'
+    bp_set_conf_prop(site,
                      'hive.exec.compress.output',
                      'false')
-    bp_set_conf_prop('hive-site',
+    bp_set_conf_prop(site,
                      'hive.merge.mapfiles',
                      'true')
-    bp_set_conf_prop('hive-site',
+    bp_set_conf_prop(site,
                      'hive.server2.tez.initialize.default.sessions',
                      'false')
-    bp_set_conf_prop('hive-site',
+    bp_set_conf_prop(site,
                      'hive.server2.transport.mode',
                      'binary')
-    bp_set_conf_prop('hive-site',
+    bp_set_conf_prop(site,
                      'javax.jdo.option.ConnectionDriverName',
                      'org.postgresql.Driver')
-    bp_set_conf_prop('hive-site',
+    bp_set_conf_prop(site,
                      'javax.jdo.option.ConnectionURL',
                      'jdbc:postgresql://%s:5432/hive' % get_pgsqlserver_host())
-    bp_set_conf_prop('hive-site',
+    bp_set_conf_prop(site,
                      'javax.jdo.option.ConnectionUserName',
                      'hive')
-    bp_set_conf_prop('hive-site',
+    bp_set_conf_prop(site,
                      'hive.metastore.uris',
                      'thrift://%s:9083' % hm)
 
 
 def generate_hiveenv(hive_comp):
-    bp_set_conf_prop('hive-env',
+    env = 'hive-env'
+    bp_set_conf_prop(env,
                      'hive_database',
                      'Existing PostgreSQL Database')
-    bp_set_conf_prop('hive-env',
+    bp_set_conf_prop(env,
                      'hive_database_name',
                      'hive')
-    bp_set_conf_prop('hive-env',
+    bp_set_conf_prop(env,
                      'hive_database_type',
                      'postgres')
 
@@ -498,6 +526,67 @@ def generate_webhcatsite(hive_comp):
 
 def generate_hivesite_ha(hive_comp):
     raise ex.CreationError('service', 'HIVE', 'mode', 'High Availability',
+                           'NotSupported')
+
+
+def complete_conf_hbase(serv_comp_hosts):
+    if 'HBASE_MASTER' in serv_comp_hosts['HBASE']:
+        if len(serv_comp_hosts['HBASE']['HBASE_MASTER']) > 1:
+            generate_hbasesite_ha(serv_comp_hosts['HBASE'])
+        else:
+            generate_hbasesite(serv_comp_hosts['HBASE'])
+            generate_hbaseenv(serv_comp_hosts['HBASE'])
+
+
+def generate_hbasesite(hbase_comp):
+    site = 'hbase-site'
+    bp_set_conf_prop(site,
+                     'hbase.master.info.port',
+                     '16010')
+    bp_set_conf_prop(site,
+                     'hbase.regionserver.handler.count',
+                     '30')
+    bp_set_conf_prop(site,
+                     'hbase.regionserver.port',
+                     '16020')
+    bp_set_conf_prop(site,
+                     'hbase.regionserver.info.port',
+                     '16030')
+    bp_set_conf_prop(site,
+                     'hbase.rootdir',
+                     '/apps/hbase/data')
+    bp_set_conf_prop(site,
+                     'hbase.rpc.protection',
+                     'authentication')
+    bp_set_conf_prop(site,
+                     'hbase.security.authentication',
+                     'simple')
+    bp_set_conf_prop(site,
+                     'hbase.security.authorization',
+                     'false')
+    bp_set_conf_prop(site,
+                     'hbase.superuser',
+                     'hbase')
+    bp_set_conf_prop(site,
+                     'hbase.tmp.dir',
+                     '/tmp/hbase')
+    bp_set_conf_prop(site,
+                     'hbase.zookeeper.property.clientPort',
+                     '2181')
+    bp_set_conf_prop(site,
+                     'zookeeper.znode.parent',
+                     '/hbase-unsecure')
+
+
+def generate_hbaseenv(hbase_comp):
+    env = 'hbase-env'
+    bp_set_conf_prop(env,
+                     'hbase_user',
+                     'hbase')
+
+
+def generate_hbasesite_ha(hbase_comp):
+    raise ex.CreationError('service', 'HBASE', 'mode', 'High Availability',
                            'NotSupported')
 
 

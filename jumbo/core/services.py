@@ -184,7 +184,7 @@ def check_service_req_service(name, ha=False):
 
 
 def check_service_req_comp(name, ha=False):
-    """Check if the components required to install a service are satisfied.
+    """Check if all the components required are installed for a service.
 
     :param name: Service name
     :type name: str
@@ -205,6 +205,17 @@ def check_service_req_comp(name, ha=False):
                     missing[comp['name']] = missing_count
             return missing
     raise ex.LoadError('service', name, 'NotExist')
+
+
+def check_service_complete(name, ha=False):
+    print_missing = []
+
+    missing_comp = check_service_req_comp(name, ha)
+    if missing_comp:
+        for k, v in missing_comp.items():
+            print_missing.append('{} {}'.format(v, k))
+
+    return print_missing
 
 
 def count_components():
@@ -275,9 +286,12 @@ def remove_service(service, *, cluster):
 
     serv_comp = get_service_components(service)
     for m in ss.svars['machines']:
+        to_remove = []
         for c in m['components']:
             if c in serv_comp:
-                m['components'].remove(c)
+                to_remove.append(c)
+        for c in to_remove:
+            m['components'].remove(c)
 
     ss.svars['services'].remove(service)
     ss.dump_config(get_services_components_hosts())
