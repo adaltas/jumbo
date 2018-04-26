@@ -37,7 +37,7 @@ Jumbo manages the following types of items:
 
 A `vm` must have at least one of the following types:
 - `master`: hosts master components like the NameNode of HDFS;
-- `smaster`: hosts key components of services without slaves like the HiveMetastore of Hive;
+- `smaster`: hosts key components of services without slaves like the Ambari server or the HiveMetastore of Hive;
 - `worker`: hosts slave components like the DataNode of HDFS;
 - `edge`: hosts components exposing APIs like the HiveServer2 of Hive;
 - `ldap`: hosts security components like the IPA-server of FreeIPA.
@@ -50,7 +50,9 @@ A `vm` can be assigned multiple types at creation time. To deploy a functional H
 
 ## Installation
 
-**Requirement:** Vagrant has to be installed on your local machine.
+**Requirements:**
+- Vagrant has to be installed on your local machine.
+- You need a valid SSH public key in `~/.ssh/id_rsa.pub` to provision the clusters.
 
 ```shell
 git clone jumbo jumbo_dir
@@ -64,7 +66,7 @@ You can find all the available commands with the command `help` and more details
 
 ### Configure your cluster
 
-In this tutorial we will build a tiny **3 nodes cluster** with basic Hadoop services installed.
+In this tutorial we will see the main Jumbo commands available through the configuration of a tiny **3 nodes cluster** with basic Hadoop services installed.
 
 #### Cluster creation and Jumbo context
 
@@ -93,7 +95,7 @@ jumbo (anothercluster) >
 
 Now that we have created our cluster, lets add 3 virtual machines to it:
 
-*Adjust the RAM of VMs to your local machine*
+*Adjust the RAM of VMs to your local machine!*
 
 ```shell
 jumbo (mycluster) > addvm master --types master --ip 10.10.10.11 --ram 2000
@@ -135,6 +137,8 @@ jumbo (mycluster) > addservice ANSIBLE
 Service `ANSIBLE` and related clients added to cluster `mycluster`.
 ```
 
+When installing some services, you will notice that some components are installed automatically (they are needed to access the service from any machine). When you add a new vm to a cluster with services installed, the clients of each service are automatically installed on the vm.
+
 #### Component installation
 
 After installing the service AMBARI, we can install the component ANSIBLE_CLIENT on the host that will be responsible of running the Ansible playbooks (we advise to install it on the cluster `sidemaster`).
@@ -144,12 +148,20 @@ jumbo (mycluster) > addcomp ANSIBLE_CLIENT -m smaster
 Component `ANSIBLE_CLIENT` added to machine `mycluster/smaster`
 ```
 
+**Tip:** If you don't know where to put the components or if you are in a hurry, don't worry! Use the flag `--auto` when adding a service to auto-install all the service's components on the best fitting hosts:
+
+```
+jumbo (mycluster) > addservice POSTGRESQL --auto
+Service `POSTGRESQL` and related clients added to cluster `mycluster`.
+```
+
 #### Installation of all Hadoop services and components
 
 We have to reproduce the same procedure of installation for the following services and components (respect this order for services):
 
 | Service    | Components          | Machine type |
 | ---------- | ------------------- | ------------ |
+| ANSIBLE    | ANSIBLE_CLIENT      | `sidemaster` |
 | POSTGRESQL | PSQL_SERVER         | `sidemaster` |
 | AMBARI     | AMBARI_SERVER       | `sidemaster` |
 | HDFS       | NAMENODE            | `master`     |
@@ -162,10 +174,23 @@ We have to reproduce the same procedure of installation for the following servic
 |            | NODEMANAGER         | `worker`     |
 | HIVE       | HIVE_METASTORE      | `sidemaster` |
 |            | HIVE_SERVER         | `edge`       |
+| HBASE      | HBASE_MASTER        | `master`     |
+|            | HBASE_REGIONSERVER  | `worker`     |
 
-When installing some services, you will notice that some components are installed automatically (they are needed to access the service from any machine). When you add a new vm to a cluster with services installed, the clients of each service are automatically installed on the vm.
+**Reminder:** Use `addservice SERVICE --auto` to auto-install all the service's components on the best fitting hosts.
 
-#### Launch the cluster deployment
+#### Remove items?
+
+Use the commands `rmvm`, `rmservice`, or `rmcomp` to remove items.
+
+#### See what have been installed
+
+Jumbo has list commands to describe the cluster state:
+- `listcl` to list all the clusters and the services installed on each of them;
+- `listvm` to list the VMs and their configurations;
+- `listcomp` to list the components installed on a machine.
+
+### Launch the cluster deployment
 
 Each cluster created with Jumbo has a dedicated folder in `~/.jumbo/`. Jumbo generates all the configuration files needed in this folder. You just have to start the Vagrant provisioning of the cluster and watch the magic in action:
 
@@ -187,47 +212,52 @@ ok: [smaster] => {
 }
 ```
 
-#### Remove items
+At this state you can already connect as root to any host of the cluster via ssh:
 
-Use the commands `rmvm`, `rmservice`, or `rmcomp` to remove items.
-
+```shell
+ssh root@10.10.10.11
+```
 
 ## Supported services and components
 
-| Service            | Components          |
-| ------------------ | ------------------- |
-| ANSIBLE            | ANSIBLE_CLIENT      |
-| POSTGRESQL         | PSQL_SERVER         |
-| AMBARI             | AMBARI_SERVER       |
-| HDFS               | NAMENODE            |
-|                    | SECONDARY_NAMENODE  |
-|                    | DATANODE            |
-|                    | JOURNALNODE         |
-|                    | HDFS_CLIENT         |
-| YARN (+MAPREDUCE2) | RESOURCEMANAGER     |
-|                    | NODEMANAGER         |
-|                    | HISTORYSERVER       |
-|                    | APP_TIMELINE_SERVER |
-|                    | YARN_CLIENT         |
-|                    | MAPREDUCE2_CLIENT   |
-|                    | SLIDER              |
-| ZOOKEEPER          | ZOOKEEPER_SERVER    |
-|                    | ZOOKEEPER_CLIENT    |
-|                    | ZKFC                |
-| HIVE               | HIVE_METASTORE      |
-|                    | HIVE_SERVER         |
-|                    | WEBHCAT_SERVER      |
-|                    | HCAT                |
-|                    | HIVE_CLIENT         |
-| HBASE              | HBASE_MASTER        |
-|                    | HBASE_REGIONSERVER  |
-|                    | HBASE_CLIENT        |
+| Service             | Components          |
+| ------------------- | ------------------- |
+| ANSIBLE             | ANSIBLE_CLIENT      |
+| POSTGRESQL          | PSQL_SERVER         |
+| AMBARI              | AMBARI_SERVER       |
+| HDFS                | NAMENODE            |
+|                     | SECONDARY_NAMENODE  |
+|                     | DATANODE            |
+|                     | JOURNALNODE         |
+|                     | HDFS_CLIENT         |
+| YARN (+ MAPREDUCE2) | RESOURCEMANAGER     |
+|                     | NODEMANAGER         |
+|                     | HISTORYSERVER       |
+|                     | APP_TIMELINE_SERVER |
+|                     | YARN_CLIENT         |
+|                     | MAPREDUCE2_CLIENT   |
+|                     | SLIDER              |
+| ZOOKEEPER           | ZOOKEEPER_SERVER    |
+|                     | ZOOKEEPER_CLIENT    |
+|                     | ZKFC                |
+| HIVE                | HIVE_METASTORE      |
+|                     | HIVE_SERVER         |
+|                     | WEBHCAT_SERVER      |
+|                     | HCAT                |
+|                     | HIVE_CLIENT         |
+| HBASE               | HBASE_MASTER        |
+|                     | HBASE_REGIONSERVER  |
+|                     | HBASE_CLIENT        |
 
 ## Underlying tools versions
 
 ### Vagrant
 
 Vagrant box: [`centos/7`](https://app.vagrantup.com/centos/boxes/7) (32 GB of disk per VM)
+
+Vagrant providers available:
+- libvirt (default)
+- VirtualBox (if libvirt not available)
 
 ### Ansible
 
