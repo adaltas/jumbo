@@ -275,6 +275,16 @@ def get_service_components(name):
     return components
 
 
+def check_dependent_services(service, ha=False):
+    req = 'ha' if ha else 'default'
+    dependent = []
+    for s in config['services']:
+        if s['name'] in ss.svars['services']:
+            if service in s['requirements']['services'][req]:
+                dependent.append(s['name'])
+    return dependent
+
+
 @valid_cluster
 def remove_service(service, *, cluster):
     """Remove a service of a specified cluster.
@@ -295,6 +305,12 @@ def remove_service(service, *, cluster):
     if not check_service_cluster(service):
         raise ex.CreationError(
             'cluster', cluster, 'service', service, 'NotInstalled')
+
+    dependent = check_dependent_services(service)
+    if dependent:
+        raise ex.CreationError(
+            'service', service, 'services', dependent, 'Dependency'
+        )
 
     serv_comp = get_service_components(service)
     for m in ss.svars['machines']:

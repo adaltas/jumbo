@@ -32,7 +32,7 @@ class CreationError(Error):
                           .format(self.object['type'],
                                   self.object['name'],
                                   self.conflict['property'],
-                                  ',\n - '.join(self.conflict['value']))),
+                                  '\n - '.join(self.conflict['value']))),
             'NotInstalled': ('The {} `{}` is not installed on the {} `{}`!'
                              .format(self.conflict['property'],
                                      self.conflict['value'],
@@ -42,7 +42,13 @@ class CreationError(Error):
                              .format(self.conflict['value'],
                                      self.conflict['property'],
                                      self.object['type'],
-                                     self.object['name']))
+                                     self.object['name'])),
+            'Dependency': ('Cannot delete the {} `{}` because it is required '
+                           'for these {} installed:\n - {}'
+                           .format(self.object['type'],
+                                   self.object['name'],
+                                   self.conflict['property'],
+                                   '\n - '.join(self.conflict['value'])))
         }
 
         return switcher.get(self.type, self.type)
