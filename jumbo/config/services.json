@@ -424,7 +424,7 @@
         {
           "name": "HIVE_METASTORE",
           "hosts_types": [
-            "smaster",
+            "sidemaster",
             "master"
           ],
           "abbr": "H_MSTORE",
@@ -437,7 +437,7 @@
           "name": "HIVE_SERVER",
           "hosts_types": [
             "edge",
-            "smaster"
+            "sidemaster"
           ],
           "abbr": "H_SERVER",
           "number": {
