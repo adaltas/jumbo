@@ -216,6 +216,8 @@ At this state you can already connect as root to any host of the cluster via ssh
 ssh root@10.10.10.11
 ```
 
+**Before starting working on the cluster, be sure that it is entirely configured as you want!** (If you modify the cluster configuration with Jumbo after deployment, you will have to `vagrant destroy -f` and `vagrant up` again to apply changes)
+
 ## Supported services and components
 
 | Service             | Components          |
