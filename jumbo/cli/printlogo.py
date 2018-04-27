@@ -3,6 +3,10 @@ import click
 
 
 def random_color():
+    """Return a random color
+
+    """
+
     colors = [
         'red',
         'green',
@@ -15,6 +19,10 @@ def random_color():
 
 
 def jumbo_ascii():
+    """Return a random logo in a random color
+
+    """
+
     logos = [
         r'''
                                       

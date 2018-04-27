@@ -99,9 +99,8 @@ def load_config(cluster):
 
 
 def clear():
-    '''Reset the sessions variables.
-
-    '''
+    """Reset the sessions variables.
+    """
 
     global svars, bp
     svars = {
@@ -121,6 +120,9 @@ def clear():
 
 
 def clear_bp():
+    """Reset the blueprint configuration.
+    """
+
     global bp
     bp = {
         'configurations': [],
@@ -134,11 +136,11 @@ def clear_bp():
 
 
 def add_machine(m):
-    '''Add a machine to the current session.
+    """Add a machine to the current session.
 
     :param m: Machine configuration
     :type m: dict
-    '''
+    """
 
     added = False
     for i, machine in enumerate(svars['machines']):
@@ -153,7 +155,6 @@ def generate_ansible_groups():
     """
     Fill the 'groups' property of each host depending on the components
     installed on it.
-
     """
 
     ansiblehost = None
@@ -185,13 +186,16 @@ def generate_ansible_groups():
 
 
 def get_pgsqlserver_host():
+    """Return the fqdn of the machine hosting the PSQL_SERVER.
+    """
+
     for machine in svars['machines']:
         if 'pgsqlserver' in machine['groups']:
             return fqdn(machine['name'])
 
 
 def generate_ansible_vars():
-    """Generate the group_vars/all variables for Ansible playbooks
+    """Generate the group_vars/all variables for Ansible playbooks.
 
     :return: The variables to write in group_vars/all
     :rtype: dict
@@ -225,7 +229,7 @@ def generate_ansible_vars():
 
 
 def bp_set_conf_prop(section, prop, value):
-    """Set a property in a specified section of the blueprint 'configurations'
+    """Set a property in a specified section of the blueprint 'configurations'.
 
     :param section: Section in which the property to set is
     :type section: str
@@ -246,7 +250,7 @@ def bp_set_conf_prop(section, prop, value):
 
 
 def fqdn(host):
-    """Generate the fqdn of a host
+    """Generate the fqdn of a host.
 
     :param host: The host name
     :type host: str
@@ -258,12 +262,21 @@ def fqdn(host):
 
 
 def generate_blueprint(serv_comp_hosts):
+    """Complete the blueprint configuration.
+
+    :param serv_comp_hosts: A list of services-components-hosts installed
+    :type serv_comp_hosts: dict
+    """
+
     generate_blueprint_conf(serv_comp_hosts)
     generate_blueprint_hostgroups()
     generate_blueprint_settings()
 
 
 def generate_blueprint_conf(serv_comp_hosts):
+    """Complete the 'configurations' section of the blueprint
+    """
+
     bp.get('configurations').append({
         'core-site': {
             'properties': {}
@@ -591,6 +604,10 @@ def generate_hbasesite_ha(hbase_comp):
 
 
 def generate_blueprint_hostgroups():
+    """Complete the 'host_groups' section of the blueprint.
+
+    """
+
     for m in svars['machines']:
         comp = []
         for c in m['components']:
@@ -623,6 +640,9 @@ def generate_blueprint_settings():
 
 
 def generate_cluster():
+    """Return the cluster file JSON.
+    """
+
     host_groups = []
     for hg in bp['host_groups']:
         host_groups.append({

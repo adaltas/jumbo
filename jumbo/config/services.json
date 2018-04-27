@@ -576,7 +576,8 @@
           "default": [
             "AMBARI",
             "HDFS",
-            "YARN"
+            "YARN",
+            "ZOOKEEPER"
           ],
           "ha": [
             "AMBARI",

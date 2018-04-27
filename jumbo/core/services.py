@@ -113,7 +113,7 @@ def add_component(name, machine, cluster):
                                'Installed')
 
     ss.svars['machines'][m_index]['components'].append(name)
-    auto_install_component(name, machine, service, cluster)
+    auto_install_components(name, machine, service, cluster)
     ss.dump_config(get_services_components_hosts())
 
 
@@ -210,6 +210,16 @@ def check_service_req_comp(name, ha=False):
 
 
 def check_service_complete(name, ha=False):
+    """Check if all the components required are installed for a service
+
+    :param name: Service name
+    :type name: str
+    :param ha: If the service is in HA mode, defaults to False
+    :param ha: bool, optional
+    :return: A list of the components missing and their cardinalities
+    :rtype: dict
+    """
+
     print_missing = []
 
     missing_comp = check_service_req_comp(name, ha)
@@ -390,6 +400,16 @@ def get_services_components_hosts():
 
 @valid_cluster
 def auto_assign(service, *, cluster):
+    """Auto-install a service and its components on the best fitting hosts.
+
+    :param service: Service name
+    :type service: str
+    :param cluster: Cluster name
+    :type cluster: str
+    :raises ex.LoadError: If the cluster doesn't exist
+    :raises ex.CreationError: If the requirements are not met to install
+    """
+
     ss.load_config(cluster)
 
     scfg = check_service(service)
@@ -418,7 +438,8 @@ def auto_assign(service, *, cluster):
 
 
 def auto_assign_service_comp(component, dist, cluster, check):
-    """
+    """Auto-install a component on the best fitting hosts.
+
     :param component: component dict from services.json
     :type component dict
     :param dist:
@@ -446,6 +467,14 @@ def auto_assign_service_comp(component, dist, cluster, check):
 
 
 def auto_install_service(service, cluster):
+    """Auto-install the service clients on the fitting hosts.
+
+    :param service: Service name
+    :type service: str
+    :param cluster: Cluster name
+    :type cluster: str
+    """
+
     for s in config['services']:
         if s['name'] == service:
             for c in s['components']:
@@ -454,7 +483,21 @@ def auto_install_service(service, cluster):
                                              check=False)
 
 
-def auto_install_component(component, machine, service, cluster):
+def auto_install_components(component, machine, service, cluster):
+    """
+    Auto-install the components tied to a component beeing
+    installed on a machine.
+
+    :param component: The component installed on the machine
+    :type component: str
+    :param machine: Machine name
+    :type machine: str
+    :param service: Service name of the component
+    :type service: str
+    :param cluster: Cluster name
+    :type cluster: str
+    """
+
     for s in config['services']:
         if s['name'] == service:
             for c in s['components']:
@@ -466,6 +509,15 @@ def auto_install_component(component, machine, service, cluster):
 
 
 def auto_install_machine(machine, cluster):
+    """Auto-install the clients for all the cluster's services on a machine.
+
+    :param machine: Machine name
+    :type machine: str
+    :param cluster: Cluster name
+    :type cluster: str
+    :return: The number of components auto-installed
+    """
+
     count = 0
     for s in config['services']:
         if s['name'] in ss.svars['services']:

@@ -204,8 +204,7 @@ def validate_ip_cb(ctx, param, value):
               help='RAM allocated to the VM in MB')
 @click.option('--cpus', '-p', default=1,
               help='Number of CPUs allocated to the VM')
-@click.option('--cluster', '-c',
-              help='Cluster in which the VM will be created')
+@click.option('--cluster', '-c')
 @click.pass_context
 def addvm(ctx, name, types, ip, ram, cpus, cluster):
     """
@@ -239,7 +238,7 @@ def addvm(ctx, name, types, ip, ram, cpus, cluster):
 @jumbo.command()
 @click.argument('name')
 @click.pass_context
-@click.option('--cluster', '-c', help='Cluster of the VM to be deleted')
+@click.option('--cluster', '-c')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 def rmvm(ctx, name, cluster, force):
     """Removes a VM.
@@ -272,7 +271,7 @@ def rmvm(ctx, name, cluster, force):
 
 
 @jumbo.command()
-@click.option('--cluster', '-c', help='Cluster in which to list the VMs')
+@click.option('--cluster', '-c')
 def listvm(cluster):
     """
     List VMs in the cluster being managed.
@@ -300,9 +299,8 @@ def listvm(cluster):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--cluster', '-c',
-              help='The cluster in which to add the service')
-@click.option('--auto', is_flag=True, help='Assign components automatically')
+@click.option('--cluster', '-c')
+@click.option('--auto', is_flag=True, help='Install components automatically')
 @click.pass_context
 def addservice(ctx, name, cluster, auto):
     """
@@ -331,8 +329,7 @@ def addservice(ctx, name, cluster, auto):
 
 @jumbo.command()
 @click.argument('service')
-@click.option('--cluster', '-c',
-              help='The cluster in which to delete the service')
+@click.option('--cluster', '-c')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 @click.pass_context
 def rmservice(ctx, service, cluster, force):
@@ -432,10 +429,11 @@ def rmcomp(ctx, name, machine, cluster, force):
 @jumbo.command()
 @click.argument('machine', required=False)
 @click.option('--cluster', '-c')
-@click.option('--all', '-a', is_flag=True)
+@click.option('--all', '-a', is_flag=True,
+              help='List components on all machines')
 def listcomp(machine, cluster, all):
     """
-    List compononents on the given machine.
+    List compononents on a given machine.
     """
     if not cluster:
         cluster = ss.svars['cluster']
@@ -474,6 +472,11 @@ def listcomp(machine, cluster, all):
 @click.argument('name')
 @click.option('--cluster', '-c')
 def checkservice(name, cluster):
+    """Check if a service is complete (if all needed components are installed).
+
+    :param name: Service name
+    """
+
     if not cluster:
         cluster = ss.svars['cluster']
     else:
@@ -493,4 +496,8 @@ def checkservice(name, cluster):
 
 @jumbo.command()
 def logo():
+    """Print a random ASCII logo.
+
+    """
+
     click.echo(printlogo.jumbo_ascii())
