@@ -86,7 +86,7 @@ After creating a cluster, the *Jumbo context* is set to this cluster. You can se
 ```shell
 jumbo (mycluster) > exit
 jumbo > manage anothercluster
-Loading test...
+Loading anothercluster...
 Cluster `anothercluster` loaded.
 jumbo (anothercluster) > 
 ```
