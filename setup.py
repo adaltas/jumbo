@@ -13,6 +13,6 @@ setup(
     py_modules=['jumbo'],
     entry_points='''
         [console_scripts]
-        jumbo=jumbo.main:jumbo
+        jumbo=jumbo.cli.main:jumbo
     '''
 )
