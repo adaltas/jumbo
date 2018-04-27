@@ -303,11 +303,12 @@ def listvm(cluster):
 @jumbo.command()
 @click.argument('name')
 @click.option('--cluster', '-c')
-@click.option('--auto', is_flag=True, help='Install components automatically')
+@click.option('--no-auto', is_flag=True, help='Avoid auto-install')
 @click.pass_context
-def addservice(ctx, name, cluster, auto):
+def addservice(ctx, name, cluster, no_auto):
     """
-    Add service to a cluster.
+    Add a service to a cluster and auto-install its components
+    on the best fitting hosts.
     """
     switched = True if cluster else False
     if not cluster:
@@ -315,16 +316,24 @@ def addservice(ctx, name, cluster, auto):
 
     try:
         services.add_service(name, cluster=cluster)
-        if auto:
-            services.auto_assign(name, cluster=cluster)
+        if no_auto:
+            msg = ('No component has been auto-installed (except clients). '
+                   'Use "addcomp" manually.')
+        else:
+            count = services.auto_assign(name, cluster=cluster)
+            msg = ('{} type{} of component{} auto-installed. '
+                   'Use "listcomp -a" for details.'
+                   .format(count,
+                           's' if count > 1 else '',
+                           's' if count > 1 else ''))
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         switched = False
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Service `{}` and related clients added to cluster `{}`.'
-                   .format(name, cluster))
+        click.echo('Service `{}` and related clients added to cluster `{}`.\n'
+                   .format(name, cluster) + msg)
     finally:
         if switched:
             set_context(ctx, cluster)
@@ -500,7 +509,6 @@ def checkservice(name, cluster):
 @jumbo.command()
 def logo():
     """Print a random ASCII logo.
-
     """
 
     click.echo(printlogo.jumbo_ascii())

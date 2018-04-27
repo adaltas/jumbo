@@ -433,8 +433,12 @@ def auto_assign(service, *, cluster):
                                    component['hosts_types'],
                                    'ReqNotMet')
 
+    count = 0
     for component in scfg['components']:
         auto_assign_service_comp(component, dist, cluster, check=False)
+        count += 1
+
+    return count
 
 
 def auto_assign_service_comp(component, dist, cluster, check):

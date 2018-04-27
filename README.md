@@ -125,7 +125,7 @@ jumbo (mycluster) > listvm
 
 #### Service installation
 
-Before installing a component, you need to install the service to which the component belongs. A service can have dependencies to other services. A service dependency is satisfied if the service is installed and if the minimum required number of each component is installed. If the requirements to install a service are not met, Jumbo will tell you what services or components you have to install:
+A service can have dependencies to other services. A service dependency is satisfied if the service is installed and if the minimum required number of each component is installed. If the requirements to install a service are not met, Jumbo will tell you what services or components you have to install:
 
 ```shell
 jumbo (mycluster) > addservice AMBARI
@@ -135,25 +135,25 @@ These services are missing:
  - POSTGRESQL
 jumbo (mycluster) > addservice ANSIBLE
 Service `ANSIBLE` and related clients added to cluster `mycluster`.
+1 type of component auto-installed. Use "listcomp -a" for details.
 ```
 
-When installing some services, you will notice that some components are installed automatically (they are needed to access the service from any machine). When you add a new vm to a cluster with services installed, the clients of each service are automatically installed on the vm.
+When installing a service, all its components are auto-installed on the best fitting hosts by default. You can avoid the auto-installation with the flag `--no-auto`. Note that the service's clients clients will always be installed on all hosts.
+
+When you add a new vm to a cluster with services installed, the clients of each service are automatically installed on the vm.
 
 #### Component installation
 
-After installing the service AMBARI, we can install the component ANSIBLE_CLIENT on the host that will be responsible of running the Ansible playbooks (we advise to install it on the cluster `sidemaster`).
+If you choose to not auto-install the components with the flag `--no-auto`, you have to manually add components with `addcomp` on the machines of your choice.  Use the command `checkservice` to see what components are missing for the service to be complete:
 
 ```shell
+jumbo (mycluster) > checkservice ANSIBLE
+The service `ANSIBLE` misses:
+ - 1 ANSIBLE_CLIENT
 jumbo (mycluster) > addcomp ANSIBLE_CLIENT -m smaster
-Component `ANSIBLE_CLIENT` added to machine `mycluster/smaster`
+Component `ANSIBLE_CLIENT` added to machine `mycluster/smaster`.
 ```
 
-**Tip:** If you don't know where to put the components or if you are in a hurry, don't worry! Use the flag `--auto` when adding a service to auto-install all the service's components on the best fitting hosts:
-
-```
-jumbo (mycluster) > addservice POSTGRESQL --auto
-Service `POSTGRESQL` and related clients added to cluster `mycluster`.
-```
 
 #### Installation of all Hadoop services and components
 
@@ -176,8 +176,6 @@ We have to reproduce the same procedure of installation for the following servic
 |            | HIVE_SERVER         | `edge`       |
 | HBASE      | HBASE_MASTER        | `master`     |
 |            | HBASE_REGIONSERVER  | `worker`     |
-
-**Reminder:** Use `addservice SERVICE --auto` to auto-install all the service's components on the best fitting hosts.
 
 #### Remove items?
 
