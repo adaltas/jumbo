@@ -39,12 +39,6 @@
 - include_tasks: name-bp.yml
   when: bp_existence.status == 200
 
-- name: Template blueprint
-  template:
-    src: blueprint.j2
-    dest: /tmp/blueprint.json
-  delegate_to: 127.0.0.1
-
 - name: Post blueprint to ambariserver
   uri:
     url: "http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/blueprints/{{ blueprint_name if bp_existence.status != 200 else bp_tmp }}"
@@ -54,7 +48,7 @@
     force_basic_auth: yes
     user: "{{ ambari.user }}"
     password: "{{ ambari.pwd }}"
-    body: " {{ lookup('file', '/tmp/blueprint.json') }}"
+    body: " {{ lookup('file', 'blueprint.json') }}"
     body_format: raw
     status_code: 200, 201, 202
  
@@ -108,12 +102,6 @@
     status_code: 200, 201, 202, 400
   when: not existing_url
 
-- name: Template cluster instance file
-  template:
-    src: cluster.j2
-    dest: /tmp/hdp-cluster.json
-  delegate_to: 127.0.0.1
-
 - name: Create cluster instance
   uri:
     url: "http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}"
@@ -123,7 +111,7 @@
     force_basic_auth: yes
     user: "{{ ambari.user }}"
     password: "{{ ambari.pwd }}"
-    body: " {{ lookup('file', '/tmp/hdp-cluster.json')}}"
+    body: " {{ lookup('file', 'cluster.json')}}"
     body_format: raw
     status_code: 200, 201, 202
 

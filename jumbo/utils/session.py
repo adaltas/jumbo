@@ -62,11 +62,11 @@ def dump_config(services_components_hosts=None):
             clear_bp()
             generate_blueprint(services_components_hosts)
             with open(JUMBODIR + svars['cluster'] +
-                      '/playbooks/roles/postblueprint/templates/blueprint.j2',
+                      '/playbooks/roles/postblueprint/files/blueprint.json',
                       'w') as bpf:
                 json.dump(bp, bpf)
             with open(JUMBODIR + svars['cluster'] +
-                      '/playbooks/roles/postblueprint/templates/cluster.j2',
+                      '/playbooks/roles/postblueprint/files/cluster.json',
                       'w') as clf:
                 json.dump(generate_cluster(), clf)
 
