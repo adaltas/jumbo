@@ -6,7 +6,7 @@ import pathlib
 from distutils.dir_util import copy_tree
 from shutil import rmtree
 
-from jumbo.utils.settings import JUMBODIR, default_urls
+from jumbo.utils.settings import JUMBODIR, DEFAULT_URLS
 from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils import checks
 
@@ -41,9 +41,9 @@ def create_cluster(domain, ambari_repo, vdf, *, cluster):
     ss.svars['cluster'] = cluster
     ss.svars['domain'] = domain if domain else '%s.local' % cluster
     ss.svars['urls']['ambari_repo'] = ambari_repo if ambari_repo \
-        else default_urls['ambari_repo']
+        else DEFAULT_URLS['ambari_repo']
     ss.svars['urls']['vdf'] = vdf if vdf \
-        else default_urls['vdf']
+        else DEFAULT_URLS['vdf']
     ss.dump_config()
     return True
 
@@ -63,9 +63,9 @@ def repair_cluster(domain,  ambari_repo, vdf, *, cluster):
         ss.svars['cluster'] = cluster
         ss.svars['domain'] = domain if domain else '%s.local' % cluster
         ss.svars['urls']['ambari_repo'] = ambari_repo if ambari_repo \
-            else default_urls['ambari_repo']
+            else DEFAULT_URLS['ambari_repo']
         ss.svars['urls']['vdf'] = vdf if vdf \
-            else default_urls['vdf']
+            else DEFAULT_URLS['vdf']
         ss.dump_config()
         return True
 
@@ -125,7 +125,7 @@ def list_machines(*, cluster):
 
 @checks.valid_cluster
 def set_url(url, value, *, cluster):
-    if url not in default_urls:
+    if url not in DEFAULT_URLS:
         raise ex.LoadError('URL', url, 'NotExist')
 
     if cluster != ss.svars['cluster']:

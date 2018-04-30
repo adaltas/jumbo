@@ -393,6 +393,17 @@ def list_components(*, machine, cluster):
     return m_conf['components']
 
 
+def get_abbr(component, service):
+    if not check_component(component):
+        raise ex.LoadError('component', component, 'NotExist')
+
+    for s in config['services']:
+        if s['name'] == service:
+            for c in s['components']:
+                if c['name'] == component:
+                    return c['abbr']
+
+
 def get_services_components_hosts():
     """Generate the list services->components->hosts of the session cluster.
 

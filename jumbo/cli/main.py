@@ -348,7 +348,7 @@ def listvm(cluster):
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo(vm_table)
+        print_with_colors(vm_table)
 
 
 #####################
@@ -498,27 +498,34 @@ def rmcomp(ctx, name, machine, cluster, force):
 @click.option('--cluster', '-c')
 @click.option('--all', '-a', is_flag=True,
               help='List components on all machines')
-def listcomp(machine, cluster, all):
+@click.option('--abbr', is_flag=True, help='Display abbreviations')
+def listcomp(machine, cluster, all, abbr):
     """
     List compononents on a given machine.
     """
     if not cluster:
         cluster = ss.svars['cluster']
-    else:
-        ss.load_config(cluster)
 
     if all:
         for m in ss.svars['machines']:
             comp_table = PrettyTable(['Component', 'Service'])
+            comp_table.align['Component'] = 'l'
+            comp_table.align['Service'] = 'l'
             click.echo('\n' + m['name'] + ':')
             try:
                 for c in services.list_components(machine=m['name'],
                                                   cluster=cluster):
-                    comp_table.add_row([c, services.check_component(c)])
+                    service = services.check_component(c)
+                    comp_table.add_row([
+                        c if not abbr else services.get_abbr(c, service),
+                        service
+                    ])
+                    comp_table.sortby = 'Service'
             except ex.LoadError as e:
                 click.secho(e.message, fg='red', err=True)
             else:
-                click.echo(comp_table)
+                print_with_colors(comp_table)
+
     else:
         if machine is None:
             click.secho('You need to specify a machine name. Use --all to list'
@@ -526,13 +533,20 @@ def listcomp(machine, cluster, all):
             return
         try:
             comp_table = PrettyTable(['Component', 'Service'])
+            comp_table.align['Component'] = 'l'
+            comp_table.align['Service'] = 'l'
             for c in services.list_components(machine=machine,
                                               cluster=cluster):
-                comp_table.add_row([c, services.check_component(c)])
+                service = services.check_component(c)
+                comp_table.add_row([
+                    c if not abbr else services.get_abbr(c, service),
+                    service
+                ])
+                comp_table.sortby = 'Service'
         except ex.LoadError as e:
             click.secho(e.message, fg='red', err=True)
         else:
-            click.echo(comp_table)
+            print_with_colors(comp_table)
 
 
 @jumbo.command()
@@ -567,3 +581,17 @@ def logo():
     """
 
     click.echo(printlogo.jumbo_ascii())
+
+
+def print_with_colors(table):
+    to_print = []
+    color = False
+    lines = table.get_string().split('\n')
+    for i, l in enumerate(lines):
+        if i > 2 and lines[i] != lines[-1]:
+            to_print.append(click.style(l, fg='blue' if color else 'white'))
+            color = not color
+        else:
+            to_print.append(l)
+    for l in to_print:
+        click.echo(l)
