@@ -8,7 +8,7 @@ from shutil import rmtree
 
 from jumbo.utils.settings import JUMBODIR, default_urls
 from jumbo.utils import session as ss, exceptions as ex
-from jumbo.utils.checks import valid_cluster
+from jumbo.utils import checks
 
 
 def check_config(name):
@@ -20,7 +20,6 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-@valid_cluster
 def create_cluster(domain, ambari_repo, vdf, *, cluster):
     """Create a new cluster and load it in the session.
 
@@ -31,6 +30,9 @@ def create_cluster(domain, ambari_repo, vdf, *, cluster):
     :raises ex.CreationError: If name already used
     :return: True on creation success
     """
+
+    if checks.check_cluster(cluster):
+        raise ex.CreationError('cluster', cluster, 'name', cluster, 'Exists')
 
     pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
     data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../data/'
@@ -46,7 +48,7 @@ def create_cluster(domain, ambari_repo, vdf, *, cluster):
     return True
 
 
-@valid_cluster
+@checks.valid_cluster
 def repair_cluster(domain,  ambari_repo, vdf, *, cluster):
     """Recreate the cluster `jumbo_config` file if it doesn't exist.
 
@@ -70,7 +72,7 @@ def repair_cluster(domain,  ambari_repo, vdf, *, cluster):
     return False
 
 
-@valid_cluster
+@checks.valid_cluster
 def delete_cluster(*, cluster):
     """Delete a cluster.
 
@@ -108,7 +110,7 @@ def list_clusters():
     return clusters
 
 
-@valid_cluster
+@checks.valid_cluster
 def list_machines(*, cluster):
     """List the machines of a cluster.
 
@@ -121,7 +123,7 @@ def list_machines(*, cluster):
     return ss.svars['machines']
 
 
-@valid_cluster
+@checks.valid_cluster
 def set_url(url, value, *, cluster):
     if url not in default_urls:
         raise ex.LoadError('URL', url, 'NotExist')
