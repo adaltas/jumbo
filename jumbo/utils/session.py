@@ -2,9 +2,8 @@ from jinja2 import Environment, PackageLoader
 import json
 import yaml
 
-from jumbo.utils import exceptions as ex
+from jumbo.utils import exceptions as ex, checks
 from jumbo.utils.settings import JUMBODIR
-from jumbo.utils import exceptions as ex
 from jumbo.core import clusters
 
 svars = {
@@ -87,7 +86,7 @@ def load_config(cluster):
     """
     global svars
 
-    if not clusters.check_cluster(cluster):
+    if not checks.check_cluster(cluster):
         raise ex.LoadError('cluster', cluster, 'NotExist')
 
     if not clusters.check_config(cluster):

@@ -4,7 +4,7 @@ import ipaddress as ipadd
 from prettytable import PrettyTable
 
 from jumbo.core import clusters, machines as vm, services
-from jumbo.utils import session as ss, exceptions as ex
+from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
 
 
@@ -42,11 +42,12 @@ def jumbo(ctx, cluster):
     sh.add_command(rmservice)
     sh.add_command(rmcomp)
     sh.add_command(checkservice)
+    sh.add_command(seturl)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
     if cluster:
-        if not clusters.check_cluster(cluster):
+        if not checks.check_cluster(cluster):
             click.echo('This cluster does not exist.'
                        ' Use `create NAME` to create it.', err=True)
         else:
@@ -210,6 +211,31 @@ def repair(name, domain, ambari_repo, vdf):
                    .format(name, domain if domain else '%s.local' % name))
     else:
         click.echo('Nothing to repair in cluster `%s`.' % name)
+
+
+@jumbo.command()
+@click.argument('name')
+@click.option('--value', '-v', prompt='URL', required=True)
+@click.option('--cluster', '-c')
+@click.pass_context
+def seturl(ctx, name, value, cluster):
+    switched = True if cluster else False
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        clusters.set_url(url=name,
+                         value=value,
+                         cluster=cluster)
+    except (ex.CreationError, ex.LoadError) as e:
+        click.secho(e.message, fg='red', err=True)
+        switched = False
+    else:
+        click.echo('`{}` of cluster `{}` set to {}'
+                   .format(name, cluster, value))
+    finally:
+        if switched:
+            set_context(ctx, cluster)
 
 
 ###############

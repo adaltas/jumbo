@@ -11,15 +11,6 @@ from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils.checks import valid_cluster
 
 
-def check_cluster(name):
-    """Return true if the cluster exists.
-
-    :param name: Cluster name
-    :type name: str
-    """
-    return os.path.isdir(JUMBODIR + name)
-
-
 def check_config(name):
     """Return true if the cluster has a `jumbo_config` file.
 
@@ -29,7 +20,8 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(cluster, domain, ambari_repo, vdf):
+@valid_cluster
+def create_cluster(domain, ambari_repo, vdf, *, cluster):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -39,8 +31,6 @@ def create_cluster(cluster, domain, ambari_repo, vdf):
     :raises ex.CreationError: If name already used
     :return: True on creation success
     """
-    if check_cluster(cluster):
-        raise ex.CreationError('cluster', cluster, 'name', cluster, 'Exists')
 
     pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
     data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../data/'
@@ -129,3 +119,15 @@ def list_machines(*, cluster):
     """
     ss.load_config(cluster)
     return ss.svars['machines']
+
+
+@valid_cluster
+def set_url(url, value, *, cluster):
+    if url not in default_urls:
+        raise ex.LoadError('URL', url, 'NotExist')
+
+    if cluster != ss.svars['cluster']:
+        ss.load_config(cluster)
+
+    ss.svars['urls'][url] = value
+    ss.dump_config()
