@@ -15,6 +15,7 @@
           "hosts_types": [
             "edge"
           ],
+          "abbr": "ANSIBLE_C",
           "number": {
             "default": 1,
             "ha": 1
@@ -47,6 +48,7 @@
           "hosts_types": [
             "sidemaster"
           ],
+          "abbr": "PSQL_S",
           "number": {
             "default": 1,
             "ha": 1
@@ -83,6 +85,7 @@
           "hosts_types": [
             "sidemaster"
           ],
+          "abbr": "AMBARI_S",
           "number": {
             "default": 1,
             "ha": 1
@@ -166,7 +169,7 @@
             "edge",
             "worker"
           ],
-          "abbr": "HDFSC",
+          "abbr": "HDFS_C",
           "number": {
             "default": -1,
             "ha": -1
@@ -225,7 +228,7 @@
             "edge",
             "worker"
           ],
-          "abbr": "ZKC",
+          "abbr": "ZK_C",
           "number": {
             "default": -1,
             "ha": -1
@@ -298,7 +301,7 @@
           "hosts_types": [
             "edge"
           ],
-          "abbr": "MRHS",
+          "abbr": "MAPR_HS",
           "number": {
             "default": 1,
             "ha": 1
@@ -323,7 +326,7 @@
             "edge",
             "worker"
           ],
-          "abbr": "YARNC",
+          "abbr": "YARN_C",
           "number": {
             "default": -1,
             "ha": -1
@@ -337,7 +340,7 @@
             "edge",
             "worker"
           ],
-          "abbr": "MRC",
+          "abbr": "MAPR_C",
           "number": {
             "default": -1,
             "ha": -1
@@ -379,7 +382,7 @@
             "edge",
             "worker"
           ],
-          "abbr": "TEZC",
+          "abbr": "TEZ_C",
           "number": {
             "default": -1,
             "ha": -1
@@ -439,7 +442,7 @@
             "edge",
             "sidemaster"
           ],
-          "abbr": "H_SERVER",
+          "abbr": "HIVE_S",
           "number": {
             "default": 1,
             "ha": 2
@@ -481,7 +484,7 @@
             "edge",
             "worker"
           ],
-          "abbr": "HIVE_CLIENT",
+          "abbr": "HIVE_C",
           "number": {
             "default": -1,
             "ha": -1
@@ -554,7 +557,7 @@
             "edge",
             "worker"
           ],
-          "abbr": "HBASE_CLIENT",
+          "abbr": "HBASE_C",
           "number": {
             "default": -1,
             "ha": -1
