@@ -11,7 +11,11 @@ svars = {
     'cluster': None,
     'domain': None,
     'machines': [],
-    'services': []
+    'services': [],
+    'urls': {
+        'ambari_repo': None,
+        'vdf': None
+    }
 }
 
 jinja_env = Environment(
@@ -106,7 +110,11 @@ def clear():
     svars = {
         'cluster': None,
         'machines': [],
-        'services': []
+        'services': [],
+        'urls': {
+            'ambari_repo': None,
+            'vdf': None
+        }
     }
     bp = {
         'configurations': [],
@@ -214,13 +222,11 @@ def generate_ansible_vars():
         'ipa_admin_password': 'adm1n_p4ssw0rd',
         'pgsqlserver': fqdn(pgsqlserver),
         'jdbc_driver': 'postgresql-42.2.1.jar',
-        'ambari_repo_url': ('http://public-repo-1.hortonworks.com/ambari/'
-                            'centos7/2.x/updates/2.6.1.5/ambari.repo'),
+        'ambari_repo_url': svars['urls']['ambari_repo'],
         'use_blueprint': True,
         'blueprint_name': svars['domain'].replace('.', '-') + '-blueprint',
-        'cluster_name': svars['domain'].replace('.', '') + 'cluster',
-        'vdf_file_url': ('http://public-repo-1.hortonworks.com/HDP/centos7/'
-                         '2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml'),
+        'cluster_name': svars['domain'].replace('.', ''),
+        'vdf_file_url': svars['urls']['vdf'],
         'ambari': {
             'user': 'admin',
             'pwd': 'admin'

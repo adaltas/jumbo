@@ -18,7 +18,7 @@ def jumbo(ctx, cluster):
     """
 
     # Create the shell
-    sh = Shell(prompt=click.style('\njumbo > ', fg='green'),
+    sh = Shell(prompt=click.style('jumbo > ', fg='green'),
                intro=printlogo.jumbo_ascii() +
                '\nJumbo Shell. Enter "help" for list of supported commands.' +
                ' Type "quit" to leave the Jumbo Shell.' +
@@ -83,8 +83,12 @@ def set_context(ctx, name):
 @jumbo.command()
 @click.argument('name')
 @click.option('--domain', '-d', help='Domain name of the cluster')
+@click.option('--ambari-repo',
+              help='URL to the Ambari repository used for the installation')
+@click.option('--vdf',
+              help='URL to the VDF file used for HDP install')
 @click.pass_context
-def create(ctx, name, domain):
+def create(ctx, name, domain, ambari_repo, vdf):
     """Create a new cluster.
 
     :param name: New cluster name
@@ -92,7 +96,10 @@ def create(ctx, name, domain):
 
     click.echo('Creating %s...' % name)
     try:
-        clusters.create_cluster(cluster=name, domain=domain)
+        clusters.create_cluster(cluster=name,
+                                domain=domain,
+                                ambari_repo=ambari_repo,
+                                vdf=vdf)
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
@@ -127,7 +134,8 @@ def manage(ctx, name):
 @jumbo.command()
 @click.argument('name')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
-def delete(name, force):
+@click.pass_context
+def delete(ctx, name, force):
     """Delete a cluster.
 
     :param name: Name of the cluster to delete
@@ -145,37 +153,58 @@ def delete(name, force):
     else:
         click.echo('Cluster `%s` deleted.' % name)
         ss.clear()
+        ctx.meta['jumbo_shell'].prompt = click.style('jumbo > ', fg='green')
 
 
 @jumbo.command()
-def listcl():
+@click.option('--full', is_flag=True, help='Force full display')
+def listcl(full):
     """List clusters managed by Jumbo."""
     try:
+        limit = 40
+        if full:
+            limit = 1000
         cluster_table = PrettyTable(['Name', 'Domain Name', 'VMs',
-                                     'Services'])
+                                     'Services', 'URLs'])
+        cluster_table.align['Name'] = 'l'
+        cluster_table.align['Domain Name'] = 'l'
+        cluster_table.align['Services'] = 'l'
+        cluster_table.align['URLs'] = 'l'
         for cluster in clusters.list_clusters():
+            urls = []
+            for k, v in cluster['urls'].items():
+                urls.append((k + '=' + v)[:limit] + ('' if full else '...'))
             cluster_table.add_row([cluster['cluster'],
                                    cluster['domain'],
                                    len(cluster['machines']),
-                                   ', '.join(cluster['services'])])
+                                   '\n'.join(cluster['services']),
+                                   '\n'.join(urls)])
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
             click.echo('Use "repair" to regenerate `jumbo_config`.')
     else:
+        cluster_table.sortby = 'Name'
         click.echo(cluster_table)
 
 
 @jumbo.command()
 @click.argument('name')
 @click.option('--domain', '-d', help='Domain name of the cluster')
-def repair(name, domain):
+@click.option('--ambari-repo',
+              help='URL to the Ambari repository used for the installation')
+@click.option('--vdf',
+              help='URL to the VDF file used for HDP install')
+def repair(name, domain, ambari_repo, vdf):
     """Recreate `jumbo_config` if it doesn't exist.
 
     :param name: Cluster name
     """
 
-    if clusters.repair_cluster(cluster=name, domain=domain):
+    if clusters.repair_cluster(cluster=name,
+                               domain=domain,
+                               ambari_repo=ambari_repo,
+                               vdf=vdf):
         click.echo('Recreated `jumbo_config` from scratch '
                    'for cluster `{}` (domain name = "{}").'
                    .format(name, domain if domain else '%s.local' % name))

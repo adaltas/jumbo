@@ -6,7 +6,7 @@ import pathlib
 from distutils.dir_util import copy_tree
 from shutil import rmtree
 
-from jumbo.utils.settings import JUMBODIR
+from jumbo.utils.settings import JUMBODIR, default_urls
 from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils.checks import valid_cluster
 
@@ -29,7 +29,7 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(cluster, domain):
+def create_cluster(cluster, domain, ambari_repo, vdf):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -48,12 +48,16 @@ def create_cluster(cluster, domain):
     ss.clear()
     ss.svars['cluster'] = cluster
     ss.svars['domain'] = domain if domain else '%s.local' % cluster
+    ss.svars['urls']['ambari_repo'] = ambari_repo if ambari_repo \
+        else default_urls['ambari_repo']
+    ss.svars['urls']['vdf'] = vdf if vdf \
+        else default_urls['vdf']
     ss.dump_config()
     return True
 
 
 @valid_cluster
-def repair_cluster(domain, *, cluster):
+def repair_cluster(domain,  ambari_repo, vdf, *, cluster):
     """Recreate the cluster `jumbo_config` file if it doesn't exist.
 
     :param name: Cluster name
@@ -66,6 +70,10 @@ def repair_cluster(domain, *, cluster):
         ss.clear()
         ss.svars['cluster'] = cluster
         ss.svars['domain'] = domain if domain else '%s.local' % cluster
+        ss.svars['urls']['ambari_repo'] = ambari_repo if ambari_repo \
+            else default_urls['ambari_repo']
+        ss.svars['urls']['vdf'] = vdf if vdf \
+            else default_urls['vdf']
         ss.dump_config()
         return True
 
