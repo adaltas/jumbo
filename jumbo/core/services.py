@@ -209,7 +209,8 @@ def check_service_req_comp(name, ha=False):
     raise ex.LoadError('service', name, 'NotExist')
 
 
-def check_service_complete(name, ha=False):
+@valid_cluster
+def check_service_complete(name, ha=False, *, cluster):
     """Check if all the components required are installed for a service
 
     :param name: Service name

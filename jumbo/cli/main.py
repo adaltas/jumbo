@@ -43,6 +43,7 @@ def jumbo(ctx, cluster):
     sh.add_command(rmcomp)
     sh.add_command(checkservice)
     sh.add_command(seturl)
+    sh.add_command(listserv)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -560,11 +561,10 @@ def checkservice(name, cluster):
 
     if not cluster:
         cluster = ss.svars['cluster']
-    else:
-        ss.load_config(cluster)
 
     try:
-        missing_comp = services.check_service_complete(name)
+        missing_comp = services.check_service_complete(name=name,
+                                                       cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
     else:
@@ -573,6 +573,30 @@ def checkservice(name, cluster):
                        .format(name, ',\n - '.join(missing_comp)))
         else:
             click.echo('The service `%s` is complete.' % name)
+
+
+@jumbo.command()
+@click.option('--cluster', '-c')
+def listserv(cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        table_serv = PrettyTable(['Service', 'Missing components'])
+        for s in ss.svars['services']:
+            color = 'green'
+            missing_comp = services.check_service_complete(name=s,
+                                                           cluster=cluster)
+            if missing_comp:
+                print_missing = '\n'.join(missing_comp)
+                color = 'yellow' if len(missing_comp) < 3 else 'red'
+            else:
+                print_missing = '-'
+            table_serv.add_row([click.style(s, fg=color), print_missing])
+    except (ex.LoadError, ex.CreationError) as e:
+        click.secho(e.message, fg='red', err=True)
+    else:
+        click.echo(table_serv)
 
 
 @jumbo.command()
