@@ -140,7 +140,7 @@ Service `ANSIBLE` and related clients added to cluster `mycluster`.
 
 When installing a service, all its components are auto-installed on the best fitting hosts by default. You can avoid the auto-installation with the flag `--no-auto`. Note that the service's clients clients will always be installed on all hosts.
 
-When you add a new vm to a cluster with services installed, the clients of each service are automatically installed on the vm.
+When you add a new VM to a cluster with services installed, the clients of each service are automatically installed on the vm.
 
 #### Component installation
 
@@ -283,6 +283,14 @@ HDP:
 - VDF file: http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml
 
 
+## Jumbo versions
+
+- 1.0 - 27/04/18 : First stable release
+- 1.1 - ?: 
+    - Support custom URLs for the Ambari repository and the VDF of HDP with command `seturl`;
+    - New list `listservices` with services state (complete or not);
+    - Better looking lists;
+    - Standardized command names.
 
 ## TO DO
 
