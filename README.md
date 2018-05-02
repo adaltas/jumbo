@@ -110,10 +110,10 @@ RAM (MB): 3072
 Machine `worker` added to cluster `mycluster`.
 ```
 
-We now have all the machines needed to deploy a functional Hadoop cluster. Use `listvm` to see details about the machines of the cluster:
+We now have all the machines needed to deploy a functional Hadoop cluster. Use `listvms` to see details about the machines of the cluster:
 
 ```shell
-jumbo (mycluster) > listvm
+jumbo (mycluster) > listvms
 +---------+------------------+-------------+----------+------+
 |   Name  |      Types       |      IP     | RAM (MB) | CPUs |
 +---------+------------------+-------------+----------+------+
@@ -184,9 +184,10 @@ Use the commands `rmvm`, `rmservice`, or `rmcomp` to remove items.
 #### See what have been installed
 
 Jumbo has list commands to describe the cluster state:
-- `listcl` to list all the clusters and the services installed on each of them;
-- `listvm` to list the VMs and their configurations;
-- `listcomp` to list the components installed on a machine.
+- `listclusters` to list all the clusters and the services installed on each of them;
+- `listvms` to list the VMs and their configurations;
+- `listservices` to list the status of each service installed on a cluster (complete or not);
+- `listcomponents` to list the components installed on a machine.
 
 ### Launch the cluster deployment
 

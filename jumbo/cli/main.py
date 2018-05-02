@@ -33,17 +33,17 @@ def jumbo(ctx, cluster):
     sh.add_command(manage)
     sh.add_command(addvm)
     sh.add_command(rmvm)
-    sh.add_command(listcl)
-    sh.add_command(listvm)
+    sh.add_command(listclusters)
+    sh.add_command(listvms)
     sh.add_command(repair)
     sh.add_command(addservice)
-    sh.add_command(addcomp)
-    sh.add_command(listcomp)
+    sh.add_command(addcomponent)
+    sh.add_command(listcomponents)
     sh.add_command(rmservice)
-    sh.add_command(rmcomp)
+    sh.add_command(rmcomponent)
     sh.add_command(checkservice)
     sh.add_command(seturl)
-    sh.add_command(listserv)
+    sh.add_command(listservices)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -160,7 +160,7 @@ def delete(ctx, name, force):
 
 @jumbo.command()
 @click.option('--full', is_flag=True, help='Force full display')
-def listcl(full):
+def listclusters(full):
     """List clusters managed by Jumbo."""
     try:
         limit = 40
@@ -331,7 +331,7 @@ def rmvm(ctx, name, cluster, force):
 
 @jumbo.command()
 @click.option('--cluster', '-c')
-def listvm(cluster):
+def listvms(cluster):
     """
     List VMs in the cluster being managed.
     Another cluster can be specified with "--cluster".
@@ -434,7 +434,7 @@ def rmservice(ctx, service, cluster, force):
 @click.option('--machine', '-m', required=True)
 @click.option('--cluster', '-c')
 @click.pass_context
-def addcomp(ctx, name, machine, cluster):
+def addcomponent(ctx, name, machine, cluster):
     """
     Add component to a machine.
     """
@@ -463,7 +463,7 @@ def addcomp(ctx, name, machine, cluster):
 @click.option('--cluster', '-c')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 @click.pass_context
-def rmcomp(ctx, name, machine, cluster, force):
+def rmcomponent(ctx, name, machine, cluster, force):
     """
     Remove component from specified machine.
     """
@@ -500,7 +500,7 @@ def rmcomp(ctx, name, machine, cluster, force):
 @click.option('--all', '-a', is_flag=True,
               help='List components on all machines')
 @click.option('--abbr', is_flag=True, help='Display abbreviations')
-def listcomp(machine, cluster, all, abbr):
+def listcomponents(machine, cluster, all, abbr):
     """
     List compononents on a given machine.
     """
@@ -577,12 +577,19 @@ def checkservice(name, cluster):
 
 @jumbo.command()
 @click.option('--cluster', '-c')
-def listserv(cluster):
+def listservices(cluster):
+    """Check the state of all services installed.
+
+    :param cluster: Cluster name
+    :type cluster: str
+    """
+
     if not cluster:
         cluster = ss.svars['cluster']
 
     try:
         table_serv = PrettyTable(['Service', 'Missing components'])
+        table_serv.align['Service'] = 'l'
         for s in ss.svars['services']:
             color = 'green'
             missing_comp = services.check_service_complete(name=s,
