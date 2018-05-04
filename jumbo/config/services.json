@@ -593,6 +593,66 @@
       "auto_install": [
         "HBASE_CLIENT"
       ]
+    },
+    {
+      "name": "SPARK2",
+      "components": [
+        {
+          "name": "SPARK2_JOBHISTORYSERVER",
+          "hosts_types": [
+            "edge"
+          ],
+          "abbr": "SPARK_HS",
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        },
+        {
+          "name": "SPARK2_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "SPARK_C",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "machines": {
+          "default": {
+            "master": 1,
+            "edge": 1
+          },
+          "ha": {
+            "master": 2,
+            "edge": 1
+          }
+        },
+        "services": {
+          "default": [
+            "AMBARI",
+            "HDFS",
+            "YARN"
+          ],
+          "ha": [
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "ZOOKEEPER"
+          ]
+        }
+      },
+      "auto_install": [
+        "SPARK2_CLIENT"
+      ]
     }
   ]
 }

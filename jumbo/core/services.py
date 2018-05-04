@@ -245,6 +245,19 @@ def count_components():
     return components
 
 
+def get_available_services():
+    """Get the available services (based on services config file).
+
+    :return: The list of available services
+    :rtype: dict
+    """
+
+    services = {}
+    for s in config['services']:
+        services[s['name']] = 0
+    return services
+
+
 def get_available_components():
     """Get the available components (based on services config file).
 

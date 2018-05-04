@@ -378,13 +378,16 @@ def addservice(ctx, name, cluster, no_auto):
         else:
             count = services.auto_assign(name, cluster=cluster)
             msg = ('{} type{} of component{} auto-installed. '
-                   'Use "listcomp -a" for details.'
+                   'Use "listcomponents -a" for details.'
                    .format(count,
                            's' if count > 1 else '',
                            's' if count > 1 else ''))
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         switched = False
+        if e.type == 'NotExist':
+            click.echo('Available services:\n - %s'
+                       % '\n - '.join(services.get_available_services()))
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:

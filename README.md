@@ -221,34 +221,36 @@ ssh root@10.10.10.11
 
 ## Supported services and components
 
-| Service             | Components          |
-| ------------------- | ------------------- |
-| ANSIBLE             | ANSIBLE_CLIENT      |
-| POSTGRESQL          | PSQL_SERVER         |
-| AMBARI              | AMBARI_SERVER       |
-| HDFS                | NAMENODE            |
-|                     | SECONDARY_NAMENODE  |
-|                     | DATANODE            |
-|                     | JOURNALNODE         |
-|                     | HDFS_CLIENT         |
-| YARN (+ MAPREDUCE2) | RESOURCEMANAGER     |
-|                     | NODEMANAGER         |
-|                     | HISTORYSERVER       |
-|                     | APP_TIMELINE_SERVER |
-|                     | YARN_CLIENT         |
-|                     | MAPREDUCE2_CLIENT   |
-|                     | SLIDER              |
-| ZOOKEEPER           | ZOOKEEPER_SERVER    |
-|                     | ZOOKEEPER_CLIENT    |
-|                     | ZKFC                |
-| HIVE                | HIVE_METASTORE      |
-|                     | HIVE_SERVER         |
-|                     | WEBHCAT_SERVER      |
-|                     | HCAT                |
-|                     | HIVE_CLIENT         |
-| HBASE               | HBASE_MASTER        |
-|                     | HBASE_REGIONSERVER  |
-|                     | HBASE_CLIENT        |
+| Service             | Components              | Available in |
+| ------------------- | ----------------------- | ------------ |
+| ANSIBLE             | ANSIBLE_CLIENT          | v1.0         |
+| POSTGRESQL          | PSQL_SERVER             | v1.0         |
+| AMBARI              | AMBARI_SERVER           | v1.0         |
+| HDFS                | NAMENODE                | v1.0         |
+|                     | SECONDARY_NAMENODE      | v1.0         |
+|                     | DATANODE                | v1.0         |
+|                     | JOURNALNODE             | v1.0         |
+|                     | HDFS_CLIENT             | v1.0         |
+| YARN (+ MAPREDUCE2) | RESOURCEMANAGER         | v1.0         |
+|                     | NODEMANAGER             | v1.0         |
+|                     | HISTORYSERVER           | v1.0         |
+|                     | APP_TIMELINE_SERVER     | v1.0         |
+|                     | YARN_CLIENT             | v1.0         |
+|                     | MAPREDUCE2_CLIENT       | v1.0         |
+|                     | SLIDER                  | v1.0         |
+| ZOOKEEPER           | ZOOKEEPER_SERVER        | v1.0         |
+|                     | ZOOKEEPER_CLIENT        | v1.0         |
+|                     | ZKFC                    | v1.0         |
+| HIVE                | HIVE_METASTORE          | v1.0         |
+|                     | HIVE_SERVER             | v1.0         |
+|                     | WEBHCAT_SERVER          | v1.0         |
+|                     | HCAT                    | v1.0         |
+|                     | HIVE_CLIENT             | v1.0         |
+| HBASE               | HBASE_MASTER            | v1.0         |
+|                     | HBASE_REGIONSERVER      | v1.0         |
+|                     | HBASE_CLIENT            | v1.0         |
+| SPARK2              | SPARK2_JOBHISTORYSERVER | v1.1         |
+|                     | SPARK2_CLIENT           | v1.1         |
 
 ## Underlying tools versions
 
@@ -290,7 +292,8 @@ HDP:
     - Support custom URLs for the Ambari repository and the VDF of HDP with command `seturl`;
     - New list `listservices` with services state (complete or not);
     - Better looking lists;
-    - Standardized command names.
+    - Standardized command names;
+    - Support for new services: SPARK
 
 ## TO DO
 

@@ -337,6 +337,19 @@ def generate_blueprint_conf(serv_comp_hosts):
         })
         complete_conf_hbase(serv_comp_hosts)
 
+    if 'SPARK2' in serv_comp_hosts:
+        bp.get('configurations').append({
+            'spark2-defaults': {
+                'properties': {}
+            }
+        })
+        bp.get('configurations').append({
+            'spark2-env': {
+                'properties': {}
+            }
+        })
+        complete_conf_spark2(serv_comp_hosts)
+
     if 'ZOOKEEPER' in serv_comp_hosts:
         complete_conf_zookeeper(serv_comp_hosts)
 
@@ -424,6 +437,14 @@ def complete_conf_yarn(serv_comp_hosts):
 def generate_yarnsite(yarn_comp):
     rm = fqdn(yarn_comp['RESOURCEMANAGER'][0])
     site = 'yarn-site'
+    container_max_memory = 1536
+    node_max_containers = 100
+    if 'NODEMANAGER' in yarn_comp:
+        for m in svars['machines']:
+            if m['name'] in yarn_comp['NODEMANAGER']:
+                if node_max_containers > int(m['ram'] / 1536):
+                    node_max_containers = int(m['ram'] / 1536)
+
     bp_set_conf_prop(site,
                      'yarn.resourcemanager.ha.enabled',
                      'false')
@@ -455,6 +476,12 @@ def generate_yarnsite(yarn_comp):
     bp_set_conf_prop(site,
                      'yarn.resourcemanager.webapp.https.address',
                      '%s:8090' % rm)
+    bp_set_conf_prop(site,
+                     'yarn.nodemanager.resource.memory-mb',
+                     '%d' % (node_max_containers * container_max_memory))
+    bp_set_conf_prop(site,
+                     'yarn.scheduler.maximum-allocation-mb',
+                     '%d' % container_max_memory)
     bp_set_conf_prop(site,
                      'yarn.log.server.url',
                      'http://%s:19888/jobhistory/logs' % rm)
@@ -606,6 +633,58 @@ def generate_hbaseenv(hbase_comp):
 def generate_hbasesite_ha(hbase_comp):
     raise ex.CreationError('service', 'HBASE', 'mode', 'High Availability',
                            'NotSupported')
+
+
+def complete_conf_spark2(serv_comp_hosts):
+    if 'SPARK2_JOBHISTORYSERVER' in serv_comp_hosts['SPARK2']:
+        generate_spark2defaults(serv_comp_hosts['SPARK2'])
+        generate_spark2env(serv_comp_hosts['SPARK2'])
+
+
+def generate_spark2defaults(spark2_comp):
+    defaults = 'spark2-defaults'
+    history_server = spark2_comp['SPARK2_JOBHISTORYSERVER'][0]
+    ui_port = '18081'
+    bp_set_conf_prop(defaults,
+                     'spark.history.ui.port',
+                     '%s' % ui_port)
+    bp_set_conf_prop(defaults,
+                     'spark.eventLog.dir',
+                     'hdfs:///spark2-history/')
+    bp_set_conf_prop(defaults,
+                     'spark.eventLog.enabled',
+                     'true')
+    bp_set_conf_prop(defaults,
+                     'hbase.regionserver.info.port',
+                     '16030')
+    bp_set_conf_prop(defaults,
+                     'spark.history.provider',
+                     'org.apache.spark.deploy.history.FsHistoryProvider')
+    bp_set_conf_prop(defaults,
+                     'spark.yarn.historyServer.address',
+                     '{}:{}'.format(history_server, ui_port))
+    bp_set_conf_prop(defaults,
+                     'spark.history.fs.logDirectory',
+                     'hdfs:///spark2-history/')
+
+
+def generate_spark2env(spark2_comp):
+    env = 'spark2-env'
+    bp_set_conf_prop(env,
+                     'spark_user',
+                     'spark')
+    bp_set_conf_prop(env,
+                     'spark_group',
+                     'spark')
+    bp_set_conf_prop(env,
+                     'spark_pid_dir',
+                     '/var/run/spark2')
+    bp_set_conf_prop(env,
+                     'spark_log_dir',
+                     '/var/log/spark2')
+    bp_set_conf_prop(env,
+                     'spark_daemon_memory',
+                     '1024')
 
 
 def generate_blueprint_hostgroups():
