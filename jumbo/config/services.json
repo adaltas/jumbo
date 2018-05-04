@@ -653,6 +653,49 @@
       "auto_install": [
         "SPARK2_CLIENT"
       ]
+    },
+    {
+      "name": "ZEPPELIN",
+      "components": [
+        {
+          "name": "ZEPPELIN_MASTER",
+          "hosts_types": [
+            "edge"
+          ],
+          "abbr": "Z_MASTER",
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "machines": {
+          "default": {
+            "edge": 1
+          },
+          "ha": {
+            "edge": 1
+          }
+        },
+        "services": {
+          "default": [
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "SPARK2"
+          ],
+          "ha": [
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "SPARK2"
+          ]
+        }
+      },
+      "auto_install": []
     }
   ]
 }

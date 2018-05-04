@@ -350,6 +350,19 @@ def generate_blueprint_conf(serv_comp_hosts):
         })
         complete_conf_spark2(serv_comp_hosts)
 
+    if 'ZEPPELIN' in serv_comp_hosts:
+        bp.get('configurations').append({
+            'zeppelin-env': {
+                'properties': {}
+            }
+        })
+        bp.get('configurations').append({
+            'zeppelin-config': {
+                'properties': {}
+            }
+        })
+        complete_conf_zeppelin(serv_comp_hosts)
+
     if 'ZOOKEEPER' in serv_comp_hosts:
         complete_conf_zookeeper(serv_comp_hosts)
 
@@ -685,6 +698,72 @@ def generate_spark2env(spark2_comp):
     bp_set_conf_prop(env,
                      'spark_daemon_memory',
                      '1024')
+
+
+def complete_conf_zeppelin(serv_comp_hosts):
+    if 'ZEPPELIN_MASTER' in serv_comp_hosts['ZEPPELIN']:
+        generate_zeppelinconfig()
+        generate_zeppelinenv()
+
+
+def generate_zeppelinconfig():
+    config = 'zeppelin-config'
+    bp_set_conf_prop(config,
+                     'zeppelin.server.port',
+                     '9995')
+    bp_set_conf_prop(config,
+                     'zeppelin.server.ssl.port',
+                     '9995')
+    bp_set_conf_prop(config,
+                     'zeppelin.server.addr',
+                     '0.0.0.0')
+    bp_set_conf_prop(config,
+                     'zeppelin.notebook.dir',
+                     'notebook')
+    bp_set_conf_prop(config,
+                     'zeppelin.interpreters',
+                     'org.apache.zeppelin.spark.SparkInterpreter,'
+                     'org.apache.zeppelin.spark.PySparkInterpreter,'
+                     'org.apache.zeppelin.spark.SparkSqlInterpreter,'
+                     'org.apache.zeppelin.spark.DepInterpreter,'
+                     'org.apache.zeppelin.markdown.Markdown,'
+                     'org.apache.zeppelin.angular.AngularInterpreter,'
+                     'org.apache.zeppelin.shell.ShellInterpreter,'
+                     'org.apache.zeppelin.jdbc.JDBCInterpreter,'
+                     'org.apache.zeppelin.phoenix.PhoenixInterpreter,'
+                     'org.apache.zeppelin.livy.LivySparkInterpreter,'
+                     'org.apache.zeppelin.livy.LivyPySparkInterpreter,'
+                     'org.apache.zeppelin.livy.LivySparkRInterpreter,'
+                     'org.apache.zeppelin.livy.LivySparkSQLInterpreter')
+    bp_set_conf_prop(config,
+                     'zeppelin.ssl',
+                     'false')
+    bp_set_conf_prop(config,
+                     'zeppelin.notebook.storage',
+                     'org.apache.zeppelin.notebook.repo.'
+                     'FileSystemNotebookRepo')
+    bp_set_conf_prop(config,
+                     'zeppelin.interpreter.dir',
+                     'interpreter')
+    bp_set_conf_prop(config,
+                     'zeppelin.config.fs.dir',
+                     'conf')
+
+
+def generate_zeppelinenv():
+    env = 'zeppelin-env'
+    bp_set_conf_prop(env,
+                     'zeppelin.executor.instances',
+                     '2')
+    bp_set_conf_prop(env,
+                     'zeppelin.executor.mem',
+                     '512m')
+    bp_set_conf_prop(env,
+                     'zeppelin_user',
+                     'zeppelin')
+    bp_set_conf_prop(env,
+                     'zeppelin_group',
+                     'zeppelin')
 
 
 def generate_blueprint_hostgroups():

@@ -221,36 +221,43 @@ ssh root@10.10.10.11
 
 ## Supported services and components
 
-| Service             | Components              | Available in |
-| ------------------- | ----------------------- | ------------ |
-| ANSIBLE             | ANSIBLE_CLIENT          | v1.0         |
-| POSTGRESQL          | PSQL_SERVER             | v1.0         |
-| AMBARI              | AMBARI_SERVER           | v1.0         |
-| HDFS                | NAMENODE                | v1.0         |
-|                     | SECONDARY_NAMENODE      | v1.0         |
-|                     | DATANODE                | v1.0         |
-|                     | JOURNALNODE             | v1.0         |
-|                     | HDFS_CLIENT             | v1.0         |
-| YARN (+ MAPREDUCE2) | RESOURCEMANAGER         | v1.0         |
-|                     | NODEMANAGER             | v1.0         |
-|                     | HISTORYSERVER           | v1.0         |
-|                     | APP_TIMELINE_SERVER     | v1.0         |
-|                     | YARN_CLIENT             | v1.0         |
-|                     | MAPREDUCE2_CLIENT       | v1.0         |
-|                     | SLIDER                  | v1.0         |
-| ZOOKEEPER           | ZOOKEEPER_SERVER        | v1.0         |
-|                     | ZOOKEEPER_CLIENT        | v1.0         |
-|                     | ZKFC                    | v1.0         |
-| HIVE                | HIVE_METASTORE          | v1.0         |
-|                     | HIVE_SERVER             | v1.0         |
-|                     | WEBHCAT_SERVER          | v1.0         |
-|                     | HCAT                    | v1.0         |
-|                     | HIVE_CLIENT             | v1.0         |
-| HBASE               | HBASE_MASTER            | v1.0         |
-|                     | HBASE_REGIONSERVER      | v1.0         |
-|                     | HBASE_CLIENT            | v1.0         |
-| SPARK2              | SPARK2_JOBHISTORYSERVER | v1.1         |
-|                     | SPARK2_CLIENT           | v1.1         |
+All services supported in one version are supported in all the next ones. 
+
+All the client components (tagged below) are always auto-installed on all hosts on service installation but can be uninstalled manually.
+
+| Version | Service             | Components              | Client |
+| ------- | ------------------- | ----------------------- | ------ |
+| 1.0     | ANSIBLE             | ANSIBLE_CLIENT          |        |
+|         | POSTGRESQL          | PSQL_SERVER             |        |
+|         | AMBARI              | AMBARI_SERVER           |        |
+|         | HDFS                | NAMENODE                |        |
+|         |                     | SECONDARY_NAMENODE      |        |
+|         |                     | DATANODE                |        |
+|         |                     | JOURNALNODE             |        |
+|         |                     | HDFS_CLIENT             | Yes    |
+|         | YARN (+ MAPREDUCE2) | RESOURCEMANAGER         |        |
+|         |                     | NODEMANAGER             |        |
+|         |                     | HISTORYSERVER           |        |
+|         |                     | APP_TIMELINE_SERVER     |        |
+|         |                     | YARN_CLIENT             | Yes    |
+|         |                     | MAPREDUCE2_CLIENT       | Yes    |
+|         |                     | SLIDER                  | Yes    |
+|         |                     | TEZ_CLIENT              | Yes    |
+|         |                     | PIG                     | Yes    |
+|         | ZOOKEEPER           | ZOOKEEPER_SERVER        |        |
+|         |                     | ZOOKEEPER_CLIENT        | Yes    |
+|         |                     | ZKFC                    |        |
+|         | HIVE                | HIVE_METASTORE          |        |
+|         |                     | HIVE_SERVER             |        |
+|         |                     | WEBHCAT_SERVER          |        |
+|         |                     | HCAT                    | Yes    |
+|         |                     | HIVE_CLIENT             | Yes    |
+|         | HBASE               | HBASE_MASTER            |        |
+|         |                     | HBASE_REGIONSERVER      |        |
+|         |                     | HBASE_CLIENT            | Yes    |
+| 1.1     | SPARK2              | SPARK2_JOBHISTORYSERVER |        |
+|         |                     | SPARK2_CLIENT           | Yes    |
+|         | ZEPPELIN            | ZEPPELIN_MASTER         |        |
 
 ## Underlying tools versions
 
@@ -293,7 +300,7 @@ HDP:
     - New list `listservices` with services state (complete or not);
     - Better looking lists;
     - Standardized command names;
-    - Support for new services: SPARK
+    - Support for new services: SPARK2, ZEPPELIN
 
 ## TO DO
 
