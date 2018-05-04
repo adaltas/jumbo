@@ -603,6 +603,7 @@ def listservices(cluster):
             else:
                 print_missing = '-'
             table_serv.add_row([click.style(s, fg=color), print_missing])
+        table_serv.sortby = 'Service'
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
     else:

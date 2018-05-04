@@ -233,6 +233,14 @@ def generate_ansible_vars():
     }
 
 
+def bp_create_conf_section(section):
+    bp.get('configurations').append({
+        section: {
+            'properties': {}
+        }
+    })
+
+
 def bp_set_conf_prop(section, prop, value):
     """Set a property in a specified section of the blueprint 'configurations'.
 
@@ -252,6 +260,11 @@ def bp_set_conf_prop(section, prop, value):
                 .get('properties')[prop] = value
             return True
     return False
+
+
+def bp_set_conf(section, prop_dict):
+    for k, v in prop_dict.items():
+        bp_set_conf_prop(section, k, v)
 
 
 def fqdn(host):
@@ -282,85 +295,37 @@ def generate_blueprint_conf(serv_comp_hosts):
     """Complete the 'configurations' section of the blueprint
     """
 
-    bp.get('configurations').append({
-        'core-site': {
-            'properties': {}
-        }
-    })
+    bp_create_conf_section('core-site')
 
     bp_set_conf_prop('core-site', 'fs.trash.interval', '360')
 
     if 'HDFS' in serv_comp_hosts:
-        bp.get('configurations').append({
-            'hdfs-site': {
-                'properties': {}
-            }
-        })
+        bp_create_conf_section('hdfs-site')
         complete_conf_hdfs(serv_comp_hosts)
 
     if 'YARN' in serv_comp_hosts:
-        bp.get('configurations').append({
-            'yarn-site': {
-                'properties': {}
-            }
-        })
+        bp_create_conf_section('yarn-site')
         complete_conf_yarn(serv_comp_hosts)
 
     if 'HIVE' in serv_comp_hosts:
-        bp.get('configurations').append({
-            'hive-site': {
-                'properties': {}
-            }
-        })
-        bp.get('configurations').append({
-            'hive-env': {
-                'properties': {}
-            }
-        })
-        bp.get('configurations').append({
-            'webhcat-site': {
-                'properties': {}
-            }
-        })
+        bp_create_conf_section('hive-site')
+        bp_create_conf_section('hive-env')
+        bp_create_conf_section('webhcat-site')
         complete_conf_hive(serv_comp_hosts)
 
     if 'HBASE' in serv_comp_hosts:
-        bp.get('configurations').append({
-            'hbase-site': {
-                'properties': {}
-            }
-        })
-        bp.get('configurations').append({
-            'hbase-env': {
-                'properties': {}
-            }
-        })
+        bp_create_conf_section('hbase-site')
+        bp_create_conf_section('hbase-env')
         complete_conf_hbase(serv_comp_hosts)
 
     if 'SPARK2' in serv_comp_hosts:
-        bp.get('configurations').append({
-            'spark2-defaults': {
-                'properties': {}
-            }
-        })
-        bp.get('configurations').append({
-            'spark2-env': {
-                'properties': {}
-            }
-        })
+        bp_create_conf_section('spark2-defaults')
+        bp_create_conf_section('spark2-env')
         complete_conf_spark2(serv_comp_hosts)
 
     if 'ZEPPELIN' in serv_comp_hosts:
-        bp.get('configurations').append({
-            'zeppelin-env': {
-                'properties': {}
-            }
-        })
-        bp.get('configurations').append({
-            'zeppelin-config': {
-                'properties': {}
-            }
-        })
+        bp_create_conf_section('zeppelin-env')
+        bp_create_conf_section('zeppelin-config')
         complete_conf_zeppelin(serv_comp_hosts)
 
     if 'ZOOKEEPER' in serv_comp_hosts:
@@ -413,21 +378,15 @@ def complete_conf_hdfs(serv_comp_hosts):
 
 def generate_hdfssite(hdfs_comp):
     nn = fqdn(hdfs_comp['NAMENODE'][0])
-    site = 'hdfs-site'
-    bp_set_conf_prop(site,
-                     'dfs.namenode.http-address',
-                     '%s:50070' % nn)
-    bp_set_conf_prop(site,
-                     'dfs.namenode.https-address',
-                     '%s:50470' % nn)
-    bp_set_conf_prop(site,
-                     'dfs.namenode.rpc-addres',
-                     '%s:8020' % nn)
+    prop_dict = {
+        'dfs.namenode.http-address': '%s:50070' % nn,
+        'dfs.namenode.https-address': '%s:50470' % nn,
+        'dfs.namenode.rpc-addres': '%s:8020' % nn
+    }
     if hdfs_comp.get('SECONDARY_NAMENODE'):
         snn = fqdn(hdfs_comp['SECONDARY_NAMENODE'][0])
-        bp_set_conf_prop(site,
-                         'dfs.namenode.secondary.http-address',
-                         '%s:50090' % snn)
+        prop_dict['dfs.namenode.secondary.http-address'] = '%s:50090' % snn
+    bp_set_conf('hdfs-site', prop_dict)
 
 
 def generate_hdfssite_ha(hdfs_comp):
@@ -449,7 +408,6 @@ def complete_conf_yarn(serv_comp_hosts):
 
 def generate_yarnsite(yarn_comp):
     rm = fqdn(yarn_comp['RESOURCEMANAGER'][0])
-    site = 'yarn-site'
     container_max_memory = 1536
     node_max_containers = 100
     if 'NODEMANAGER' in yarn_comp:
@@ -457,58 +415,31 @@ def generate_yarnsite(yarn_comp):
             if m['name'] in yarn_comp['NODEMANAGER']:
                 if node_max_containers > int(m['ram'] / 1536):
                     node_max_containers = int(m['ram'] / 1536)
+    node_max_memory = node_max_containers * container_max_memory
 
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.ha.enabled',
-                     'false')
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.recovery.enabled',
-                     'true')
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.store.class',
-                     'org.apache.hadoop.yarn.server.resourcemanager.'
-                     'recovery.ZKRMStateStore')
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.address',
-                     '%s:8050' % rm)
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.admin.address',
-                     '%s:8141' % rm)
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.hostname',
-                     '%s' % rm)
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.resource-tracker.address',
-                     '%s:8025' % rm)
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.scheduler.address',
-                     '%s:8030' % rm)
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.webapp.address',
-                     '%s:8088' % rm)
-    bp_set_conf_prop(site,
-                     'yarn.resourcemanager.webapp.https.address',
-                     '%s:8090' % rm)
-    bp_set_conf_prop(site,
-                     'yarn.nodemanager.resource.memory-mb',
-                     '%d' % (node_max_containers * container_max_memory))
-    bp_set_conf_prop(site,
-                     'yarn.scheduler.maximum-allocation-mb',
-                     '%d' % container_max_memory)
-    bp_set_conf_prop(site,
-                     'yarn.log.server.url',
-                     'http://%s:19888/jobhistory/logs' % rm)
+    prop_dict = {
+        'yarn.resourcemanager.ha.enabled': 'false',
+        'yarn.resourcemanager.recovery.enabled': 'true',
+        'yarn.resourcemanager.store.class': 'org.apache.hadoop.yarn.server.'
+        'resourcemanager.recovery.ZKRMStateStore',
+        'yarn.resourcemanager.address': '%s:8050' % rm,
+        'yarn.resourcemanager.admin.address': '%s:8141' % rm,
+        'yarn.resourcemanager.hostname': '%s' % rm,
+        'yarn.resourcemanager.resource-tracker.address': '%s:8025' % rm,
+        'yarn.resourcemanager.webapp.address': '%s:8088' % rm,
+        'yarn.resourcemanager.webapp.https.address': '%s:8090' % rm,
+        'yarn.nodemanager.resource.memory-mb': '%d' % node_max_memory,
+        'yarn.scheduler.maximum-allocation-mb': '%d' % container_max_memory,
+        'yarn.log.server.url': 'http://%s:19888/jobhistory/logs' % rm
+    }
     if yarn_comp.get('APP_TIMELINE_SERVER'):
         timeline = fqdn(yarn_comp['APP_TIMELINE_SERVER'][0])
-        bp_set_conf_prop(site,
-                         'yarn.timeline-service.address',
-                         '%s:10200' % timeline)
-        bp_set_conf_prop(site,
-                         'yarn.timeline-service.webapp.address',
-                         '%s:8188' % timeline)
-        bp_set_conf_prop(site,
-                         'yarn.timeline-service.webapp.https.address',
-                         '%s:8190' % timeline)
+        prop_dict.update({
+            'yarn.timeline-service.address': '%s:10200' % timeline,
+            'yarn.timeline-service.webapp.address': '%s:8188' % timeline,
+            'yarn.timeline-service.webapp.https.address': '%s:8190' % timeline
+        })
+    bp_set_conf('yarn-site', prop_dict)
 
 
 def generate_yarnsite_ha(yarn_comp):
@@ -538,44 +469,27 @@ def complete_conf_hive(serv_comp_hosts):
 
 def generate_hivesite(hive_comp):
     hm = fqdn(hive_comp['HIVE_METASTORE'][0])
-    site = 'hive-site'
-    bp_set_conf_prop(site,
-                     'hive.exec.compress.output',
-                     'false')
-    bp_set_conf_prop(site,
-                     'hive.merge.mapfiles',
-                     'true')
-    bp_set_conf_prop(site,
-                     'hive.server2.tez.initialize.default.sessions',
-                     'false')
-    bp_set_conf_prop(site,
-                     'hive.server2.transport.mode',
-                     'binary')
-    bp_set_conf_prop(site,
-                     'javax.jdo.option.ConnectionDriverName',
-                     'org.postgresql.Driver')
-    bp_set_conf_prop(site,
-                     'javax.jdo.option.ConnectionURL',
-                     'jdbc:postgresql://%s:5432/hive' % get_pgsqlserver_host())
-    bp_set_conf_prop(site,
-                     'javax.jdo.option.ConnectionUserName',
-                     'hive')
-    bp_set_conf_prop(site,
-                     'hive.metastore.uris',
-                     'thrift://%s:9083' % hm)
+    prop_dict = {
+        'hive.exec.compress.output': 'false',
+        'hive.merge.mapfiles': 'true',
+        'hive.server2.tez.initialize.default.sessions': 'false',
+        'hive.server2.transport.mode': 'binary',
+        'javax.jdo.option.ConnectionDriverName': 'org.postgresql.Driver',
+        'javax.jdo.option.ConnectionURL':
+            'jdbc:postgresql://%s:5432/hive' % get_pgsqlserver_host(),
+        'javax.jdo.option.ConnectionUserName': 'hive',
+        'hive.metastore.uris': 'thrift://%s:9083' % hm
+    }
+    bp_set_conf('hive-site', prop_dict)
 
 
 def generate_hiveenv(hive_comp):
-    env = 'hive-env'
-    bp_set_conf_prop(env,
-                     'hive_database',
-                     'Existing PostgreSQL Database')
-    bp_set_conf_prop(env,
-                     'hive_database_name',
-                     'hive')
-    bp_set_conf_prop(env,
-                     'hive_database_type',
-                     'postgres')
+    prop_dict = {
+        'hive_database': 'Existing PostgreSQL Database',
+        'hive_database_name': 'hive',
+        'hive_database_type': 'postgres'
+    }
+    bp_set_conf('hive-env', prop_dict)
 
 
 def generate_webhcatsite(hive_comp):
@@ -597,43 +511,21 @@ def complete_conf_hbase(serv_comp_hosts):
 
 
 def generate_hbasesite(hbase_comp):
-    site = 'hbase-site'
-    bp_set_conf_prop(site,
-                     'hbase.master.info.port',
-                     '16010')
-    bp_set_conf_prop(site,
-                     'hbase.regionserver.handler.count',
-                     '30')
-    bp_set_conf_prop(site,
-                     'hbase.regionserver.port',
-                     '16020')
-    bp_set_conf_prop(site,
-                     'hbase.regionserver.info.port',
-                     '16030')
-    bp_set_conf_prop(site,
-                     'hbase.rootdir',
-                     '/apps/hbase/data')
-    bp_set_conf_prop(site,
-                     'hbase.rpc.protection',
-                     'authentication')
-    bp_set_conf_prop(site,
-                     'hbase.security.authentication',
-                     'simple')
-    bp_set_conf_prop(site,
-                     'hbase.security.authorization',
-                     'false')
-    bp_set_conf_prop(site,
-                     'hbase.superuser',
-                     'hbase')
-    bp_set_conf_prop(site,
-                     'hbase.tmp.dir',
-                     '/tmp/hbase')
-    bp_set_conf_prop(site,
-                     'hbase.zookeeper.property.clientPort',
-                     '2181')
-    bp_set_conf_prop(site,
-                     'zookeeper.znode.parent',
-                     '/hbase-unsecure')
+    prop_dict = {
+        'hbase.master.info.port': '16010',
+        'hbase.regionserver.handler.count': '30',
+        'hbase.regionserver.port': '16020',
+        'hbase.regionserver.info.port': '16030',
+        'hbase.rootdir': '/apps/hbase/data',
+        'hbase.rpc.protection': 'authentication',
+        'hbase.security.authentication': 'simple',
+        'hbase.security.authorization': 'false',
+        'hbase.superuser': 'hbase',
+        'hbase.tmp.dir': '/tmp/hbase',
+        'hbase.zookeeper.property.clientPort': '2181',
+        'zookeeper.znode.parent': '/hbase-unsecure'
+    }
+    bp_set_conf('hbase-site', prop_dict)
 
 
 def generate_hbaseenv(hbase_comp):
@@ -655,49 +547,31 @@ def complete_conf_spark2(serv_comp_hosts):
 
 
 def generate_spark2defaults(spark2_comp):
-    defaults = 'spark2-defaults'
     history_server = spark2_comp['SPARK2_JOBHISTORYSERVER'][0]
     ui_port = '18081'
-    bp_set_conf_prop(defaults,
-                     'spark.history.ui.port',
-                     '%s' % ui_port)
-    bp_set_conf_prop(defaults,
-                     'spark.eventLog.dir',
-                     'hdfs:///spark2-history/')
-    bp_set_conf_prop(defaults,
-                     'spark.eventLog.enabled',
-                     'true')
-    bp_set_conf_prop(defaults,
-                     'hbase.regionserver.info.port',
-                     '16030')
-    bp_set_conf_prop(defaults,
-                     'spark.history.provider',
-                     'org.apache.spark.deploy.history.FsHistoryProvider')
-    bp_set_conf_prop(defaults,
-                     'spark.yarn.historyServer.address',
-                     '{}:{}'.format(history_server, ui_port))
-    bp_set_conf_prop(defaults,
-                     'spark.history.fs.logDirectory',
-                     'hdfs:///spark2-history/')
+    prop_dict = {
+        'spark.history.ui.port': '%s' % ui_port,
+        'spark.eventLog.dir': 'hdfs:///spark2-history/',
+        'spark.eventLog.enabled': 'true',
+        'hbase.regionserver.info.port': '16030',
+        'spark.history.provider':
+            'org.apache.spark.deploy.history.FsHistoryProvider',
+        'spark.yarn.historyServer.address': '{}:{}'
+            .format(history_server, ui_port),
+        'spark.history.fs.logDirectory': 'hdfs:///spark2-history/'
+    }
+    bp_set_conf('spark2-defaults', prop_dict)
 
 
 def generate_spark2env(spark2_comp):
-    env = 'spark2-env'
-    bp_set_conf_prop(env,
-                     'spark_user',
-                     'spark')
-    bp_set_conf_prop(env,
-                     'spark_group',
-                     'spark')
-    bp_set_conf_prop(env,
-                     'spark_pid_dir',
-                     '/var/run/spark2')
-    bp_set_conf_prop(env,
-                     'spark_log_dir',
-                     '/var/log/spark2')
-    bp_set_conf_prop(env,
-                     'spark_daemon_memory',
-                     '1024')
+    prop_dict = {
+        'spark_user': 'spark',
+        'spark_group': 'spark',
+        'spark_pid_dir': '/var/run/spark2',
+        'spark_log_dir': '/var/log/spark2',
+        'spark_daemon_memory': '1024'
+    }
+    bp_set_conf('spark2-env', prop_dict)
 
 
 def complete_conf_zeppelin(serv_comp_hosts):
@@ -707,63 +581,42 @@ def complete_conf_zeppelin(serv_comp_hosts):
 
 
 def generate_zeppelinconfig():
-    config = 'zeppelin-config'
-    bp_set_conf_prop(config,
-                     'zeppelin.server.port',
-                     '9995')
-    bp_set_conf_prop(config,
-                     'zeppelin.server.ssl.port',
-                     '9995')
-    bp_set_conf_prop(config,
-                     'zeppelin.server.addr',
-                     '0.0.0.0')
-    bp_set_conf_prop(config,
-                     'zeppelin.notebook.dir',
-                     'notebook')
-    bp_set_conf_prop(config,
-                     'zeppelin.interpreters',
-                     'org.apache.zeppelin.spark.SparkInterpreter,'
-                     'org.apache.zeppelin.spark.PySparkInterpreter,'
-                     'org.apache.zeppelin.spark.SparkSqlInterpreter,'
-                     'org.apache.zeppelin.spark.DepInterpreter,'
-                     'org.apache.zeppelin.markdown.Markdown,'
-                     'org.apache.zeppelin.angular.AngularInterpreter,'
-                     'org.apache.zeppelin.shell.ShellInterpreter,'
-                     'org.apache.zeppelin.jdbc.JDBCInterpreter,'
-                     'org.apache.zeppelin.phoenix.PhoenixInterpreter,'
-                     'org.apache.zeppelin.livy.LivySparkInterpreter,'
-                     'org.apache.zeppelin.livy.LivyPySparkInterpreter,'
-                     'org.apache.zeppelin.livy.LivySparkRInterpreter,'
-                     'org.apache.zeppelin.livy.LivySparkSQLInterpreter')
-    bp_set_conf_prop(config,
-                     'zeppelin.ssl',
-                     'false')
-    bp_set_conf_prop(config,
-                     'zeppelin.notebook.storage',
-                     'org.apache.zeppelin.notebook.repo.'
-                     'FileSystemNotebookRepo')
-    bp_set_conf_prop(config,
-                     'zeppelin.interpreter.dir',
-                     'interpreter')
-    bp_set_conf_prop(config,
-                     'zeppelin.config.fs.dir',
-                     'conf')
+    prop_dict = {
+        'zeppelin.server.port': '9995',
+        'zeppelin.server.ssl.port': '9995',
+        'zeppelin.server.addr': '0.0.0.0',
+        'zeppelin.notebook.dir': 'notebook',
+        'zeppelin.interpreters':
+            'org.apache.zeppelin.spark.SparkInterpreter,'
+            'org.apache.zeppelin.spark.PySparkInterpreter,'
+            'org.apache.zeppelin.spark.SparkSqlInterpreter,'
+            'org.apache.zeppelin.spark.DepInterpreter,'
+            'org.apache.zeppelin.markdown.Markdown,'
+            'org.apache.zeppelin.angular.AngularInterpreter,'
+            'org.apache.zeppelin.shell.ShellInterpreter,'
+            'org.apache.zeppelin.jdbc.JDBCInterpreter,'
+            'org.apache.zeppelin.phoenix.PhoenixInterpreter,'
+            'org.apache.zeppelin.livy.LivySparkInterpreter,'
+            'org.apache.zeppelin.livy.LivyPySparkInterpreter,'
+            'org.apache.zeppelin.livy.LivySparkRInterpreter,'
+            'org.apache.zeppelin.livy.LivySparkSQLInterpreter',
+        'zeppelin.ssl': 'false',
+        'zeppelin.notebook.storage':
+            'org.apache.zeppelin.notebook.repo.FileSystemNotebookRepo',
+        'zeppelin.interpreter.dir': 'interpreter',
+        'zeppelin.config.fs.dir': 'conf'
+    }
+    bp_set_conf('zeppelin-config', prop_dict)
 
 
 def generate_zeppelinenv():
-    env = 'zeppelin-env'
-    bp_set_conf_prop(env,
-                     'zeppelin.executor.instances',
-                     '2')
-    bp_set_conf_prop(env,
-                     'zeppelin.executor.mem',
-                     '512m')
-    bp_set_conf_prop(env,
-                     'zeppelin_user',
-                     'zeppelin')
-    bp_set_conf_prop(env,
-                     'zeppelin_group',
-                     'zeppelin')
+    prop_dict = {
+        'zeppelin.executor.instances': '2',
+        'zeppelin.executor.mem': '512m',
+        'zeppelin_user': 'zeppelin',
+        'zeppelin_group': 'zeppelin'
+    }
+    bp_set_conf('zeppelin-env', prop_dict)
 
 
 def generate_blueprint_hostgroups():
@@ -822,7 +675,7 @@ def generate_cluster():
         'repository_version_id': 1,
         'host_groups': host_groups,
         'config_recommendation_strategy':
-        'ALWAYS_APPLY_DONT_OVERRIDE_CUSTOM_VALUES',
+            'ALWAYS_APPLY_DONT_OVERRIDE_CUSTOM_VALUES',
         'configurations': [
             {
                 "hive-site": {

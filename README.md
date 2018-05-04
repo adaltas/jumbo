@@ -142,9 +142,11 @@ When installing a service, all its components are auto-installed on the best fit
 
 When you add a new VM to a cluster with services installed, the clients of each service are automatically installed on the vm.
 
+A list of all the services supported by Jumbo is available [here](#supported-services-and-components).
+
 #### Component installation
 
-If you choose to not auto-install the components with the flag `--no-auto`, you have to manually add components with `addcomp` on the machines of your choice.  Use the command `checkservice` to see what components are missing for the service to be complete:
+If you choose to not auto-install the components with the flag `--no-auto`, you have to manually add components with `addcomponent` on the machines of your choice. Use the command `checkservice` to see what components are missing for the service to be complete:
 
 ```shell
 jumbo (mycluster) > checkservice ANSIBLE
@@ -177,9 +179,9 @@ We have to reproduce the same procedure of installation for the following servic
 | HBASE      | HBASE_MASTER        | `master`     |
 |            | HBASE_REGIONSERVER  | `worker`     |
 
-#### Remove items?
+#### Remove items
 
-Use the commands `rmvm`, `rmservice`, or `rmcomp` to remove items.
+Use the commands `rmvm`, `rmservice`, or `rmcomponent` to remove items.
 
 #### See what have been installed
 
@@ -258,6 +260,8 @@ All the client components (tagged below) are always auto-installed on all hosts 
 | 1.1     | SPARK2              | SPARK2_JOBHISTORYSERVER |        |
 |         |                     | SPARK2_CLIENT           | Yes    |
 |         | ZEPPELIN            | ZEPPELIN_MASTER         |        |
+
+You can add other HDP services through the Ambari WebUI after the cluster deployment.
 
 ## Underlying tools versions
 
