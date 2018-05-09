@@ -25,7 +25,7 @@
 
 [ipaclients]
 {% for host in hosts %}
-	{% if 'ipaclients' in host.groups %}
+	{% if 'ipaclient' in host.groups %}
 {{ host.name }}
 	{% endif %}
 {% endfor %}

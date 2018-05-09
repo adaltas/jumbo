@@ -167,6 +167,7 @@ def generate_ansible_groups():
     ansiblehost = None
     pgsqlserver = None
     ambariserver = None
+    ipaserver = None
 
     for machine in svars['machines']:
         machine['groups'] = []
@@ -182,6 +183,10 @@ def generate_ansible_groups():
             ambariserver = machine['name']
             if 'ambariserver' not in machine['groups']:
                 machine['groups'].append('ambariserver')
+        if 'IPA_SERVER' in machine['components'] and not ipaserver:
+            ipaserver = machine['name']
+            if 'ipaserver' not in machine['groups']:
+                machine['groups'].append('ipaserver')
 
     if ambariserver:
         for machine in svars['machines']:
@@ -189,7 +194,11 @@ def generate_ansible_groups():
                     and 'ambariclient' not in machine['groups']:
                 machine['groups'].append('ambariclient')
 
-    # TODO: IPA groups
+    if ipaserver:
+        for machine in svars['machines']:
+            if 'ldap' not in machine['types'] \
+                    and 'ipaclient' not in machine['groups']:
+                machine['groups'].append('ipaclient')
 
 
 def get_pgsqlserver_host():
