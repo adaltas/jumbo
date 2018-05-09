@@ -216,10 +216,15 @@ def repair(name, domain, ambari_repo, vdf):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--value', '-v', prompt='URL', required=True)
+@click.option('--value', '-v', prompt='URL', required=True, help='URL string')
 @click.option('--cluster', '-c')
 @click.pass_context
 def seturl(ctx, name, value, cluster):
+    """Set an URL to use for downloads.
+
+    :param name: URL name (`ambari_repo` or `vdf`)
+    """
+
     switched = True if cluster else False
     if not cluster:
         cluster = ss.svars['cluster']
@@ -257,7 +262,7 @@ def validate_ip_cb(ctx, param, value):
 @click.option('--types', '-t', multiple=True, type=click.Choice([
     'master', 'sidemaster', 'edge', 'worker', 'ldap', 'other']),
     required=True, help='VM host type(s)')
-@click.option('--ip', '-i',  callback=validate_ip_cb, prompt='IP',
+@click.option('--ip', '-i', callback=validate_ip_cb, prompt='IP',
               help='VM IP address')
 @click.option('--ram', '-r', type=int, prompt='RAM (MB)',
               help='RAM allocated to the VM in MB')

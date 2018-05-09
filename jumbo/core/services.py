@@ -318,6 +318,14 @@ def get_service_components(name):
 
 
 def check_dependent_services(service, ha=False):
+    """Return the services depending on a specified service.
+
+    :param service: Service name
+    :type service: str
+    :param ha: True if the service is in HA mode, defaults to False
+    :return: The list of dependent services
+    """
+
     req = 'ha' if ha else 'default'
     dependent = []
     for s in config['services']:
@@ -328,6 +336,15 @@ def check_dependent_services(service, ha=False):
 
 
 def check_comp_number(service, component):
+    """Check the maximum number of a component is not already reached.
+
+    :param service: Service name
+    :type service: str
+    :param component: Component name
+    :type component: str
+    :return: True if the service is in HA mode, false otherwise
+    """
+
     serv_comp_host = get_services_components_hosts()
     number_comp = 1
     if serv_comp_host[service].get(component):
@@ -368,6 +385,13 @@ def check_comp_number(service, component):
 
 
 def check_ha(service):
+    """Check if a service is in HA mode.
+
+    :param service: Service name
+    :type service: str
+    :return: True if the service is in HA mode, False otherwise
+    """
+
     serv_comp_host = get_services_components_hosts()
     for s in config['services']:
         if s['name'] == service:
@@ -489,6 +513,14 @@ def list_components(*, machine, cluster):
 
 
 def get_abbr(component, service):
+    """Return the abbreviation of a component.
+
+    :param component: Component name
+    :type component: str
+    :param service: Service name of the component
+    :type service: str
+    """
+
     if not check_component(component):
         raise ex.LoadError('component', component, 'NotExist')
 
