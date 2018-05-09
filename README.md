@@ -135,7 +135,7 @@ These services are missing:
  - POSTGRESQL
 jumbo (mycluster) > addservice ANSIBLE
 Service `ANSIBLE` and related clients added to cluster `mycluster`.
-1 type of component auto-installed. Use "listcomp -a" for details.
+1 type of component auto-installed. Use "listcomponents -a" for details.
 ```
 
 When installing a service, all its components are auto-installed on the best fitting hosts by default. You can avoid the auto-installation with the flag `--no-auto`. Note that the service's clients clients will always be installed on all hosts.
@@ -143,6 +143,10 @@ When installing a service, all its components are auto-installed on the best fit
 When you add a new VM to a cluster with services installed, the clients of each service are automatically installed on the vm.
 
 A list of all the services supported by Jumbo is available [here](#supported-services-and-components).
+
+##### High Availability support
+
+[Some services](#services-supporting-high-availability) support High Availability. To install a service in HA, use the tag `--ha` with the command `addservice`.
 
 #### Component installation
 
@@ -260,8 +264,17 @@ All the client components (tagged below) are always auto-installed on all hosts 
 | 1.1     | SPARK2              | SPARK2_JOBHISTORYSERVER |        |
 |         |                     | SPARK2_CLIENT           | Yes    |
 |         | ZEPPELIN            | ZEPPELIN_MASTER         |        |
+| 1.2     | FREEIPA             | IPA_SERVER              |        |
 
 You can add other HDP services through the Ambari WebUI after the cluster deployment.
+
+### Services supporting High Availability
+
+The following services can be installed in HA mode with Jumbo:
+- HDFS
+- YARN
+
+If you want to switch another service in HA, you can use the Ambari WebUI.
 
 ## Underlying tools versions
 
@@ -305,6 +318,9 @@ HDP:
     - Better looking lists;
     - Standardized command names;
     - Support for new services: SPARK2, ZEPPELIN
+- **1.2** - 09/05/18: **Support for HDFS and YARN in HA and Free IPA support**
+    - Support for new service: FREEIPA
+    - High Availability support for: HDFS, YARN
 
 ## TO DO
 
