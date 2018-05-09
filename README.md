@@ -298,10 +298,10 @@ HDP:
 
 ## Jumbo versions
 
-- 1.0 - 27/04/18 : First stable release
-- 1.1 - ?: 
+- **1.0** - 27/04/18: **First stable release**
+- **1.1** - 04/05/18: **Support for Spark2 and Zeppelin and minor improvements**
     - Support custom URLs for the Ambari repository and the VDF of HDP with command `seturl`;
-    - New list `listservices` with services state (complete or not);
+    - New list `listservices` with services states (complete or not);
     - Better looking lists;
     - Standardized command names;
     - Support for new services: SPARK2, ZEPPELIN
