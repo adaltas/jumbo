@@ -226,8 +226,7 @@ def check_service_req_comp(name):
                     missing['ha'][comp['name']] = missing_count
             if not missing['ha'] or not missing['default']:
                 return {}
-            else:
-                return missing
+            return missing
     raise ex.LoadError('service', name, 'NotExist')
 
 
@@ -396,10 +395,11 @@ def check_ha(service):
     for s in config['services']:
         if s['name'] == service:
             for c in s['components']:
-                number_comp = len(serv_comp_host[service][c['name']])
-                if number_comp == c['number']['ha']:
-                    if c['number']['ha'] > c['number']['default']:
-                        return True
+                if serv_comp_host[service].get(c['name']):
+                    number_comp = len(serv_comp_host[service][c['name']])
+                    if number_comp == c['number']['ha']:
+                        if c['number']['ha'] > c['number']['default']:
+                            return True
             return False
     raise ex.LoadError('service', service, 'NotExist')
 
@@ -659,11 +659,19 @@ def auto_install_machine(machine, cluster):
     """
 
     count = 0
+    for m in ss.svars['machines']:
+        if m['name'] == machine:
+            m_conf = m
+
     for s in config['services']:
         if s['name'] in ss.svars['services']:
             for c in s['auto_install']:
-                add_component(c, machine=machine,
-                              cluster=cluster)
-                count += 1
+                for comp in s['components']:
+                    if comp['name'] == c:
+                        for t in m_conf['types']:
+                            if t in comp['hosts_types']:
+                                add_component(c, machine=machine,
+                                              cluster=cluster)
+                                count += 1
 
     return count

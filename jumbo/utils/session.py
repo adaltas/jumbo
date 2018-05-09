@@ -3,7 +3,7 @@ import json
 import yaml
 
 from jumbo.utils import exceptions as ex, checks
-from jumbo.utils.settings import JUMBODIR
+from jumbo.utils.settings import JUMBODIR, NOT_HADOOP_COMP
 from jumbo.core import clusters
 
 svars = {
@@ -715,12 +715,7 @@ def generate_blueprint_hostgroups():
 
 
 def blueprint_component(component):
-    not_bp_comp = [
-        'ANSIBLE_CLIENT',
-        'PSQL_SERVER',
-        'AMBARI_SERVER'
-    ]
-    if component in not_bp_comp:
+    if component in NOT_HADOOP_COMP:
         return False
     return True
 

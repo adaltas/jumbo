@@ -113,6 +113,39 @@
       "auto_install": []
     },
     {
+      "name": "FREEIPA",
+      "components": [
+        {
+          "name": "IPA_SERVER",
+          "hosts_types": [
+            "ldap"
+          ],
+          "abbr": "IPA_S",
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "machines": {
+          "default": {},
+          "ha": {}
+        },
+        "services": {
+          "default": [
+            "ANSIBLE"
+          ],
+          "ha": [
+            "ANSIBLE"
+          ]
+        }
+      },
+      "auto_install": []
+    },
+    {
       "name": "HDFS",
       "components": [
         {
