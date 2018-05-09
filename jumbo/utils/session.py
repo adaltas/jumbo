@@ -412,18 +412,18 @@ def generate_hdfssite_ha(hdfs_comp):
     }
     if 'JOURNALNODE' in hdfs_comp:
         prop_dict.update({
-            'dfs.namenode.shared.edits.dir': 'qjournal://{}/{}'
-            .format(
-                ';'.join(
-                    '%s:8485' % fqdn(jn) for jn in hdfs_comp['JOURNALNODE']),
-                nn)
+            'dfs.namenode.shared.edits.dir':
+                'qjournal://{}/{}'.format(
+                    ';'.join('%s:8485'
+                             % fqdn(jn) for jn in hdfs_comp['JOURNALNODE']),
+                    nn)
         })
     bp_set_conf('hdfs-site', prop_dict)
 
 
 def complete_conf_yarn(serv_comp_hosts):
     if 'RESOURCEMANAGER' in serv_comp_hosts['YARN']:
-        if len(serv_comp_hosts['YARN']['RESOURCEMANAGER']) > 1:
+        if len(serv_comp_hosts['YARN']['RESOURCEMANAGER']) == 2:
             generate_yarnsite_ha(serv_comp_hosts['YARN'])
         else:
             bp_set_conf_prop('core-site',
@@ -472,8 +472,52 @@ def generate_yarnsite(yarn_comp):
 
 
 def generate_yarnsite_ha(yarn_comp):
-    raise ex.CreationError('service', 'YARN', 'mode', 'High Availability',
-                           'NotSupported')
+    rm1 = fqdn(yarn_comp['RESOURCEMANAGER'][0])
+    rm2 = fqdn(yarn_comp['RESOURCEMANAGER'][1])
+    container_max_memory = 1536
+    node_max_containers = 100
+    if 'NODEMANAGER' in yarn_comp:
+        for m in svars['machines']:
+            if m['name'] in yarn_comp['NODEMANAGER']:
+                if node_max_containers > int(m['ram'] / 1536):
+                    node_max_containers = int(m['ram'] / 1536)
+    node_max_memory = node_max_containers * container_max_memory
+
+    prop_dict = {
+        'yarn.resourcemanager.ha.enabled': 'true',
+        'yarn.resourcemanager.ha.automatic-failover.zk-base-path':
+            '/yarn-leader-election',
+        'yarn.resourcemanager.cluster-id': 'yarn-cluster',
+        'yarn.resourcemanager.ha.rm-ids': 'rm1,rm2',
+        'yarn.resourcemanager.recovery.enabled': 'true',
+        'yarn.resourcemanager.store.class':
+            'org.apache.hadoop.yarn.server.resourcemanager.'
+            'recovery.ZKRMStateStore',
+        'yarn.resourcemanager.address': '%s:8050' % rm1,
+        'yarn.resourcemanager.admin.address': '%s:8141' % rm1,
+        'yarn.resourcemanager.scheduler.address': '%s:8030' % rm1,
+        'yarn.resourcemanager.hostname': '%s' % rm1,
+        'yarn.resourcemanager.hostname.rm1': '%s' % rm1,
+        'yarn.resourcemanager.hostname.rm2': '%s' % rm2,
+        'yarn.resourcemanager.resource-tracker.address': '%s:8025' % rm1,
+        'yarn.resourcemanager.webapp.address': '%s:8088' % rm1,
+        'yarn.resourcemanager.webapp.address.rm1': '%s:8088' % rm1,
+        'yarn.resourcemanager.webapp.address.rm2': '%s:8088' % rm2,
+        'yarn.resourcemanager.webapp.https.address': '%s:8090' % rm1,
+        'yarn.resourcemanager.webapp.https.address.rm1': '%s:8090' % rm1,
+        'yarn.resourcemanager.webapp.https.address.rm2': '%s:8090' % rm2,
+        'yarn.nodemanager.resource.memory-mb': '%d' % node_max_memory,
+        'yarn.scheduler.maximum-allocation-mb': '%d' % container_max_memory
+    }
+    if yarn_comp.get('APP_TIMELINE_SERVER'):
+        timeline = fqdn(yarn_comp['APP_TIMELINE_SERVER'][0])
+        prop_dict.update({
+            'yarn.timeline-service.address': '%s:10200' % timeline,
+            'yarn.timeline-service.webapp.address': '%s:8188' % timeline,
+            'yarn.timeline-service.webapp.https.address': '%s:8190' % timeline,
+            'yarn.log.server.url': 'http://%s:19888/jobhistory/logs' % timeline
+        })
+    bp_set_conf('yarn-site', prop_dict)
 
 
 def complete_conf_hive(serv_comp_hosts):
@@ -487,10 +531,11 @@ def complete_conf_hive(serv_comp_hosts):
                              'hadoop.proxyuser.hive.hosts',
                              fqdn(serv_comp_hosts['HIVE']
                                   .get('HIVE_METASTORE')[0]))
-            bp_set_conf_prop('core-site',
-                             'hadoop.proxyuser.hcat.hosts',
-                             fqdn(serv_comp_hosts['HIVE']
-                                  .get('WEBHCAT_SERVER')[0]))
+            if serv_comp_hosts['HIVE'].get('WEBHCAT_SERVER'):
+                bp_set_conf_prop('core-site',
+                                 'hadoop.proxyuser.hcat.hosts',
+                                 fqdn(serv_comp_hosts['HIVE']
+                                      .get('WEBHCAT_SERVER')[0]))
             generate_hivesite(serv_comp_hosts['HIVE'])
             generate_hiveenv(serv_comp_hosts['HIVE'])
             generate_webhcatsite(serv_comp_hosts['HIVE'])
@@ -585,8 +630,8 @@ def generate_spark2defaults(spark2_comp):
         'hbase.regionserver.info.port': '16030',
         'spark.history.provider':
             'org.apache.spark.deploy.history.FsHistoryProvider',
-        'spark.yarn.historyServer.address': '{}:{}'
-            .format(history_server, ui_port),
+        'spark.yarn.historyServer.address':
+            '{}:{}'.format(history_server, ui_port),
         'spark.history.fs.logDirectory': 'hdfs:///spark2-history/'
     }
     bp_set_conf('spark2-defaults', prop_dict)

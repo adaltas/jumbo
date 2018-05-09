@@ -119,7 +119,6 @@ def add_component(name, machine, cluster):
                                'Installed')
 
     ss.svars['machines'][m_index]['components'].append(name)
-    auto_install_components(name, machine, service, cluster)
     ss.dump_config(get_services_components_hosts())
 
 
@@ -151,7 +150,8 @@ def add_service(name, ha=False, *, cluster):
 
     missing_serv, missing_comp = check_service_req_service(name, ha)
     if missing_serv:
-        raise ex.CreationError('service', name, 'services', missing_serv,
+        raise ex.CreationError('service', name, 'services',
+                               (' - %s' % s for s in missing_serv),
                                'ReqNotMet')
     if missing_comp:
         print_missing = []
@@ -329,7 +329,7 @@ def check_dependent_services(service, ha=False):
 
 def check_comp_number(service, component):
     serv_comp_host = get_services_components_hosts()
-    number_comp = 0
+    number_comp = 1
     if serv_comp_host[service].get(component):
         number_comp = len(serv_comp_host[service][component]) + 1
     for s in config['services']:
@@ -364,6 +364,19 @@ def check_comp_number(service, component):
                         return True
                     return False
             raise ex.LoadError('component', component, 'NotExist')
+    raise ex.LoadError('service', service, 'NotExist')
+
+
+def check_ha(service):
+    serv_comp_host = get_services_components_hosts()
+    for s in config['services']:
+        if s['name'] == service:
+            for c in s['components']:
+                number_comp = len(serv_comp_host[service][c['name']])
+                if number_comp == c['number']['ha']:
+                    if c['number']['ha'] > c['number']['default']:
+                        return True
+            return False
     raise ex.LoadError('service', service, 'NotExist')
 
 
@@ -502,7 +515,7 @@ def get_services_components_hosts():
             for m in ss.svars['machines']:
                 if c in m['components']:
                     services_components_hosts[s][c].append(m['name'])
-            if not len(services_components_hosts[s][c]):
+            if not services_components_hosts[s][c]:
                 services_components_hosts[s].pop(c)
     return services_components_hosts
 
@@ -573,8 +586,11 @@ def auto_assign_service_comp(component, dist, cluster, check):
                                       machine=m['name'],
                                       cluster=cluster)
                 # Ignore error when adding already existing component
-                except ex.CreationError:
-                    pass
+                except ex.CreationError as e:
+                    if e.type == 'Installed':
+                        pass
+                    else:
+                        raise e
                 count -= 1
                 if count == 0:
                     return 0
@@ -598,31 +614,6 @@ def auto_install_service(service, cluster, ha=False):
                 if c['name'] in s['auto_install']:
                     auto_assign_service_comp(c, req, cluster,
                                              check=False)
-
-
-def auto_install_components(component, machine, service, cluster):
-    """
-    Auto-install the components tied to a component beeing
-    installed on a machine.
-
-    :param component: The component installed on the machine
-    :type component: str
-    :param machine: Machine name
-    :type machine: str
-    :param service: Service name of the component
-    :type service: str
-    :param cluster: Cluster name
-    :type cluster: str
-    """
-
-    for s in config['services']:
-        if s['name'] == service:
-            for c in s['components']:
-                if c['name'] == component:
-                    if c.get('auto_install'):
-                        for auto in c['auto_install']:
-                            add_component(auto, machine=machine,
-                                          cluster=cluster)
 
 
 def auto_install_machine(machine, cluster):

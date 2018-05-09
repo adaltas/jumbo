@@ -592,7 +592,7 @@ def listservices(cluster):
         cluster = ss.svars['cluster']
 
     try:
-        table_serv = PrettyTable(['Service', 'Missing components'])
+        table_serv = PrettyTable(['Service', 'HA', 'Missing components'])
         table_serv.align = 'l'
         for s in ss.svars['services']:
             color = 'green'
@@ -603,7 +603,9 @@ def listservices(cluster):
                 color = 'yellow' if len(missing_comp) < 5 else 'red'
             else:
                 print_missing = '-'
-            table_serv.add_row([click.style(s, fg=color), print_missing])
+            table_serv.add_row([click.style(s, fg=color),
+                                'X' if services.check_ha(s) else ' ',
+                                print_missing])
         table_serv.sortby = 'Service'
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)

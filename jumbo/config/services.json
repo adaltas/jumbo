@@ -446,10 +446,7 @@
           "number": {
             "default": 1,
             "ha": 2
-          },
-          "auto_install": [
-            "WEBHCAT_SERVER"
-          ]
+          }
         },
         {
           "name": "WEBHCAT_SERVER",
