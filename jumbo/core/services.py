@@ -97,15 +97,21 @@ def add_component(name, machine, cluster):
         if m['name'] == machine:
             m_index = i
 
-    missing_serv, missing_comp = check_service_req_service(service)
+    ha = check_comp_number(service, name)
+
+    missing_serv, missing_comp = check_service_req_service(service, ha)
     if missing_serv:
         raise ex.CreationError('component', name, 'services', missing_serv,
                                'ReqNotMet')
     if missing_comp:
         print_missing = []
-        for k, v in missing_comp.items():
-            print_missing.append('{} {}'.format(v, k))
-        raise ex.CreationError('component', name, 'components', print_missing,
+        print_missing.append('Default:')
+        for k, v in missing_comp['default'].items():
+            print_missing.append(' - {} {}'.format(v, k))
+        print_missing.append('or High Availability:')
+        for k, v in missing_comp['ha'].items():
+            print_missing.append(' - {} {}'.format(v, k))
+        raise ex.CreationError('service', name, 'components', print_missing,
                                'ReqNotMet')
 
     if name in ss.svars['machines'][m_index]['components']:
@@ -118,7 +124,7 @@ def add_component(name, machine, cluster):
 
 
 @valid_cluster
-def add_service(name, *, cluster):
+def add_service(name, ha=False, *, cluster):
     """Add a service to a specified cluster.
 
     :param name: Service name
@@ -143,19 +149,23 @@ def add_service(name, *, cluster):
         raise ex.CreationError(
             'cluster', cluster, 'service', name, 'Installed')
 
-    missing_serv, missing_comp = check_service_req_service(name)
+    missing_serv, missing_comp = check_service_req_service(name, ha)
     if missing_serv:
         raise ex.CreationError('service', name, 'services', missing_serv,
                                'ReqNotMet')
     if missing_comp:
         print_missing = []
-        for k, v in missing_comp.items():
-            print_missing.append('{} {}'.format(v, k))
+        print_missing.append('Default:')
+        for k, v in missing_comp['default'].items():
+            print_missing.append(' - {} {}'.format(v, k))
+        print_missing.append('or High Availability:')
+        for k, v in missing_comp['ha'].items():
+            print_missing.append(' - {} {}'.format(v, k))
         raise ex.CreationError('service', name, 'components', print_missing,
                                'ReqNotMet')
 
     ss.svars['services'].append(name)
-    auto_install_service(name, cluster)
+    auto_install_service(name, cluster, ha)
     ss.dump_config(get_services_components_hosts())
 
 
@@ -183,7 +193,7 @@ def check_service_req_service(name, ha=False):
     raise ex.LoadError('service', name, 'NotExist')
 
 
-def check_service_req_comp(name, ha=False):
+def check_service_req_comp(name):
     """Check if all the components required are installed for a service.
 
     :param name: Service name
@@ -194,23 +204,35 @@ def check_service_req_comp(name, ha=False):
     :rtype: dict
     """
 
-    req = 'ha' if ha else 'default'
-    missing = {}
+    missing = {
+        'default': {},
+        'ha': {}
+    }
     comp_count = count_components()
     for s in config['services']:
         if s['name'] == name:
             for comp in s['components']:
+                req = 'default'
                 req_number = comp['number'][req] if comp['number'][req] != -1 \
                     else 1
                 missing_count = req_number - comp_count[comp['name']]
                 if missing_count > 0:
-                    missing[comp['name']] = missing_count
-            return missing
+                    missing['default'][comp['name']] = missing_count
+                req = 'ha'
+                req_number = comp['number'][req] if comp['number'][req] != -1 \
+                    else 1
+                missing_count = req_number - comp_count[comp['name']]
+                if missing_count > 0:
+                    missing['ha'][comp['name']] = missing_count
+            if not missing['ha'] or not missing['default']:
+                return {}
+            else:
+                return missing
     raise ex.LoadError('service', name, 'NotExist')
 
 
 @valid_cluster
-def check_service_complete(name, ha=False, *, cluster):
+def check_service_complete(name, *, cluster):
     """Check if all the components required are installed for a service
 
     :param name: Service name
@@ -223,10 +245,16 @@ def check_service_complete(name, ha=False, *, cluster):
 
     print_missing = []
 
-    missing_comp = check_service_req_comp(name, ha)
+    missing_comp = check_service_req_comp(name)
+
     if missing_comp:
-        for k, v in missing_comp.items():
-            print_missing.append('{} {}'.format(v, k))
+        print_missing = []
+        print_missing.append('Default:')
+        for k, v in missing_comp['default'].items():
+            print_missing.append(' - {} {}'.format(v, k))
+        print_missing.append('or High Availability:')
+        for k, v in missing_comp['ha'].items():
+            print_missing.append(' - {} {}'.format(v, k))
 
     return print_missing
 
@@ -297,6 +325,46 @@ def check_dependent_services(service, ha=False):
             if service in s['requirements']['services'][req]:
                 dependent.append(s['name'])
     return dependent
+
+
+def check_comp_number(service, component):
+    serv_comp_host = get_services_components_hosts()
+    number_comp = 0
+    if serv_comp_host[service].get(component):
+        number_comp = len(serv_comp_host[service][component]) + 1
+    for s in config['services']:
+        if s['name'] == service:
+            for c in s['components']:
+                if c['name'] == component:
+                    if number_comp > c['number']['ha'] \
+                            and c['number']['ha'] != -1:
+                        raise ex.CreationError('cluster',
+                                               ss.svars['cluster'],
+                                               'components',
+                                               component,
+                                               'MaxNumber')
+                    elif number_comp == c['number']['ha']:
+                        to_remove = {}
+                        for comp in s['components']:
+                            n = 0
+                            max_n = comp['number']['ha']
+                            if serv_comp_host[service].get(comp['name']):
+                                n = len(serv_comp_host[service][comp['name']])
+                            if n > max_n and max_n != -1:
+                                to_remove[comp['name']] = n - max_n
+                        if to_remove:
+                            print_remove = []
+                            for k, v in to_remove.items():
+                                print_remove.append('{} {}'.format(v, k))
+                            raise ex.CreationError('service',
+                                                   service,
+                                                   'components',
+                                                   print_remove,
+                                                   'TooManyHA')
+                        return True
+                    return False
+            raise ex.LoadError('component', component, 'NotExist')
+    raise ex.LoadError('service', service, 'NotExist')
 
 
 @valid_cluster
@@ -440,7 +508,7 @@ def get_services_components_hosts():
 
 
 @valid_cluster
-def auto_assign(service, *, cluster):
+def auto_assign(service, ha, *, cluster):
     """Auto-install a service and its components on the best fitting hosts.
 
     :param service: Service name
@@ -458,20 +526,22 @@ def auto_assign(service, *, cluster):
         raise ex.LoadError('service', service, 'NotExist')
 
     # dist is 'default' or 'ha'
-    dist = 'default'
+    dist = 'ha' if ha else 'default'
     # Check loop for atomicity
     for component in scfg['components']:
         left = auto_assign_service_comp(component, dist, cluster, check=True)
         if left == -1:
             raise ex.CreationError('component', component['name'],
                                    'hosts type (need at least 1 of them)',
-                                   component['hosts_types'],
+                                   (' - %s'
+                                    % c for c in component['hosts_types']),
                                    'ReqNotMet')
         elif left > 0:
             raise ex.CreationError('component', component['name'],
                                    'hosts type (need ' + str(left) +
                                    ' of them)',
-                                   component['hosts_types'],
+                                   (' - %s'
+                                    % c for c in component['hosts_types']),
                                    'ReqNotMet')
 
     count = 0
@@ -490,6 +560,7 @@ def auto_assign_service_comp(component, dist, cluster, check):
     :param dist:
     :param cluster
     """
+
     count = component['number'][dist]  # -1 = everywhere
     if count == 0:
         return 0
@@ -511,7 +582,7 @@ def auto_assign_service_comp(component, dist, cluster, check):
     return count
 
 
-def auto_install_service(service, cluster):
+def auto_install_service(service, cluster, ha=False):
     """Auto-install the service clients on the fitting hosts.
 
     :param service: Service name
@@ -520,11 +591,12 @@ def auto_install_service(service, cluster):
     :type cluster: str
     """
 
+    req = 'ha' if ha else 'default'
     for s in config['services']:
         if s['name'] == service:
             for c in s['components']:
                 if c['name'] in s['auto_install']:
-                    auto_assign_service_comp(c, 'default', cluster,
+                    auto_assign_service_comp(c, req, cluster,
                                              check=False)
 
 

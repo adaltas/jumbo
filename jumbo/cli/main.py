@@ -360,8 +360,9 @@ def listvms(cluster):
 @click.argument('name')
 @click.option('--cluster', '-c')
 @click.option('--no-auto', is_flag=True, help='Avoid auto-install')
+@click.option('--ha', '-h', is_flag=True, help='High Availability mode')
 @click.pass_context
-def addservice(ctx, name, cluster, no_auto):
+def addservice(ctx, name, cluster, no_auto, ha):
     """
     Add a service to a cluster and auto-install its components
     on the best fitting hosts.
@@ -371,12 +372,12 @@ def addservice(ctx, name, cluster, no_auto):
         cluster = ss.svars['cluster']
 
     try:
-        services.add_service(name, cluster=cluster)
+        services.add_service(name=name, ha=ha, cluster=cluster)
         if no_auto:
             msg = ('No component has been auto-installed (except clients). '
                    'Use "addcomp" manually.')
         else:
-            count = services.auto_assign(name, cluster=cluster)
+            count = services.auto_assign(service=name, ha=ha, cluster=cluster)
             msg = ('{} type{} of component{} auto-installed. '
                    'Use "listcomponents -a" for details.'
                    .format(count,
@@ -572,8 +573,8 @@ def checkservice(name, cluster):
         click.secho(e.message, fg='red', err=True)
     else:
         if missing_comp:
-            click.echo('The service `{}` misses:\n - {}'
-                       .format(name, ',\n - '.join(missing_comp)))
+            click.echo('The service `{}` misses:\n{}'
+                       .format(name, '\n'.join(missing_comp)))
         else:
             click.echo('The service `%s` is complete.' % name)
 
@@ -592,14 +593,14 @@ def listservices(cluster):
 
     try:
         table_serv = PrettyTable(['Service', 'Missing components'])
-        table_serv.align['Service'] = 'l'
+        table_serv.align = 'l'
         for s in ss.svars['services']:
             color = 'green'
             missing_comp = services.check_service_complete(name=s,
                                                            cluster=cluster)
             if missing_comp:
                 print_missing = '\n'.join(missing_comp)
-                color = 'yellow' if len(missing_comp) < 3 else 'red'
+                color = 'yellow' if len(missing_comp) < 5 else 'red'
             else:
                 print_missing = '-'
             table_serv.add_row([click.style(s, fg=color), print_missing])

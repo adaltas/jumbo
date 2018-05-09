@@ -22,17 +22,16 @@ class CreationError(Error):
                 self.conflict['property'],
                 self.conflict['value']),
             'Installed': ('The {} `{}` is already present on the {} `{}`!'
-                          .format(
-                              self.conflict['property'],
-                              self.conflict['value'],
-                              self.object['type'],
-                              self.object['name'])),
+                          .format(self.conflict['property'],
+                                  self.conflict['value'],
+                                  self.object['type'],
+                                  self.object['name'])),
             'ReqNotMet': ('The requirements to add the {} `{}` are not met!\n'
-                          'These {} are missing:\n - {}'
+                          'These {} are missing:\n{}'
                           .format(self.object['type'],
                                   self.object['name'],
                                   self.conflict['property'],
-                                  '\n - '.join(self.conflict['value']))),
+                                  '\n'.join(self.conflict['value']))),
             'NotInstalled': ('The {} `{}` is not installed on the {} `{}`!'
                              .format(self.conflict['property'],
                                      self.conflict['value'],
@@ -48,7 +47,23 @@ class CreationError(Error):
                            .format(self.object['type'],
                                    self.object['name'],
                                    self.conflict['property'],
-                                   '\n - '.join(self.conflict['value'])))
+                                   '\n - '.join(self.conflict['value']))),
+            'MaxNumber': ('The maximum number of {} `{}` is already installed '
+                          'on the {} `{}`.\nRemove one `{}` before installing'
+                          ' a new one.'.format(self.conflict['property'],
+                                               self.conflict['value'],
+                                               self.object['type'],
+                                               self.object['name'],
+                                               self.conflict['value'])),
+            'TooManyHA': ('This operation is switching the {} `{}` in '
+                          'High Availability mode.\nSome components intalled'
+                          ' are not compatible with this mode.\n'
+                          'Remove the following {} to switch to High '
+                          'Availability mode:\n - {}'
+                          .format(self.object['type'],
+                                  self.object['name'],
+                                  self.conflict['property'],
+                                  '\n - '.join(self.conflict['value'])))
         }
 
         return switcher.get(self.type, self.type)

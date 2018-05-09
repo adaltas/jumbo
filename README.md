@@ -208,7 +208,7 @@ ok: [smaster] => {
     "msg": [
         "Installation of cluster `myclusterlocalcluster` in progress.", 
         "Ambari WebUI: http://10.10.10.12:8080", 
-        "User: 'admin', Password: 'admin'"
+        "Username: 'admin', Password: 'admin'"
     ]
 }
 ```

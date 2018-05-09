@@ -365,7 +365,7 @@ def generate_zookeeper_quorum(zk_hosts, add_port=False):
 
 def complete_conf_hdfs(serv_comp_hosts):
     if 'NAMENODE' in serv_comp_hosts['HDFS']:
-        if len(serv_comp_hosts['HDFS']['NAMENODE']) > 1:
+        if len(serv_comp_hosts['HDFS']['NAMENODE']) == 2:
             bp_set_conf_prop('core-site', 'fs.defaultFS',
                              'hdfs://nn%s' % svars['domain'].replace('.', ''))
             generate_hdfssite_ha(serv_comp_hosts['HDFS'])
@@ -390,8 +390,35 @@ def generate_hdfssite(hdfs_comp):
 
 
 def generate_hdfssite_ha(hdfs_comp):
-    raise ex.CreationError('service', 'HDFS', 'mode', 'High Availability',
-                           'NotSupported')
+    nn = 'nn%s' % svars['domain'].replace('.', '')
+    nn1 = '%s' % fqdn(hdfs_comp['NAMENODE'][0])
+    nn2 = '%s' % fqdn(hdfs_comp['NAMENODE'][1])
+    prop_dict = {
+        'dfs.nameservices': nn,
+        'dfs.namenode.http-address': '%s:50070' % nn1,
+        'dfs.namenode.http-address.%s.nn1' % nn: '%s:50070' % nn1,
+        'dfs.namenode.http-address.%s.nn2' % nn: '%s:50070' % nn2,
+        'dfs.namenode.https-address': '%s:50470' % nn1,
+        'dfs.namenode.https-address.%s.nn1' % nn: '%s:50470' % nn1,
+        'dfs.namenode.https-address.%s.nn2' % nn: '%s:50470' % nn2,
+        'dfs.namenode.rpc-address.%s.nn1' % nn: '%s:8020' % nn1,
+        'dfs.namenode.rpc-address.%s.nn2' % nn: '%s:8020' % nn2,
+        'dfs.ha.namenodes.%s' % nn: 'nn1,nn2',
+        'dfs.ha.fencing.methods': 'shell(/bin/true)',
+        'dfs.client.failover.proxy.provider.%s' % nn:
+            'org.apache.hadoop.hdfs.server.namenode.'
+            'ha.ConfiguredFailoverProxyProvider',
+        'dfs.ha.automatic-failover.enabled': 'true'
+    }
+    if 'JOURNALNODE' in hdfs_comp:
+        prop_dict.update({
+            'dfs.namenode.shared.edits.dir': 'qjournal://{}/{}'
+            .format(
+                ';'.join(
+                    '%s:8485' % fqdn(jn) for jn in hdfs_comp['JOURNALNODE']),
+                nn)
+        })
+    bp_set_conf('hdfs-site', prop_dict)
 
 
 def complete_conf_yarn(serv_comp_hosts):
@@ -420,10 +447,12 @@ def generate_yarnsite(yarn_comp):
     prop_dict = {
         'yarn.resourcemanager.ha.enabled': 'false',
         'yarn.resourcemanager.recovery.enabled': 'true',
-        'yarn.resourcemanager.store.class': 'org.apache.hadoop.yarn.server.'
-        'resourcemanager.recovery.ZKRMStateStore',
+        'yarn.resourcemanager.store.class':
+            'org.apache.hadoop.yarn.server.resourcemanager.'
+            'recovery.ZKRMStateStore',
         'yarn.resourcemanager.address': '%s:8050' % rm,
         'yarn.resourcemanager.admin.address': '%s:8141' % rm,
+        'yarn.resourcemanager.scheduler.address': '%s:8030' % rm,
         'yarn.resourcemanager.hostname': '%s' % rm,
         'yarn.resourcemanager.resource-tracker.address': '%s:8025' % rm,
         'yarn.resourcemanager.webapp.address': '%s:8088' % rm,

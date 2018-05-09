@@ -120,4 +120,4 @@
     msg:
       - "Installation of cluster `{{ cluster_name }}` in progress."
       - "Ambari WebUI: http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080"
-      - "User: 'admin', Password: 'admin'"
+      - "Username: 'admin', Password: 'admin'"
