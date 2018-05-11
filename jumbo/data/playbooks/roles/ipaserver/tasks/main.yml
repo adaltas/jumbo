@@ -8,6 +8,11 @@
     - ipa-server-dns
     - bind
 
+- name: Restart dbus
+  service:
+    name: dbus
+    state: restarted
+
 - name: Check FreeIPA server installation
   ipaserver_test:
     dm_password: "{{ ipa_dm_password }}"
