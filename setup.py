@@ -8,7 +8,8 @@ setup(
         'click-shell',
         'jinja2',
         'prettytable',
-        'pyyaml'
+        'pyyaml',
+        'ipaddress'
     ],
     py_modules=['jumbo'],
     entry_points='''
