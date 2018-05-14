@@ -1,7 +1,7 @@
 import os
 import json
 
-from jumbo.core import machines as vm, clusters
+from jumbo.core import machines as vm
 from jumbo.utils import exceptions as ex, session as ss
 from jumbo.utils.settings import JUMBODIR
 from jumbo.utils.checks import valid_cluster
@@ -65,7 +65,7 @@ def check_component(name):
     return False
 
 
-def add_component(name, machine, cluster):
+def add_component(name, machine, cluster, ha=None):
     """Add a component to a specified machine of a specified.
 
     :param name: Component name
@@ -97,7 +97,8 @@ def add_component(name, machine, cluster):
         if m['name'] == machine:
             m_index = i
 
-    ha = check_comp_number(service, name)
+    if ha is None:
+        ha = check_comp_number(service, name)
 
     missing_serv, missing_comp = check_service_req_service(service, ha)
     if missing_serv:
@@ -344,6 +345,7 @@ def check_comp_number(service, component):
     :return: True if the service is in HA mode, false otherwise
     """
 
+    ha = 'ha' if check_ha(service) else 'default'
     serv_comp_host = get_services_components_hosts()
     number_comp = 1
     if serv_comp_host[service].get(component):
@@ -352,8 +354,8 @@ def check_comp_number(service, component):
         if s['name'] == service:
             for c in s['components']:
                 if c['name'] == component:
-                    if number_comp > c['number']['ha'] \
-                            and c['number']['ha'] != -1:
+                    if number_comp > c['number'][ha] \
+                            and c['number'][ha] != -1:
                         raise ex.CreationError('cluster',
                                                ss.svars['cluster'],
                                                'components',
@@ -397,9 +399,9 @@ def check_ha(service):
             for c in s['components']:
                 if serv_comp_host[service].get(c['name']):
                     number_comp = len(serv_comp_host[service][c['name']])
-                    if number_comp == c['number']['ha']:
-                        if c['number']['ha'] > c['number']['default']:
-                            return True
+                    if number_comp > c['number']['default'] \
+                            and c['number']['ha'] > c['number']['default']:
+                        return True
             return False
     raise ex.LoadError('service', service, 'NotExist')
 
@@ -616,7 +618,8 @@ def auto_assign_service_comp(component, dist, cluster, check):
                     if not check:
                         add_component(component['name'],
                                       machine=m['name'],
-                                      cluster=cluster)
+                                      cluster=cluster,
+                                      ha=dist == 'ha')
                 # Ignore error when adding already existing component
                 except ex.CreationError as e:
                     if e.type == 'Installed':

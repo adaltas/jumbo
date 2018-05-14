@@ -3,7 +3,7 @@ import click
 import os
 import json
 import pathlib
-from distutils.dir_util import copy_tree
+from distutils import dir_util
 from shutil import rmtree
 
 from jumbo.utils.settings import JUMBODIR, DEFAULT_URLS
@@ -36,7 +36,8 @@ def create_cluster(domain, ambari_repo, vdf, *, cluster):
 
     pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
     data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../data/'
-    copy_tree(data_dir, JUMBODIR + cluster)
+    dir_util.copy_tree(data_dir, JUMBODIR + cluster)
+    dir_util._path_created = {}
     ss.clear()
     ss.svars['cluster'] = cluster
     ss.svars['domain'] = domain if domain else '%s.local' % cluster

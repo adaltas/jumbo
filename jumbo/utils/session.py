@@ -93,8 +93,8 @@ def load_config(cluster):
         raise ex.LoadError('cluster', cluster, 'NoConfFile')
     else:
         try:
-            # not using 'with open()' because of a Python bug
-            svars = json.load(open(JUMBODIR + cluster + '/jumbo_config', 'r'))
+            with open(JUMBODIR + cluster + '/jumbo_config', 'r') as jc:
+                svars = json.load(jc)
         except IOError as e:
             raise ex.LoadError('cluster', cluster, e.strerror)
 
