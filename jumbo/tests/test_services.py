@@ -3,7 +3,7 @@ import random
 import string
 
 from jumbo.core import clusters, machines as vm, services
-from jumbo.utils import session as ss, checks, exceptions as ex
+from jumbo.utils import session as ss, exceptions as ex
 
 
 class TestServices(unittest.TestCase):
@@ -95,7 +95,7 @@ class TestServices(unittest.TestCase):
 
     def recursive_add(self, service, ha):
         if not services.check_service_cluster(service):
-            m_serv, m_comp = services.check_service_req_service(service, ha)
+            m_serv, _ = services.check_service_req_service(service, ha)
             for serv in m_serv:
                 self.recursive_add(serv, ha)
 

@@ -1,5 +1,3 @@
-import click
-
 import os
 import json
 import pathlib

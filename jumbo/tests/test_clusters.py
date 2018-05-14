@@ -3,7 +3,7 @@ import os
 import random
 import string
 
-from jumbo.core import clusters, machines as vm
+from jumbo.core import clusters
 from jumbo.utils import session as ss, checks, exceptions as ex
 from jumbo.utils.settings import JUMBODIR
 
