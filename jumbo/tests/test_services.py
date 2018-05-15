@@ -17,7 +17,7 @@ class TestServices(unittest.TestCase):
                                 ambari_repo=None,
                                 vdf=None,
                                 cluster=self.c_name)
-        print('\nCluster "%s" created' % self.c_name)
+        print('\n\nCluster "%s" created' % self.c_name)
 
         for i, n in enumerate(self.m_names):
             vm.add_machine(name='%d' % i + n,
@@ -30,7 +30,7 @@ class TestServices(unittest.TestCase):
 
     def tearDown(self):
         clusters.delete_cluster(cluster=self.c_name)
-        print('OK\nCluster deleted')
+        print('Cluster deleted')
 
     def test_add_indep_services(self):
         print('Test "add_indep_services"')
@@ -82,6 +82,7 @@ class TestServices(unittest.TestCase):
             except ex.CreationError as e:
                 if e.type == 'NotSupported':
                     print(e.message)
+                    print('Adding "%s" in default mode' % s['name'])
                     services.remove_service(service=s['name'],
                                             cluster=self.c_name)
                     self.recursive_add(s['name'], False)

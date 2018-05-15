@@ -18,14 +18,12 @@ class TestClusters(unittest.TestCase):
                                 ambari_repo=None,
                                 vdf=None,
                                 cluster=self.c_name)
-        print('Cluster "%s" created' % self.c_name)
+        print('\n\nCluster "%s" created' % self.c_name)
 
     def tearDown(self):
         if checks.check_cluster(self.c_name):
             clusters.delete_cluster(cluster=self.c_name)
-            print('OK\nCluster deleted\n')
-        else:
-            print('OK\n')
+            print('Cluster deleted\n')
 
     def test_create_load_cluster(self):
         print('Test "create_load_cluster"')

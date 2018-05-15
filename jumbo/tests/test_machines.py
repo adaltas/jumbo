@@ -16,11 +16,11 @@ class TestMachines(unittest.TestCase):
                                 ambari_repo=None,
                                 vdf=None,
                                 cluster=self.c_name)
-        print('\nCluster "%s" created' % self.c_name)
+        print('\n\nCluster "%s" created' % self.c_name)
 
     def tearDown(self):
         clusters.delete_cluster(cluster=self.c_name)
-        print('OK\nCluster deleted')
+        print('Cluster deleted')
 
     def test_add_machine(self):
         print('Test "add_machine"')
