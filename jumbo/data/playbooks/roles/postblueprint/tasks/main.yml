@@ -119,7 +119,7 @@
 - name: HDP install in progress
   debug:
     msg:
-      - "Installation of cluster `{{ cluster_name }}` in progress."
+      - "Installation of cluster '{{ cluster_name }}' in progress."
       - "Ambari WebUI: http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080"
       - "Username: 'admin', Password: 'admin'"
 

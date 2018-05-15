@@ -14,7 +14,6 @@
   register: krb_service_added
 
 # uri module not working all the time, so switching to curl
-
 - name: Add the KERBEROS_CLIENT compoent to the KERBEROS service
   command: curl -H "X-Requested-By:ambari" -u admin:admin -i -X POST http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services/KERBEROS/components/KERBEROS_CLIENT
   args:
@@ -28,7 +27,7 @@
   changed_when: "'409' not in cmd_service_krb_client.stdout"
 
 # Create and set KERBEROS service configurations
-- name: copy krb5.conf
+- name: Copy krb5.conf
   copy: src=krb5-conf.json dest=/tmp/krb5_conf_ambari_api.json
 - name: upload krb5.conf
   command: "curl -u admin:admin -i -H 'X-Requested-By: ambari' -X PUT -d @/tmp/krb5_conf_ambari_api.json http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}"
@@ -54,7 +53,6 @@
   with_inventory_hostnames:
     - all
 
-# curl -H "X-Requested-By:ambari" -u admin:admin -i -X PUT -d '{"ServiceInfo": {"state" : "INSTALLED"}}' http://AMBARI_SERVER:8080/api/v1/clusters/CLUSTER_NAME/services/KERBEROS"
 - name: Install Kerberos service and components
   command: "curl -H \"X-Requested-By:ambari\" -u admin:admin -i -X PUT -d '{\"ServiceInfo\": {\"state\" : \"INSTALLED\"}}' http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services/KERBEROS"
   args:
@@ -110,7 +108,7 @@
     warn: false
 
 # Enable Kerberos
-- name: copy enable-krb.json
+- name: Copy enable-krb.json
   copy: src=enable-krb.json dest=/tmp/enable-krb.json
 - name: Enable Kerberos
   command: curl -H "X-Requested-By:ambari" -u admin:admin -i -X PUT -d @/tmp/enable-krb.json http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}
