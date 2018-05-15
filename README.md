@@ -321,11 +321,14 @@ HDP:
 - **1.2** - 09/05/18: **Support for HDFS and YARN in HA and Free IPA support**
     - Support for new service: FREEIPA
     - High Availability support for: HDFS, YARN
+- **1.3** - 15/05/2018: **Unit tests**
+    - Unit tests for: code execution, generated files (Vagrantfile, playbooks)
+    - Minor fixes
 
 ## TO DO
 
 - [ ] Add support for all Ambari services;
-- [ ] Add support for HA clusters;
+- [x] Add support for HA clusters;
 - [ ] Add Kerberos support;
 - [ ] Publish a wiki;
-- [ ] Complete the user assistance process;
+- [x] Complete the user assistance process;

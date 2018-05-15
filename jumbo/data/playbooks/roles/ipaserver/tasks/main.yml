@@ -13,6 +13,11 @@
     name: dbus
     state: restarted
 
+- name: Restart systemd-logind
+  service:
+    name: systemd-logind
+    state: restarted
+
 - name: Check FreeIPA server installation
   ipaserver_test:
     dm_password: "{{ ipa_dm_password }}"
