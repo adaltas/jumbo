@@ -238,7 +238,8 @@ def generate_ansible_vars():
         'ambari': {
             'user': 'admin',
             'pwd': 'admin'
-        }
+        },
+        'kerberos_enabled': ('KERBEROS' in svars['services'])
     }
 
 

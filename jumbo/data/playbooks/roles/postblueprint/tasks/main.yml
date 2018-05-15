@@ -114,10 +114,36 @@
     body: " {{ lookup('file', 'cluster.json')}}"
     body_format: raw
     status_code: 200, 201, 202
+  register: cluster_resp
 
-- name: Waiting for HDP install
+- name: HDP install in progress
   debug:
     msg:
       - "Installation of cluster `{{ cluster_name }}` in progress."
       - "Ambari WebUI: http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080"
       - "Username: 'admin', Password: 'admin'"
+
+- name: "Wait for HDP install"
+  uri:
+    url: "http://10.10.10.13:8080/api/v1/clusters/{{ cluster_name }}/requests/{{ cluster_resp.json.Requests.id }}"
+    headers:
+      X-Requested-By: ambari
+    method: GET
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    status_code: 200, 201, 202
+  register: progress
+  until: "progress.json.Requests.progress_percent == 100.0"
+  retries: 720
+  delay: 10
+
+- name: Installed finished
+  debug:
+    msg: "Starting kerberization"
+
+#   script: ambari-install-progress.sh "{{ cluster_name }}" "{{ (cluster_resp.content|from_json).Requests.id }}"
+
+# - name: Install finished
+#   debug:
+#     msg: "Yolo"

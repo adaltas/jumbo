@@ -273,6 +273,10 @@ def count_components():
     return components
 
 
+def get_available_types():
+    return config['vm_types']
+
+
 def get_available_services():
     """Get the available services (based on services config file).
 
