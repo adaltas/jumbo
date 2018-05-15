@@ -77,7 +77,7 @@ First, lets enter the Jumbo shell and create our cluster:
 Jumbo v1.0
 jumbo > create mycluster
 Creating mycluster...
-Cluster `mycluster` created (domain name = "mycluster.local").
+Cluster "mycluster" created (domain name = "mycluster.local").
 jumbo (mycluster) >
 ```
 
@@ -87,7 +87,7 @@ After creating a cluster, the *Jumbo context* is set to this cluster. You can se
 jumbo (mycluster) > exit
 jumbo > manage anothercluster
 Loading anothercluster...
-Cluster `anothercluster` loaded.
+Cluster "anothercluster" loaded.
 jumbo (anothercluster) > 
 ```
 
@@ -129,12 +129,12 @@ A service can have dependencies to other services. A service dependency is satis
 
 ```shell
 jumbo (mycluster) > addservice AMBARI
-The requirements to add the service `AMBARI` are not met!
+The requirements to add the service "AMBARI" are not met!
 These services are missing:
  - ANSIBLE,
  - POSTGRESQL
 jumbo (mycluster) > addservice ANSIBLE
-Service `ANSIBLE` and related clients added to cluster `mycluster`.
+Service "ANSIBLE" and related clients added to cluster "mycluster".
 1 type of component auto-installed. Use "listcomponents -a" for details.
 ```
 
@@ -154,10 +154,10 @@ If you choose to not auto-install the components with the flag `--no-auto`, you 
 
 ```shell
 jumbo (mycluster) > checkservice ANSIBLE
-The service `ANSIBLE` misses:
+The service "ANSIBLE" misses:
  - 1 ANSIBLE_CLIENT
 jumbo (mycluster) > addcomp ANSIBLE_CLIENT -m smaster
-Component `ANSIBLE_CLIENT` added to machine `mycluster/smaster`.
+Component "ANSIBLE_CLIENT" added to machine "mycluster/smaster".
 ```
 
 
@@ -210,7 +210,7 @@ You will see a thread of operations ran by Ansible. At the end of the thread, Ju
 TASK [postblueprint : Waiting for HDP install] *********************************
 ok: [smaster] => {
     "msg": [
-        "Installation of cluster `myclusterlocalcluster` in progress.", 
+        "Installation of cluster 'myclusterlocalcluster' in progress.", 
         "Ambari WebUI: http://10.10.10.12:8080", 
         "Username: 'admin', Password: 'admin'"
     ]

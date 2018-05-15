@@ -50,7 +50,7 @@ def jumbo(ctx, cluster):
     if cluster:
         if not checks.check_cluster(cluster):
             click.echo('This cluster does not exist.'
-                       ' Use `create NAME` to create it.', err=True)
+                       ' Use "create NAME" to create it.', err=True)
         else:
             ctx.invoke(manage, name=cluster)
 
@@ -70,7 +70,7 @@ def exit(ctx):
         ss.svars['cluster'] = None
         ctx.meta['jumbo_shell'].prompt = click.style('jumbo > ', fg='green')
     else:
-        click.echo('Use `quit` to quit the shell. Exit only removes context.')
+        click.echo('Use "quit" to quit the shell. Exit only removes context.')
 
 
 ####################
@@ -105,7 +105,7 @@ def create(ctx, name, domain, ambari_repo, vdf):
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Cluster `{}` created (domain name = "{}").'.format(
+        click.echo('Cluster "{}" created (domain name = "{}").'.format(
             name,
             domain if domain else '%s.local' % name))
         set_context(ctx, name)
@@ -127,9 +127,9 @@ def manage(ctx, name):
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
-            click.secho('Use "repair" to regenerate `jumbo_config`.')
+            click.secho('Use "repair" to regenerate "jumbo_config".')
     else:
-        click.echo('Cluster `%s` loaded.' % name)
+        click.echo('Cluster "%s" loaded.' % name)
         set_context(ctx, name)
 
 
@@ -153,7 +153,7 @@ def delete(ctx, name, force):
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Cluster `%s` deleted.' % name)
+        click.echo('Cluster "%s" deleted.' % name)
         ss.clear()
         ctx.meta['jumbo_shell'].prompt = click.style('jumbo > ', fg='green')
 
@@ -184,7 +184,7 @@ def listclusters(full):
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
-            click.echo('Use "repair" to regenerate `jumbo_config`.')
+            click.echo('Use "repair" to regenerate "jumbo_config".')
     else:
         cluster_table.sortby = 'Name'
         click.echo(cluster_table)
@@ -198,7 +198,7 @@ def listclusters(full):
 @click.option('--vdf',
               help='URL to the VDF file used for HDP install')
 def repair(name, domain, ambari_repo, vdf):
-    """Recreate `jumbo_config` if it doesn't exist.
+    """Recreate "jumbo_config" if it doesn't exist.
 
     :param name: Cluster name
     """
@@ -207,11 +207,11 @@ def repair(name, domain, ambari_repo, vdf):
                                domain=domain,
                                ambari_repo=ambari_repo,
                                vdf=vdf):
-        click.echo('Recreated `jumbo_config` from scratch '
-                   'for cluster `{}` (domain name = "{}").'
+        click.echo('Recreated "jumbo_config" from scratch '
+                   'for cluster "{}" (domain name = "{}").'
                    .format(name, domain if domain else '%s.local' % name))
     else:
-        click.echo('Nothing to repair in cluster `%s`.' % name)
+        click.echo('Nothing to repair in cluster "%s".' % name)
 
 
 @jumbo.command()
@@ -222,7 +222,7 @@ def repair(name, domain, ambari_repo, vdf):
 def seturl(ctx, name, value, cluster):
     """Set an URL to use for downloads.
 
-    :param name: URL name (`ambari_repo` or `vdf`)
+    :param name: URL name ("ambari_repo" or "vdf")
     """
 
     switched = True if cluster else False
@@ -237,7 +237,7 @@ def seturl(ctx, name, value, cluster):
         click.secho(e.message, fg='red', err=True)
         switched = False
     else:
-        click.echo('`{}` of cluster `{}` set to {}'
+        click.echo('"{}" of cluster "{}" set to {}'
                    .format(name, cluster, value))
     finally:
         if switched:
@@ -287,12 +287,12 @@ def addvm(ctx, name, types, ip, ram, cpus, cluster):
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
-            click.secho('Use "repair" to regenerate `jumbo_config`.')
+            click.secho('Use "repair" to regenerate "jumbo_config".')
         switched = False
     else:
-        click.echo('Machine `{}` added to cluster `{}`. {}'
+        click.echo('Machine "{}" added to cluster "{}". {}'
                    .format(name, cluster,
-                           '{} clients auto installed on `{}`.'
+                           '{} clients auto installed on "{}".'
                            .format(count, name) if count else ''))
     finally:
         if switched:
@@ -315,8 +315,8 @@ def rmvm(ctx, name, cluster, force):
 
     if not force:
         if not click.confirm(
-                'Are you sure you want to remove the machine `{}` '
-                'of cluster `{}`?'.format(name, cluster)):
+                'Are you sure you want to remove the machine "{}" '
+                'of cluster "{}"?'.format(name, cluster)):
             return
 
     try:
@@ -324,10 +324,10 @@ def rmvm(ctx, name, cluster, force):
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
-            click.secho('Use "repair" to regenerate `jumbo_config`')
+            click.secho('Use "repair" to regenerate "jumbo_config"')
         switched = False
     else:
-        click.echo('Machine `{}` removed of cluster `{}`.'
+        click.echo('Machine "{}" removed of cluster "{}".'
                    .format(name, cluster))
     finally:
         if switched:
@@ -397,7 +397,7 @@ def addservice(ctx, name, cluster, no_auto, ha):
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Service `{}` and related clients added to cluster `{}`.\n'
+        click.echo('Service "{}" and related clients added to cluster "{}".\n'
                    .format(name, cluster) + msg)
     finally:
         if switched:
@@ -419,8 +419,8 @@ def rmservice(ctx, service, cluster, force):
 
     if not force:
         if not click.confirm(
-                'Are you sure you want to remove the service `{}` and all its '
-                'components of cluster `{}`?'.format(service, cluster)):
+                'Are you sure you want to remove the service "{}" and all its '
+                'components of cluster "{}"?'.format(service, cluster)):
             return
 
     try:
@@ -431,7 +431,7 @@ def rmservice(ctx, service, cluster, force):
         click.secho(e.message, fg='red', err=True)
         switched = True
     else:
-        click.echo('Service `{}` and its components removed from cluster `{}`.'
+        click.echo('Service "{}" and its components removed from cluster "{}".'
                    .format(service, cluster))
     finally:
         if switched:
@@ -459,7 +459,7 @@ def addcomponent(ctx, name, machine, cluster):
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Component `{}` added to machine `{}/{}`.'
+        click.echo('Component "{}" added to machine "{}/{}".'
                    .format(name, cluster, machine))
     finally:
         if switched:
@@ -482,8 +482,8 @@ def rmcomponent(ctx, name, machine, cluster, force):
 
     if not force:
         if not click.confirm(
-                'Are you sure you want to remove the component `{}` '
-                'of machine `{}/{}`?'.format(name, cluster, machine)):
+                'Are you sure you want to remove the component "{}" '
+                'of machine "{}/{}"?'.format(name, cluster, machine)):
             return
 
     try:
@@ -496,7 +496,7 @@ def rmcomponent(ctx, name, machine, cluster, force):
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Component `{}` removed of machine `{}/{}`'
+        click.echo('Component "{}" removed of machine "{}/{}"'
                    .format(name, cluster, machine))
     finally:
         if switched:
@@ -578,10 +578,10 @@ def checkservice(name, cluster):
         click.secho(e.message, fg='red', err=True)
     else:
         if missing_comp:
-            click.echo('The service `{}` misses:\n{}'
+            click.echo('The service "{}" misses:\n{}'
                        .format(name, '\n'.join(missing_comp)))
         else:
-            click.echo('The service `%s` is complete.' % name)
+            click.echo('The service "%s" is complete.' % name)
 
 
 @jumbo.command()
