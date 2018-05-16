@@ -66,18 +66,20 @@
   changed_when: "'409' not in cmd_krb_install.stdout"
 
 - name: Stop all services
-  command: curl -H "X-Requested-By:ambari" -u admin:admin -i -X PUT -d  '{"RequestInfo":{"context":"Stop Service"},"Body":{"ServiceInfo":{"state":"INSTALLED"}}}' http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services
-  args:
-    warn: false
+  uri:
+    url: http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services
+    headers:
+      X-Requested-By: ambari
+    method: PUT
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    body: " {\"RequestInfo\":{\"context\":\"Stop Service\"},\"Body\":{\"ServiceInfo\":{\"state\":\"INSTALLED\"}}}"
+    status_code: 200, 201, 202, 409
   register: cmd_stop_services
-  failed_when:
-    - "'409' not in cmd_stop_services.stdout"
-    - "'200' not in cmd_stop_services.stdout"
-    - "'201' not in cmd_stop_services.stdout"
-    - "'202' not in cmd_stop_services.stdout"
-  changed_when: "'409' not in cmd_stop_services.stdout"
+  changed_when: cmd_stop_services.status == 202
 
-- name: "Wait for services to stop"
+- name: Wait for services to stop
   uri:
     url: "http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/requests/{{ cmd_stop_services.json.Requests.id }}"
     headers:
@@ -91,6 +93,7 @@
   until: "progress.json.Requests.progress_percent == 100.0"
   retries: 720
   delay: 10
+  when: cmd_stop_services.status == 202
 
 - name: Reset KDC admin credentials
   command: curl -H "X-Requested-By:ambari" -u admin:admin -i -X DELETE http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/credentials/kdc.admin.credential
