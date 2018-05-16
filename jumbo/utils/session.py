@@ -74,9 +74,9 @@ def dump_config(services_components_hosts=None):
                 json.dump(generate_cluster(), clf)
 
         if 'KERBEROS' in svars['services']:
-            with open(JUMBODIR +svars['cluster'] +
-                      '/playbooks/roles/kerberos_part1/files/krb5-conf.json',
-                      'w') as krbf:
+            with open(JUMBODIR + svars['cluster'] +
+                      '/playbooks/roles/kerberos-part1/files/krb5-conf.json',
+                      'w+') as krbf:
                 json.dump(generate_krb5_conf(), krbf)
 
     except IOError:
