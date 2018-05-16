@@ -74,8 +74,8 @@ def dump_config(services_components_hosts=None):
                 json.dump(generate_cluster(), clf)
 
         if 'KERBEROS' in svars['services']:
-            with open(JUMBODIR +svars['cluster'] +
-                      '/playbooks/roles/kerberos_part1/files/krb5-conf.json',
+            with open(JUMBODIR + svars['cluster'] +
+                      '/playbooks/roles/kerberos-part1/files/krb5-conf.json',
                       'w') as krbf:
                 json.dump(generate_krb5_conf(), krbf)
 
@@ -864,22 +864,24 @@ def generate_krb5_conf():
                         'create_ambari_principal': 'false',
                         'manage_auth_to_local': 'true',
                         'install_packages': 'true',
-                        'encryption_types': 'aes des3-cbc-sha1 rc4 des-cbc-md5',
+                        'encryption_types':
+                            'aes des3-cbc-sha1 rc4 des-cbc-md5',
                         'realm': svars['domain'].upper(),
                         'kdc_hosts': get_ipaserver_host(),
                         'admin_server_host': get_ipaserver_host(),
                         'executable_search_paths': '/usr/bin, '
-                                                    '/usr/kerberos/bin, '
-                                                    '/usr/sbin, '
-                                                    '/usr/lib/mit/bin, '
-                                                    '/usr/lib/mit/sbin',
+                        '/usr/kerberos/bin, '
+                        '/usr/sbin, '
+                        '/usr/lib/mit/bin, '
+                        '/usr/lib/mit/sbin',
                         'password_length': '20',
                         'password_min_lowercase_letters': '1',
                         'password_min_uppercase_letters': '1',
                         'password_min_digits': '1',
                         'password_min_punctuation': '1',
                         'password_min_whitespace': '0',
-                        'service_check_principal_name': '${cluster_name}-${short_date}',
+                        'service_check_principal_name':
+                            '${cluster_name}-${short_date}',
                         'case_insensitive_username_rules': 'false',
                         'preconfigure_services': 'DEFAULT',
                         'set_password_expiracy': 'false',
