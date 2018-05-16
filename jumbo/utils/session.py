@@ -73,6 +73,12 @@ def dump_config(services_components_hosts=None):
                       'w') as clf:
                 json.dump(generate_cluster(), clf)
 
+        if 'KERBEROS' in svars['services']:
+            with open(JUMBODIR +svars['cluster'] +
+                      '/playbooks/roles/kerberos_part1/files/krb5-conf.json',
+                      'w') as krbf:
+                json.dump(generate_krb5_conf(), krbf)
+
     except IOError:
         return False
 
@@ -207,6 +213,15 @@ def get_pgsqlserver_host():
 
     for machine in svars['machines']:
         if 'pgsqlserver' in machine['groups']:
+            return fqdn(machine['name'])
+
+
+def get_ipaserver_host():
+    """Return the fqdn of the machine hosting the IPA_SERVER.
+    """
+
+    for machine in svars['machines']:
+        if 'ipaserver' in machine['groups']:
             return fqdn(machine['name'])
 
 
@@ -772,3 +787,107 @@ def generate_cluster():
             }
         ]
     }
+
+
+def generate_krb5_conf():
+    krb5_conf_json = [
+        {
+            'Clusters': {
+                'desired_configs': {
+                    'type': 'krb5-conf',
+                    'tag': 'version1',
+                    'properties': {
+                        'type': 'krb5-conf',
+                        'tag': 'version1',
+                        'properties': {
+                            'domains': '',
+                            'manage_krb5_conf': 'true',
+                            'conf_dir': '/etc',
+                            'content': '''
+              [libdefaults]
+                renew_lifetime = 7d
+                forwardable = true
+                default_realm = {{realm}}
+                ticket_lifetime = 24h
+                dns_lookup_realm = false
+                dns_lookup_kdc = false
+                default_ccache_name = /tmp/krb5cc_%{uid}
+                #default_tgs_enctypes = {{encryption_types}}
+                #default_tkt_enctypes = {{encryption_types}}
+              {% if domains %}
+              [domain_realm]
+              {%- for domain in domains.split(',') %}
+                {{domain|trim()}} = {{realm}}
+              {%- endfor %}
+              {% endif %}
+              [logging]
+                default = FILE:/var/log/krb5kdc.log
+                admin_server = FILE:/var/log/kadmind.log
+                kdc = FILE:/var/log/krb5kdc.log
+
+              [realms]
+                {{realm}} = {
+              {%- if master_kdc %}
+                  master_kdc = {{master_kdc|trim()}}
+              {%- endif -%}
+              {%- if kdc_hosts > 0 -%}
+              {%- set kdc_host_list = kdc_hosts.split(',')  -%}
+              {%- if kdc_host_list and kdc_host_list|length > 0 %}
+                  admin_server = {{admin_server_host|default(kdc_host_list[0]|trim(), True)}}
+              {%- if kdc_host_list -%}
+              {%- if master_kdc and (master_kdc not in kdc_host_list) %}
+                  kdc = {{master_kdc|trim()}}
+              {%- endif -%}
+              {% for kdc_host in kdc_host_list %}
+                  kdc = {{kdc_host|trim()}}
+              {%- endfor -%}
+              {% endif %}
+              {%- endif %}
+              {%- endif %}
+                }
+
+              {# Append additional realm declarations below #}
+              '''
+                        }
+                    }
+                }
+            }
+        },
+        {
+            'Clusters': {
+                'desired_config': {
+                    'type': 'kerberos-env',
+                    'tag': 'version1',
+                    'properties': {
+                        'kdc_type': 'ipa',
+                        'manage_identities': 'false',
+                        'create_ambari_principal': 'false',
+                        'manage_auth_to_local': 'true',
+                        'install_packages': 'true',
+                        'encryption_types': 'aes des3-cbc-sha1 rc4 des-cbc-md5',
+                        'realm': svars['domain'].upper(),
+                        'kdc_hosts': get_ipaserver_host(),
+                        'admin_server_host': get_ipaserver_host(),
+                        'executable_search_paths': '/usr/bin, '
+                                                    '/usr/kerberos/bin, '
+                                                    '/usr/sbin, '
+                                                    '/usr/lib/mit/bin, '
+                                                    '/usr/lib/mit/sbin',
+                        'password_length': '20',
+                        'password_min_lowercase_letters': '1',
+                        'password_min_uppercase_letters': '1',
+                        'password_min_digits': '1',
+                        'password_min_punctuation': '1',
+                        'password_min_whitespace': '0',
+                        'service_check_principal_name': '${cluster_name}-${short_date}',
+                        'case_insensitive_username_rules': 'false',
+                        'preconfigure_services': 'DEFAULT',
+                        'set_password_expiracy': 'false',
+                        'group': 'ambari-managed-principals'
+                    }
+                }
+            }
+        }
+    ]
+
+    return krb5_conf_json
