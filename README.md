@@ -332,3 +332,14 @@ HDP:
 - [ ] Add Kerberos support;
 - [ ] Publish a wiki;
 - [x] Complete the user assistance process;
+- [ ] Rename manage -> use
+- [ ] Group commands
+- [ ] Rename VM -> Node
+- [ ] Proxifier vagrant start, halt, status, reload, destroy (via delete)
+- [ ] Commandes générales (info, version, services disponibles, ...)
+- [ ] Rename seturl -> repo
+- [ ] addservice recursif sur les dépendances obligatoires
+- [ ] Généraliser la HA
+- [ ] Smart topology based on available ressources
+- [ ] Website
+- [ ] Partage (github, artcile)
