@@ -54,7 +54,7 @@
     - all
 
 - name: Install Kerberos service and components
-  command: "curl -H \"X-Requested-By:ambari\" -u admin:admin -i -X PUT -d '{\"ServiceInfo\": {\"state\" : \"INSTALLED\"}}' http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services/KERBEROS"
+  command: "curl -H \"X-Requested-By:ambari\" -u admin:admin -i -X PUT -d '{\"RequestInfo\":{\"context\":\"Install Kerberos\"},\"Body\":{\"ServiceInfo\": {\"state\" : \"INSTALLED\"}}}' http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services/KERBEROS"
   args:
     warn: false
   register: cmd_krb_install
@@ -74,7 +74,7 @@
     force_basic_auth: yes
     user: "{{ ambari.user }}"
     password: "{{ ambari.pwd }}"
-    body: " {\"RequestInfo\":{\"context\":\"Stop Service\"},\"Body\":{\"ServiceInfo\":{\"state\":\"INSTALLED\"}}}"
+    body: " {\"RequestInfo\":{\"context\":\"Stop all services\"},\"Body\":{\"ServiceInfo\":{\"state\":\"INSTALLED\"}}}"
     status_code: 200, 201, 202, 409
   register: cmd_stop_services
   changed_when: cmd_stop_services.status == 202
