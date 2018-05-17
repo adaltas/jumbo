@@ -1,5 +1,5 @@
 {
-  "types": [
+  "vm_types": [
     "master",
     "sidemaster",
     "worker",
@@ -722,6 +722,27 @@
             "HDFS",
             "YARN",
             "SPARK2"
+          ]
+        }
+      },
+      "auto_install": []
+    },
+    {
+      "name": "KERBEROS",
+      "components": [],
+      "requirements": {
+        "machines": {
+          "default": {},
+          "ha": {}
+        },
+        "services": {
+          "default": [
+            "AMBARI",
+            "FREEIPA"
+          ],
+          "ha": [
+            "AMBARI",
+            "FREEIPA"
           ]
         }
       },

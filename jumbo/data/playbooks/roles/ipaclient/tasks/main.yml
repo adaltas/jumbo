@@ -1,4 +1,9 @@
 ---
+- name: Unlock resolv.conf
+  file:
+    path: /etc/resolv.conf
+    attributes: ""
+
 - name: Add IPA server as nameserver in resolf.conf (first line) and lock file (immutable attr)
   lineinfile:
     dest: /etc/resolv.conf

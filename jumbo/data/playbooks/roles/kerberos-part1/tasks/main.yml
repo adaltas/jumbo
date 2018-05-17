@@ -1,0 +1,141 @@
+---
+- name: Add the KERBEROS service to cluster
+  uri:
+    url: "http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services/KERBEROS"
+    headers:
+      X-Requested-By: ambari
+    method: POST
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    status_code: 200, 201, 202, 409
+    body_format: json
+    return_content: yes
+  register: krb_service_added
+
+# uri module not working all the time, so switching to curl
+- name: Add the KERBEROS_CLIENT compoent to the KERBEROS service
+  command: curl -H "X-Requested-By:ambari" -u admin:admin -i -X POST http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services/KERBEROS/components/KERBEROS_CLIENT
+  args:
+    warn: false
+  register: cmd_service_krb_client
+  failed_when:
+    - "'409' not in cmd_service_krb_client.stdout"
+    - "'200' not in cmd_service_krb_client.stdout"
+    - "'201' not in cmd_service_krb_client.stdout"
+    - "'202' not in cmd_service_krb_client.stdout"
+  changed_when: "'409' not in cmd_service_krb_client.stdout"
+
+# Create and set KERBEROS service configurations
+- name: Copy krb5.conf
+  copy: src=krb5-conf.json dest=/tmp/krb5_conf_ambari_api.json
+- name: upload krb5.conf
+  command: "curl -u admin:admin -i -H 'X-Requested-By: ambari' -X PUT -d @/tmp/krb5_conf_ambari_api.json http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}"
+  register: cmd_krb_conf
+  failed_when:
+    - "'409' not in cmd_krb_conf.stdout"
+    - "'200' not in cmd_krb_conf.stdout"
+    - "'201' not in cmd_krb_conf.stdout"
+    - "'202' not in cmd_krb_conf.stdout"
+  changed_when: "'409' not in cmd_krb_conf.stdout"
+
+- name: Add the KERBEROS_CLIENT componant to each host
+  command: "curl -H 'X-Requested-By:ambari' -u admin:admin -i -X POST -d '{\"host_components\" : [{\"HostRoles\" : {\"component_name\":\"KERBEROS_CLIENT\"}}]}' http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/hosts?Hosts/host_name={{ item }}"
+  args:
+    warn: false
+  register: cmd_krb_client
+  failed_when:
+    - "'409' not in cmd_krb_client.stdout"
+    - "'200' not in cmd_krb_client.stdout"
+    - "'201' not in cmd_krb_client.stdout"
+    - "'202' not in cmd_krb_client.stdout"
+  changed_when: "'409' not in cmd_krb_client.stdout"
+  with_inventory_hostnames:
+    - all
+
+- name: Install Kerberos service and components
+  command: "curl -H \"X-Requested-By:ambari\" -u admin:admin -i -X PUT -d '{\"RequestInfo\":{\"context\":\"Install Kerberos\"},\"Body\":{\"ServiceInfo\": {\"state\" : \"INSTALLED\"}}}' http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services/KERBEROS"
+  args:
+    warn: false
+  register: cmd_krb_install
+  failed_when:
+    - "'409' not in cmd_krb_install.stdout"
+    - "'200' not in cmd_krb_install.stdout"
+    - "'201' not in cmd_krb_install.stdout"
+    - "'202' not in cmd_krb_install.stdout"
+  changed_when: "'409' not in cmd_krb_install.stdout"
+
+- name: Stop all services
+  uri:
+    url: http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/services
+    headers:
+      X-Requested-By: ambari
+    method: PUT
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    body: " {\"RequestInfo\":{\"context\":\"Stop all services\"},\"Body\":{\"ServiceInfo\":{\"state\":\"INSTALLED\"}}}"
+    status_code: 200, 201, 202, 409
+  register: cmd_stop_services
+  changed_when: cmd_stop_services.status == 202
+
+- name: Wait for services to stop
+  uri:
+    url: "http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/requests/{{ cmd_stop_services.json.Requests.id }}"
+    headers:
+      X-Requested-By: ambari
+    method: GET
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    status_code: 200, 201, 202
+  register: progress
+  until: "progress.json.Requests.progress_percent == 100.0"
+  retries: 720
+  delay: 10
+  when: cmd_stop_services.status == 202
+
+- name: Reset KDC admin credentials
+  command: curl -H "X-Requested-By:ambari" -u admin:admin -i -X DELETE http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/credentials/kdc.admin.credential
+
+- name: Create credential file
+  template:
+    src: credentials.j2
+    dest: /tmp/credentials.json
+
+- name: Set KDC admin credentials
+  command: curl -H "X-Requested-By:ambari" -u admin:admin -i -X POST -d @/tmp/credentials.json http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/credentials/kdc.admin.credential
+  args:
+    warn: false
+  register: cmd_credentials
+  failed_when:
+    - "'409' not in cmd_credentials.stdout"
+    - "'200' not in cmd_credentials.stdout"
+    - "'201' not in cmd_credentials.stdout"
+    - "'202' not in cmd_credentials.stdout"
+  changed_when: "'409' not in cmd_credentials.stdout"
+
+- name: Copy kerberos_descriptor
+  copy:
+    src: kerberos_descriptor.json
+    dest: /tmp/kerberos_descriptor.json
+
+- name: Set custom kerberos descriptor (removes principal suffix)
+  command: "curl -H \"X-Requested-By:ambari\" -u admin:admin -X POST -d @/tmp/kerberos_descriptor.json http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}/artifacts/kerberos_descriptor"
+  args:
+    warn: false
+
+# Enable Kerberos
+- name: Copy enable-krb.json
+  copy: src=enable-krb.json dest=/tmp/enable-krb.json
+- name: Enable Kerberos
+  command: curl -H "X-Requested-By:ambari" -u admin:admin -i -X PUT -d @/tmp/enable-krb.json http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/clusters/{{ cluster_name }}
+  args:
+    warn: false
+  register: cmd_enable_krb
+  failed_when:
+    - "'409' not in cmd_enable_krb.stdout"
+    - "'200' not in cmd_enable_krb.stdout"
+    - "'201' not in cmd_enable_krb.stdout"
+    - "'202' not in cmd_enable_krb.stdout"
+  changed_when: "'409' not in cmd_enable_krb.stdout"

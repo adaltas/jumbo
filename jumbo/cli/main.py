@@ -259,9 +259,9 @@ def validate_ip_cb(ctx, param, value):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--types', '-t', multiple=True, type=click.Choice([
-    'master', 'sidemaster', 'edge', 'worker', 'ldap', 'other']),
-    required=True, help='VM host type(s)')
+@click.option('--types', '-t', multiple=True,
+              type=click.Choice(services.get_available_types()),
+              required=True, help='VM host type(s)')
 @click.option('--ip', '-i', callback=validate_ip_cb, prompt='IP',
               help='VM IP address')
 @click.option('--ram', '-r', type=int, prompt='RAM (MB)',
