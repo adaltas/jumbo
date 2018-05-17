@@ -1,5 +1,5 @@
 {
-  "vm_types": [
+  "node_types": [
     "master",
     "sidemaster",
     "worker",

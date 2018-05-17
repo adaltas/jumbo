@@ -3,7 +3,7 @@ import random
 import string
 import os
 
-from jumbo.core import clusters, machines as vm, services
+from jumbo.core import clusters, nodes, services
 from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils.settings import JUMBODIR
 
@@ -22,12 +22,12 @@ class TestServices(unittest.TestCase):
         print('\n\nCluster "%s" created' % self.c_name)
 
         for i, n in enumerate(self.m_names):
-            vm.add_machine(name=n + str(i),
-                           ip='10.10.10.1%d' % (i + 1),
-                           ram=2048,
-                           types=n.split('_'),
-                           cpus=1,
-                           cluster=self.c_name)
+            nodes.add_machine(name=n + str(i),
+                              ip='10.10.10.1%d' % (i + 1),
+                              ram=2048,
+                              types=n.split('_'),
+                              cpus=1,
+                              cluster=self.c_name)
         print('%d machines created' % i)
 
         for s in services.config['services']:

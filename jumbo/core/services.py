@@ -1,7 +1,7 @@
 import os
 import json
 
-from jumbo.core import machines as vm
+from jumbo.core import nodes
 from jumbo.utils import exceptions as ex, session as ss
 from jumbo.utils.settings import JUMBODIR
 from jumbo.utils.checks import valid_cluster
@@ -274,7 +274,7 @@ def count_components():
 
 
 def get_available_types():
-    return config['vm_types']
+    return config['node_types']
 
 
 def get_available_services():
@@ -466,7 +466,7 @@ def remove_component(component, *, machine, cluster):
 
     ss.load_config(cluster)
 
-    if not vm.check_machine(cluster=cluster, machine=machine):
+    if not nodes.check_machine(cluster=cluster, machine=machine):
         raise ex.LoadError('machine', machine, 'NotExist')
 
     service = check_component(component)
@@ -498,7 +498,7 @@ def list_components(*, machine, cluster):
     :rtype: list
     """
 
-    if not vm.check_machine(cluster=cluster, machine=machine):
+    if not nodes.check_machine(cluster=cluster, machine=machine):
         raise ex.LoadError('machine', machine, 'NotExist')
 
     if cluster != ss.svars['cluster']:

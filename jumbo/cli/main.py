@@ -3,7 +3,7 @@ from click_shell.core import Shell
 import ipaddress as ipadd
 from prettytable import PrettyTable
 
-from jumbo.core import clusters, machines as vm, services
+from jumbo.core import clusters, nodes, services
 from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
 
@@ -30,11 +30,11 @@ def jumbo(ctx, cluster):
     sh.add_command(create)
     sh.add_command(exit)
     sh.add_command(delete)
-    sh.add_command(manage)
-    sh.add_command(addvm)
-    sh.add_command(rmvm)
+    sh.add_command(use)
+    sh.add_command(addnode)
+    sh.add_command(rmnode)
     sh.add_command(listclusters)
-    sh.add_command(listvms)
+    sh.add_command(listnodes)
     sh.add_command(repair)
     sh.add_command(addservice)
     sh.add_command(addcomponent)
@@ -42,7 +42,7 @@ def jumbo(ctx, cluster):
     sh.add_command(rmservice)
     sh.add_command(rmcomponent)
     sh.add_command(checkservice)
-    sh.add_command(seturl)
+    sh.add_command(setrepo)
     sh.add_command(listservices)
 
     # If cluster exists, call manage command (saves the shell in session
@@ -52,7 +52,7 @@ def jumbo(ctx, cluster):
             click.echo('This cluster does not exist.'
                        ' Use "create NAME" to create it.', err=True)
         else:
-            ctx.invoke(manage, name=cluster)
+            ctx.invoke(use, name=cluster)
 
     # Run the command, or the shell if no command is passed
     sh.invoke(ctx)
@@ -114,7 +114,7 @@ def create(ctx, name, domain, ambari_repo, vdf):
 @jumbo.command()
 @click.argument('name')
 @click.pass_context
-def manage(ctx, name):
+def use(ctx, name):
     """Set a cluster to manage. Persist --cluster option.
 
     :param name: Cluster name
@@ -219,7 +219,7 @@ def repair(name, domain, ambari_repo, vdf):
 @click.option('--value', '-v', prompt='URL', required=True, help='URL string')
 @click.option('--cluster', '-c')
 @click.pass_context
-def seturl(ctx, name, value, cluster):
+def setrepo(ctx, name, value, cluster):
     """Set an URL to use for downloads.
 
     :param name: URL name ("ambari_repo" or "vdf")
@@ -270,7 +270,7 @@ def validate_ip_cb(ctx, param, value):
               help='Number of CPUs allocated to the VM')
 @click.option('--cluster', '-c')
 @click.pass_context
-def addvm(ctx, name, types, ip, ram, cpus, cluster):
+def addnode(ctx, name, types, ip, ram, cpus, cluster):
     """
     Create a new VM in the cluster being managed.
     Another cluster can be specified with "--cluster".
@@ -282,7 +282,7 @@ def addvm(ctx, name, types, ip, ram, cpus, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        vm.add_machine(name, ip, ram, types, cpus, cluster=cluster)
+        nodes.add_machine(name, ip, ram, types, cpus, cluster=cluster)
         count = services.auto_install_machine(name, cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
@@ -304,7 +304,7 @@ def addvm(ctx, name, types, ip, ram, cpus, cluster):
 @click.pass_context
 @click.option('--cluster', '-c')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
-def rmvm(ctx, name, cluster, force):
+def rmnode(ctx, name, cluster, force):
     """Removes a VM.
 
     :param name: VM name
@@ -320,7 +320,7 @@ def rmvm(ctx, name, cluster, force):
             return
 
     try:
-        vm.remove_machine(cluster=cluster, machine=name)
+        nodes.remove_machine(cluster=cluster, machine=name)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
@@ -336,7 +336,7 @@ def rmvm(ctx, name, cluster, force):
 
 @jumbo.command()
 @click.option('--cluster', '-c')
-def listvms(cluster):
+def listnodes(cluster):
     """
     List VMs in the cluster being managed.
     Another cluster can be specified with "--cluster".
@@ -345,16 +345,16 @@ def listvms(cluster):
         cluster = ss.svars['cluster']
 
     try:
-        vm_table = PrettyTable(
+        node_table = PrettyTable(
             ['Name', 'Types', 'IP', 'RAM (MB)', 'CPUs'])
 
         for m in clusters.list_machines(cluster=cluster):
-            vm_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
-                              m['ram'], m['cpus']])
+            node_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
+                                m['ram'], m['cpus']])
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        print_with_colors(vm_table)
+        print_with_colors(node_table)
 
 
 #####################

@@ -17,9 +17,9 @@ Check all the underlying tools versions used [here](#underlying-tools-versions).
 
 Jumbo manages the following types of items:
 - `cluster`: a cluster of VMs;
-- `vm`: a virtual machine managed by Vagrant. A `vm` belongs to a `cluster`;
+- `node`: a virtual machine managed by Vagrant. A `node` belongs to a `cluster`;
 - `service`: a service available for install (e.g. 'POSTGRESQL', 'HDFS'). A `service` is installed at `cluster` level;
-- `component`: a component available for install (e.g. 'PSQL_SERVER', 'DATANODE'). A `component` is installed on a `vm` and belongs to a `service`.
+- `component`: a component available for install (e.g. 'PSQL_SERVER', 'DATANODE'). A `component` is installed on a `node` and belongs to a `service`.
 
 ```
 ├── mycluster
@@ -35,14 +35,14 @@ Jumbo manages the following types of items:
 └── anothercluster
 ```
 
-A `vm` must have at least one of the following types:
+A `node` must have at least one of the following types:
 - `master`: hosts master components like the NameNode of HDFS;
 - `sidemaster`: hosts key components of services without slaves like the Ambari server or the HiveMetastore of Hive;
 - `worker`: hosts slave components like the DataNode of HDFS;
 - `edge`: hosts components exposing APIs like the HiveServer2 of Hive;
 - `ldap`: hosts security components like the IPA-server of FreeIPA.
 
-A `vm` can be assigned multiple types at creation time. To deploy a functional Hadoop cluster, you will need at least:
+A `node` can be assigned multiple types at creation time. To deploy a functional Hadoop cluster, you will need at least:
 - 1 `master`
 - 1 `sidemaster`
 - 1 `edge`
@@ -81,11 +81,11 @@ Cluster "mycluster" created (domain name = "mycluster.local").
 jumbo (mycluster) >
 ```
 
-After creating a cluster, the *Jumbo context* is set to this cluster. You can see the name of the cluster loaded (`jumbo (mycluster) >`). Use `exit` to reset the context, and then `manage` to set the context to an existing cluster:
+After creating a cluster, the *Jumbo context* is set to this cluster. You can see the name of the cluster loaded (`jumbo (mycluster) >`). Use `exit` to reset the context, and then `use` to set the context to an existing cluster:
 
 ```shell
 jumbo (mycluster) > exit
-jumbo > manage anothercluster
+jumbo > use anothercluster
 Loading anothercluster...
 Cluster "anothercluster" loaded.
 jumbo (anothercluster) > 
@@ -98,22 +98,22 @@ Now that we have created our cluster, lets add 3 virtual machines to it:
 *Adjust the RAM of VMs to your local machine!*
 
 ```shell
-jumbo (mycluster) > addvm master --types master --ip 10.10.10.11 --ram 2048
+jumbo (mycluster) > addnode master --types master --ip 10.10.10.11 --ram 2048
 Machine `master` added to cluster `mycluster`.
-jumbo (mycluster) > addvm smaster -t sidemaster -t edge
+jumbo (mycluster) > addnode smaster -t sidemaster -t edge
 IP: 10.10.10.12
 RAM (MB): 3072
 Machine `smaster` added to cluster `mycluster`.
-jumbo (mycluster) > addvm worker -t worker --cpus 2
+jumbo (mycluster) > addnode worker -t worker --cpus 2
 IP: 10.10.10.13
 RAM (MB): 3072
 Machine `worker` added to cluster `mycluster`.
 ```
 
-We now have all the machines needed to deploy a functional Hadoop cluster. Use `listvms` to see details about the machines of the cluster:
+We now have all the machines needed to deploy a functional Hadoop cluster. Use `listnodes` to see details about the machines of the cluster:
 
 ```shell
-jumbo (mycluster) > listvms
+jumbo (mycluster) > listnodes
 +---------+------------------+-------------+----------+------+
 |   Name  |      Types       |      IP     | RAM (MB) | CPUs |
 +---------+------------------+-------------+----------+------+
@@ -140,7 +140,7 @@ Service "ANSIBLE" and related clients added to cluster "mycluster".
 
 When installing a service, all its components are auto-installed on the best fitting hosts by default. You can avoid the auto-installation with the flag `--no-auto`. Note that the service's clients clients will always be installed on all hosts.
 
-When you add a new VM to a cluster with services installed, the clients of each service are automatically installed on the vm.
+When you add a new node to a cluster with services already installed, the clients of each service are automatically installed on the node.
 
 A list of all the services supported by Jumbo is available [here](#supported-services-and-components).
 
@@ -185,13 +185,13 @@ We have to reproduce the same procedure of installation for the following servic
 
 #### Remove items
 
-Use the commands `rmvm`, `rmservice`, or `rmcomponent` to remove items.
+Use the commands `rmnode`, `rmservice`, or `rmcomponent` to remove items.
 
 #### See what have been installed
 
 Jumbo has list commands to describe the cluster state:
 - `listclusters` to list all the clusters and the services installed on each of them;
-- `listvms` to list the VMs and their configurations;
+- `listnodes` to list the VMs and their configurations;
 - `listservices` to list the status of each service installed on a cluster (complete or not);
 - `listcomponents` to list the components installed on a machine.
 
@@ -332,12 +332,9 @@ HDP:
 - [ ] Add Kerberos support;
 - [ ] Publish a wiki;
 - [x] Complete the user assistance process;
-- [ ] Rename manage -> use
 - [ ] Group commands
-- [ ] Rename VM -> Node
 - [ ] Proxifier vagrant start, halt, status, reload, destroy (via delete)
 - [ ] Commandes générales (info, version, services disponibles, ...)
-- [ ] Rename seturl -> repo
 - [ ] addservice recursif sur les dépendances obligatoires
 - [ ] Généraliser la HA
 - [ ] Smart topology based on available ressources
