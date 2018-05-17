@@ -2,7 +2,7 @@
 
 Jumbo is a tool that allows you to deploy a **virtualized Hadoop cluster** on a local machine in minutes. This tool is especially targeted to developers with a limited knowledge of Hadoop to help them **quickly bootstrap development environments** without struggling with machines and services configurations.
 
-![Jumbo shell](https://i.imgur.com/BybZhBL.png)
+![Jumbo shell](https://i.imgur.com/COH3aMm.png)
 
 Jumbo is written in Python and relies on other tools that it coordinates:
 - [Vagrant](https://github.com/hashicorp/vagrant), to manage the virtual machines;

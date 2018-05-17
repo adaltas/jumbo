@@ -96,7 +96,7 @@ def create(ctx, name, domain, ambari_repo, vdf):
     :param name: New cluster name
     """
 
-    click.echo('Creating %s...' % name)
+    click.echo('Creating "%s"...' % name)
     try:
         clusters.create_cluster(cluster=name,
                                 domain=domain,
