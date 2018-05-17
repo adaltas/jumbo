@@ -265,6 +265,7 @@ All the client components (tagged below) are always auto-installed on all hosts 
 |         |                     | SPARK2_CLIENT           | Yes    |
 |         | ZEPPELIN            | ZEPPELIN_MASTER         |        |
 | 1.2     | FREEIPA             | IPA_SERVER              |        |
+| 1.3     | KERBEROS            | -                       |        |
 
 You can add other HDP services through the Ambari WebUI after the cluster deployment.
 
@@ -321,22 +322,20 @@ HDP:
 - **1.2** - 09/05/18: **Support for HDFS and YARN in HA and Free IPA support**
     - Support for new service: FREEIPA
     - High Availability support for: HDFS, YARN
-- **1.3** - 15/05/2018: **Unit tests**
+- **1.3** - 17/05/2018: **Kerberos support and unit tests**
     - Unit tests for: code execution, generated files (Vagrantfile, playbooks)
     - Minor fixes
+    - Support for new services: KERBEROS
 
 ## TO DO
 
-- [ ] Add support for all Ambari services;
-- [x] Add support for HA clusters;
-- [ ] Add Kerberos support;
-- [ ] Publish a wiki;
-- [x] Complete the user assistance process;
-- [ ] Group commands
-- [ ] Proxifier vagrant start, halt, status, reload, destroy (via delete)
-- [ ] Commandes générales (info, version, services disponibles, ...)
-- [ ] addservice recursif sur les dépendances obligatoires
-- [ ] Généraliser la HA
-- [ ] Smart topology based on available ressources
-- [ ] Website
-- [ ] Partage (github, artcile)
+- [x] Add Kerberos support
+- [ ] Add support for all Ambari services
+- [ ] Generalize HA support
+- [ ] Publish a website with the documentation
+- [ ] Group commands by topic (e.g. 'node add', 'cluster create')
+- [ ] "Proxify" Vagrant commands into Jumbo: `start`, `halt`, `status`, `reload`, `destroy`
+- [ ] Add informative commands (info, version, available services...)
+- [ ] Add a `-r` option on `addservice` for automatic dependency installation
+- [ ] Smart cluster topology based on available ressources
+- [ ] Open source and share (Github, artcile)
