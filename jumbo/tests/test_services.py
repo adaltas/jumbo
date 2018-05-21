@@ -20,7 +20,7 @@ class TestServices(unittest.TestCase):
         print('\n\nCluster "%s" created' % self.c_name)
 
         for i, n in enumerate(self.m_names):
-            nodes.add_machine(name='%d' % i + n,
+            nodes.add_machine(name=n + str(i),
                               ip='10.10.10.1%d' % (i + 1),
                               ram=2048,
                               types=n.split('_'),
