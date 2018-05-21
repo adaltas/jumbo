@@ -10,7 +10,7 @@ from jumbo.utils.settings import JUMBODIR
 
 class TestServices(unittest.TestCase):
     def setUp(self):
-        self.c_name = 'unittest_' + ''.join(random.choices(
+        self.c_name = 'unittest' + ''.join(random.choices(
             string.ascii_letters + string.digits,
             k=5))
         self.m_names = ['master', 'master',
@@ -22,13 +22,13 @@ class TestServices(unittest.TestCase):
         print('\n\nCluster "%s" created' % self.c_name)
 
         for i, n in enumerate(self.m_names):
-            nodes.add_machine(name=n + str(i),
-                              ip='10.10.10.1%d' % (i + 1),
-                              ram=2048,
-                              types=n.split('_'),
-                              cpus=1,
-                              cluster=self.c_name)
-        print('%d machines created' % i)
+            nodes.add_node(name=n + str(i),
+                           ip='10.10.10.1%d' % (i + 1),
+                           ram=2048,
+                           types=n.split('_'),
+                           cpus=1,
+                           cluster=self.c_name)
+        print('%d nodes created' % i)
 
         for s in services.config['services']:
             self.recursive_add(s['name'], False)

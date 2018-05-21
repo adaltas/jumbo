@@ -65,25 +65,25 @@ def check_component(name):
     return False
 
 
-def add_component(name, machine, cluster, ha=None):
-    """Add a component to a specified machine of a specified.
+def add_component(name, node, cluster, ha=None):
+    """Add a component to a specified node of a specified.
 
     :param name: Component name
     :type name: str
-    :param machine: Machine name
-    :type machine: str
+    :param node: Machine name
+    :type node: str
     :param cluster: Cluster name
     :type cluster: str
     :raises ex.LoadError: [description]
     :raises ex.CreationError: [description]
     """
 
-    for i, m in enumerate(ss.svars['machines']):
-        if m['name'] == machine:
+    for i, m in enumerate(ss.svars['nodes']):
+        if m['name'] == node:
             m_index = i
             break
     else:
-        raise ex.LoadError('machine', machine, 'NotExist')
+        raise ex.LoadError('node', node, 'NotExist')
 
     service = check_component(name)
     if not service:
@@ -93,8 +93,8 @@ def add_component(name, machine, cluster, ha=None):
         raise ex.CreationError(
             'cluster', cluster, 'service', service, 'NotInstalled')
 
-    for i, m in enumerate(ss.svars['machines']):
-        if m['name'] == machine:
+    for i, m in enumerate(ss.svars['nodes']):
+        if m['name'] == node:
             m_index = i
 
     if ha is None:
@@ -115,11 +115,11 @@ def add_component(name, machine, cluster, ha=None):
         raise ex.CreationError('service', name, 'components', print_missing,
                                'ReqNotMet')
 
-    if name in ss.svars['machines'][m_index]['components']:
-        raise ex.CreationError('machine', machine, 'component', name,
+    if name in ss.svars['nodes'][m_index]['components']:
+        raise ex.CreationError('node', node, 'component', name,
                                'Installed')
 
-    ss.svars['machines'][m_index]['components'].append(name)
+    ss.svars['nodes'][m_index]['components'].append(name)
     ss.dump_config(get_services_components_hosts())
 
 
@@ -267,8 +267,8 @@ def count_components():
     """
 
     components = get_available_components()
-    for machine in ss.svars['machines']:
-        for c in machine['components']:
+    for node in ss.svars['nodes']:
+        for c in node['components']:
             components[c] += 1
     return components
 
@@ -438,7 +438,7 @@ def remove_service(service, *, cluster):
         )
 
     serv_comp = get_service_components(service)
-    for m in ss.svars['machines']:
+    for m in ss.svars['nodes']:
         to_remove = []
         for c in m['components']:
             if c in serv_comp:
@@ -451,13 +451,13 @@ def remove_service(service, *, cluster):
 
 
 @valid_cluster
-def remove_component(component, *, machine, cluster):
-    """Remove a service of a specified machine in a specified cluster.
+def remove_component(component, *, node, cluster):
+    """Remove a service of a specified node in a specified cluster.
 
     :param name: Service name
     :type name: str
-    :param machine: Machine name
-    :type machine: str
+    :param node: Machine name
+    :type node: str
     :param cluster: Cluster name
     :type cluster: str
     :raises ex.LoadError: [description]
@@ -466,40 +466,40 @@ def remove_component(component, *, machine, cluster):
 
     ss.load_config(cluster)
 
-    if not nodes.check_machine(cluster=cluster, machine=machine):
-        raise ex.LoadError('machine', machine, 'NotExist')
+    if not nodes.check_node(cluster=cluster, node=node):
+        raise ex.LoadError('node', node, 'NotExist')
 
     service = check_component(component)
     if not service:
         raise ex.LoadError('component', component, 'NotExist')
 
-    for i, m in enumerate(ss.svars['machines']):
-        if m['name'] == machine:
+    for i, m in enumerate(ss.svars['nodes']):
+        if m['name'] == node:
             m_index = i
 
-    if component not in ss.svars['machines'][m_index]['components']:
-        raise ex.CreationError('machine', machine, 'component', component,
+    if component not in ss.svars['nodes'][m_index]['components']:
+        raise ex.CreationError('node', node, 'component', component,
                                'NotInstalled')
 
-    ss.svars['machines'][m_index]['components'].remove(component)
+    ss.svars['nodes'][m_index]['components'].remove(component)
     ss.dump_config(get_services_components_hosts())
 
 
 @valid_cluster
-def list_components(*, machine, cluster):
-    """List the components installed on a machine of a specified cluster.
+def list_components(*, node, cluster):
+    """List the components installed on a node of a specified cluster.
 
-    :param machine: Machine name
-    :type machine: str
+    :param node: Machine name
+    :type node: str
     :param cluster: Cluster name
     :type cluster: str
     :raises ex.LoadError: [description]
-    :return: The list of the components installed on the machine
+    :return: The list of the components installed on the node
     :rtype: list
     """
 
-    if not nodes.check_machine(cluster=cluster, machine=machine):
-        raise ex.LoadError('machine', machine, 'NotExist')
+    if not nodes.check_node(cluster=cluster, node=node):
+        raise ex.LoadError('node', node, 'NotExist')
 
     if cluster != ss.svars['cluster']:
         try:
@@ -510,8 +510,8 @@ def list_components(*, machine, cluster):
     else:
         cluster_conf = ss.svars
 
-    for m in cluster_conf['machines']:
-        if m['name'] == machine:
+    for m in cluster_conf['nodes']:
+        if m['name'] == node:
             m_conf = m
             break
 
@@ -550,7 +550,7 @@ def get_services_components_hosts():
         components = get_service_components(s)
         for c in components:
             services_components_hosts[s][c] = []
-            for m in ss.svars['machines']:
+            for m in ss.svars['nodes']:
                 if c in m['components']:
                     services_components_hosts[s][c].append(m['name'])
             if not services_components_hosts[s][c]:
@@ -616,12 +616,12 @@ def auto_assign_service_comp(component, dist, cluster, check):
     if count == 0:
         return 0
     for host_type in component['hosts_types']:
-        for m in ss.svars['machines']:
+        for m in ss.svars['nodes']:
             if host_type in m['types']:
                 try:
                     if not check:
                         add_component(component['name'],
-                                      machine=m['name'],
+                                      node=m['name'],
                                       cluster=cluster,
                                       ha=dist == 'ha')
                 # Ignore error when adding already existing component
@@ -655,19 +655,19 @@ def auto_install_service(service, cluster, ha=False):
                                              check=False)
 
 
-def auto_install_machine(machine, cluster):
-    """Auto-install the clients for all the cluster's services on a machine.
+def auto_install_node(node, cluster):
+    """Auto-install the clients for all the cluster's services on a node.
 
-    :param machine: Machine name
-    :type machine: str
+    :param node: Machine name
+    :type node: str
     :param cluster: Cluster name
     :type cluster: str
     :return: The number of components auto-installed
     """
 
     count = 0
-    for m in ss.svars['machines']:
-        if m['name'] == machine:
+    for m in ss.svars['nodes']:
+        if m['name'] == node:
             m_conf = m
 
     for s in config['services']:
@@ -677,7 +677,7 @@ def auto_install_machine(machine, cluster):
                     if comp['name'] == c:
                         for t in m_conf['types']:
                             if t in comp['hosts_types']:
-                                add_component(c, machine=machine,
+                                add_component(c, node=node,
                                               cluster=cluster)
                                 count += 1
 

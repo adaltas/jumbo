@@ -9,7 +9,7 @@ from jumbo.core import clusters
 svars = {
     'cluster': None,
     'domain': None,
-    'machines': [],
+    'nodes': [],
     'services': [],
     'urls': {
         'ambari_repo': None,
@@ -47,14 +47,14 @@ def dump_config(services_components_hosts=None):
 
         vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
         with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w') as vf:
-            vf.write(vagrant_temp.render(hosts=svars['machines'],
+            vf.write(vagrant_temp.render(hosts=svars['nodes'],
                                          domain=svars['domain'],
                                          cluster=svars['cluster']))
 
         hosts_temp = jinja_env.get_template('hosts.j2')
         with open(JUMBODIR + svars['cluster'] + '/playbooks/inventory/hosts',
                   'w') as vf:
-            vf.write(hosts_temp.render(hosts=svars['machines']))
+            vf.write(hosts_temp.render(hosts=svars['nodes']))
 
         with open(JUMBODIR + svars['cluster'] +
                   '/playbooks/inventory/group_vars/all', 'w') as vf:
@@ -114,7 +114,7 @@ def clear():
     global svars, bp
     svars = {
         'cluster': None,
-        'machines': [],
+        'nodes': [],
         'services': [],
         'urls': {
             'ambari_repo': None,
@@ -148,20 +148,20 @@ def clear_bp():
     }
 
 
-def add_machine(m):
-    """Add a machine to the current session.
+def add_node(m):
+    """Add a node to the current session.
 
     :param m: Machine configuration
     :type m: dict
     """
 
     added = False
-    for i, machine in enumerate(svars['machines']):
-        if machine['name'] == m['name']:
-            svars['machines'][i] = m
+    for i, node in enumerate(svars['nodes']):
+        if node['name'] == m['name']:
+            svars['nodes'][i] = m
             added = True
     if not added:
-        svars['machines'].append(m)
+        svars['nodes'].append(m)
 
 
 def generate_ansible_groups():
@@ -175,54 +175,54 @@ def generate_ansible_groups():
     ambariserver = None
     ipaserver = None
 
-    for machine in svars['machines']:
-        machine['groups'] = []
-        if 'PSQL_SERVER' in machine['components'] and not pgsqlserver:
-            pgsqlserver = machine['name']
-            if 'psqlserver' not in machine['groups']:
-                machine['groups'].append('pgsqlserver')
-        if 'ANSIBLE_CLIENT' in machine['components'] and not ansiblehost:
-            ansiblehost = machine['name']
-            if 'ansiblehost' not in machine['groups']:
-                machine['groups'].append('ansiblehost')
-        if 'AMBARI_SERVER' in machine['components'] and not ambariserver:
-            ambariserver = machine['name']
-            if 'ambariserver' not in machine['groups']:
-                machine['groups'].append('ambariserver')
-        if 'IPA_SERVER' in machine['components'] and not ipaserver:
-            ipaserver = machine['name']
-            if 'ipaserver' not in machine['groups']:
-                machine['groups'].append('ipaserver')
+    for node in svars['nodes']:
+        node['groups'] = []
+        if 'PSQL_SERVER' in node['components'] and not pgsqlserver:
+            pgsqlserver = node['name']
+            if 'psqlserver' not in node['groups']:
+                node['groups'].append('pgsqlserver')
+        if 'ANSIBLE_CLIENT' in node['components'] and not ansiblehost:
+            ansiblehost = node['name']
+            if 'ansiblehost' not in node['groups']:
+                node['groups'].append('ansiblehost')
+        if 'AMBARI_SERVER' in node['components'] and not ambariserver:
+            ambariserver = node['name']
+            if 'ambariserver' not in node['groups']:
+                node['groups'].append('ambariserver')
+        if 'IPA_SERVER' in node['components'] and not ipaserver:
+            ipaserver = node['name']
+            if 'ipaserver' not in node['groups']:
+                node['groups'].append('ipaserver')
 
     if ambariserver:
-        for machine in svars['machines']:
-            if 'ldap' not in machine['types'] \
-                    and 'ambariclient' not in machine['groups']:
-                machine['groups'].append('ambariclient')
+        for node in svars['nodes']:
+            if 'ldap' not in node['types'] \
+                    and 'ambariclient' not in node['groups']:
+                node['groups'].append('ambariclient')
 
     if ipaserver:
-        for machine in svars['machines']:
-            if 'ldap' not in machine['types'] \
-                    and 'ipaclient' not in machine['groups']:
-                machine['groups'].append('ipaclient')
+        for node in svars['nodes']:
+            if 'ldap' not in node['types'] \
+                    and 'ipaclient' not in node['groups']:
+                node['groups'].append('ipaclient')
 
 
 def get_pgsqlserver_host():
-    """Return the fqdn of the machine hosting the PSQL_SERVER.
+    """Return the fqdn of the node hosting the PSQL_SERVER.
     """
 
-    for machine in svars['machines']:
-        if 'pgsqlserver' in machine['groups']:
-            return fqdn(machine['name'])
+    for node in svars['nodes']:
+        if 'pgsqlserver' in node['groups']:
+            return fqdn(node['name'])
 
 
 def get_ipaserver_host():
-    """Return the fqdn of the machine hosting the IPA_SERVER.
+    """Return the fqdn of the node hosting the IPA_SERVER.
     """
 
-    for machine in svars['machines']:
-        if 'ipaserver' in machine['groups']:
-            return fqdn(machine['name'])
+    for node in svars['nodes']:
+        if 'ipaserver' in node['groups']:
+            return fqdn(node['name'])
 
 
 def generate_ansible_vars():
@@ -234,7 +234,7 @@ def generate_ansible_vars():
 
     pgsqlserver = ''
 
-    for m in svars['machines']:
+    for m in svars['nodes']:
         if 'pgsqlserver' in m['groups']:
             pgsqlserver = m['name']
 
@@ -463,7 +463,7 @@ def generate_yarnsite(yarn_comp):
     container_max_memory = 1536
     node_max_containers = 100
     if 'NODEMANAGER' in yarn_comp:
-        for m in svars['machines']:
+        for m in svars['nodes']:
             if m['name'] in yarn_comp['NODEMANAGER']:
                 if node_max_containers > int(m['ram'] / 1536):
                     node_max_containers = int(m['ram'] / 1536)
@@ -502,7 +502,7 @@ def generate_yarnsite_ha(yarn_comp):
     container_max_memory = 1536
     node_max_containers = 100
     if 'NODEMANAGER' in yarn_comp:
-        for m in svars['machines']:
+        for m in svars['nodes']:
             if m['name'] in yarn_comp['NODEMANAGER']:
                 if node_max_containers > int(m['ram'] / 1536):
                     node_max_containers = int(m['ram'] / 1536)
@@ -723,7 +723,7 @@ def generate_blueprint_hostgroups():
 
     """
 
-    for m in svars['machines']:
+    for m in svars['nodes']:
         comp = []
         for c in m['components']:
             if blueprint_component(c):

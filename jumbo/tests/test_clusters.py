@@ -10,7 +10,7 @@ from jumbo.utils.settings import JUMBODIR
 
 class TestClusters(unittest.TestCase):
     def setUp(self):
-        self.c_name = 'unittest_' + ''.join(random.choices(
+        self.c_name = 'unittest' + ''.join(random.choices(
             string.ascii_letters + string.digits,
             k=5))
         self.m_name = 'test01'
