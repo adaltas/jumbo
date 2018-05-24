@@ -3,7 +3,7 @@ from click_shell.core import Shell
 import ipaddress as ipadd
 from prettytable import PrettyTable
 
-from jumbo.core import clusters, nodes, services
+from jumbo.core import clusters, nodes, services, vagrant
 from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
 
@@ -44,6 +44,11 @@ def jumbo(ctx, cluster):
     sh.add_command(checkservice)
     sh.add_command(setrepo)
     sh.add_command(listservices)
+    sh.add_command(start)
+    sh.add_command(stop)
+    sh.add_command(status)
+    sh.add_command(provision)
+    sh.add_command(restart)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -616,6 +621,78 @@ def listservices(cluster):
         click.secho(e.message, fg='red', err=True)
     else:
         click.echo(table_serv)
+
+
+####################
+# Vagrant commands #
+####################
+@jumbo.command()
+@click.option('--cluster', '-c')
+def start(cluster):
+    """Launches the VMs (vagrant up)
+    """
+
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        click.secho(e.message, fg='red', err=True)
+
+    
+
+@jumbo.command()
+@click.option('--cluster', '-c')
+def stop(cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        click.secho(e.message, fg='red', err=True)
+
+
+
+@jumbo.command()
+@click.option('--cluster', '-c')
+def status(cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vagrant.cmd(['vagrant', 'status', '--color'], cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        click.secho(e.message, fg='red', err=True)
+
+
+@jumbo.command()
+@click.option('--cluster', '-c')
+def provision(cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vagrant.cmd(['vagrant', 'up', '--provision', '--color'],
+                    cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        click.secho(e.message, fg='red', err=True)
+
+
+@jumbo.command()
+@click.option('--cluster', '-c')
+def restart(cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
+        vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        click.secho(e.message, fg='red', err=True)
+
+
 
 
 @jumbo.command()
