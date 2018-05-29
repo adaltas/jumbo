@@ -63,7 +63,12 @@ class CreationError(Error):
                           .format(self.object['type'],
                                   self.object['name'],
                                   self.conflict['property'],
-                                  '\n - '.join(self.conflict['value'])))
+                                  '\n - '.join(self.conflict['value']))),
+            'NameNotAllowed': ('The name "{}" is not allowed for a {}.\n'
+                               '{}'
+                               .format(self.object['name'],
+                                       self.object['type'],
+                                       self.conflict['value']))
         }
 
         return switcher.get(self.type, self.type)

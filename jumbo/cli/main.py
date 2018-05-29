@@ -178,7 +178,7 @@ def listclusters(full):
                 urls.append((k + '=' + v)[:limit] + ('' if full else '...'))
             cluster_table.add_row([cluster['cluster'],
                                    cluster['domain'],
-                                   len(cluster['machines']),
+                                   len(cluster['nodes']),
                                    '\n'.join(cluster['services']),
                                    '\n'.join(urls)])
     except ex.LoadError as e:
@@ -282,8 +282,8 @@ def addnode(ctx, name, types, ip, ram, cpus, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        nodes.add_machine(name, ip, ram, types, cpus, cluster=cluster)
-        count = services.auto_install_machine(name, cluster)
+        nodes.add_node(name, ip, ram, types, cpus, cluster=cluster)
+        count = services.auto_install_node(name, cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
@@ -315,12 +315,12 @@ def rmnode(ctx, name, cluster, force):
 
     if not force:
         if not click.confirm(
-                'Are you sure you want to remove the machine "{}" '
+                'Are you sure you want to remove the node "{}" '
                 'of cluster "{}"?'.format(name, cluster)):
             return
 
     try:
-        nodes.remove_machine(cluster=cluster, machine=name)
+        nodes.remove_node(cluster=cluster, node=name)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         if e.type == 'NoConfFile':
@@ -348,7 +348,7 @@ def listnodes(cluster):
         node_table = PrettyTable(
             ['Name', 'Types', 'IP', 'RAM (MB)', 'CPUs'])
 
-        for m in clusters.list_machines(cluster=cluster):
+        for m in clusters.list_nodes(cluster=cluster):
             node_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
                                 m['ram'], m['cpus']])
     except ex.LoadError as e:
@@ -440,27 +440,27 @@ def rmservice(ctx, service, cluster, force):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--machine', '-m', required=True)
+@click.option('--node', '-m', required=True)
 @click.option('--cluster', '-c')
 @click.pass_context
-def addcomponent(ctx, name, machine, cluster):
+def addcomponent(ctx, name, node, cluster):
     """
-    Add component to a machine.
+    Add component to a node.
     """
     switched = True if cluster else False
     if not cluster:
         cluster = ss.svars['cluster']
 
     try:
-        services.add_component(name, machine=machine, cluster=cluster)
+        services.add_component(name, node=node, cluster=cluster)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         switched = False
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Component "{}" added to machine "{}/{}".'
-                   .format(name, cluster, machine))
+        click.echo('Component "{}" added to node "{}/{}".'
+                   .format(name, cluster, node))
     finally:
         if switched:
             set_context(ctx, cluster)
@@ -468,13 +468,13 @@ def addcomponent(ctx, name, machine, cluster):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--machine', '-m', required=True)
+@click.option('--node', '-m', required=True)
 @click.option('--cluster', '-c')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 @click.pass_context
-def rmcomponent(ctx, name, machine, cluster, force):
+def rmcomponent(ctx, name, node, cluster, force):
     """
-    Remove component from specified machine.
+    Remove component from specified node.
     """
     switched = True if cluster else False
     if not cluster:
@@ -483,12 +483,12 @@ def rmcomponent(ctx, name, machine, cluster, force):
     if not force:
         if not click.confirm(
                 'Are you sure you want to remove the component "{}" '
-                'of machine "{}/{}"?'.format(name, cluster, machine)):
+                'of node "{}/{}"?'.format(name, cluster, node)):
             return
 
     try:
         services.remove_component(name,
-                                  machine=machine,
+                                  node=node,
                                   cluster=cluster)
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
@@ -496,34 +496,34 @@ def rmcomponent(ctx, name, machine, cluster, force):
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     else:
-        click.echo('Component "{}" removed of machine "{}/{}"'
-                   .format(name, cluster, machine))
+        click.echo('Component "{}" removed of node "{}/{}"'
+                   .format(name, cluster, node))
     finally:
         if switched:
             set_context(ctx, cluster)
 
 
 @jumbo.command()
-@click.argument('machine', required=False)
+@click.argument('node', required=False)
 @click.option('--cluster', '-c')
 @click.option('--all', '-a', is_flag=True,
-              help='List components on all machines')
+              help='List components on all nodes')
 @click.option('--abbr', is_flag=True, help='Display abbreviations')
-def listcomponents(machine, cluster, all, abbr):
+def listcomponents(node, cluster, all, abbr):
     """
-    List compononents on a given machine.
+    List compononents on a given node.
     """
     if not cluster:
         cluster = ss.svars['cluster']
 
     if all:
-        for m in ss.svars['machines']:
+        for m in ss.svars['nodes']:
             comp_table = PrettyTable(['Component', 'Service'])
             comp_table.align['Component'] = 'l'
             comp_table.align['Service'] = 'l'
             click.echo('\n' + m['name'] + ':')
             try:
-                for c in services.list_components(machine=m['name'],
+                for c in services.list_components(node=m['name'],
                                                   cluster=cluster):
                     service = services.check_component(c)
                     comp_table.add_row([
@@ -537,15 +537,15 @@ def listcomponents(machine, cluster, all, abbr):
                 print_with_colors(comp_table)
 
     else:
-        if machine is None:
-            click.secho('You need to specify a machine name. Use --all to list'
-                        ' all machines', fg='red', err=True)
+        if node is None:
+            click.secho('You need to specify a node name. Use --all to list'
+                        ' all nodes', fg='red', err=True)
             return
         try:
             comp_table = PrettyTable(['Component', 'Service'])
             comp_table.align['Component'] = 'l'
             comp_table.align['Service'] = 'l'
-            for c in services.list_components(machine=machine,
+            for c in services.list_components(node=node,
                                               cluster=cluster):
                 service = services.check_component(c)
                 comp_table.add_row([

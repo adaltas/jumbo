@@ -1,6 +1,7 @@
 import os
 import json
 import pathlib
+import string
 from distutils import dir_util
 from shutil import rmtree
 
@@ -32,8 +33,15 @@ def create_cluster(domain, ambari_repo, vdf, *, cluster):
     if checks.check_cluster(cluster):
         raise ex.CreationError('cluster', cluster, 'name', cluster, 'Exists')
 
+    allowed_chars = string.ascii_letters + string.digits + '-'
+    for l in cluster:
+        if l not in allowed_chars:
+            raise ex.CreationError('cluster', cluster, 'name',
+                                   'Allowed characters: ' + allowed_chars,
+                                   'NameNotAllowed')
+
     pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
-    data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../data/'
+    data_dir = os.path.dirname(os.path.abspath(__file__)) + '/data/'
     dir_util.copy_tree(data_dir, JUMBODIR + cluster)
     dir_util._path_created = {}
     ss.clear()
@@ -110,16 +118,16 @@ def list_clusters():
 
 
 @checks.valid_cluster
-def list_machines(*, cluster):
-    """List the machines of a cluster.
+def list_nodes(*, cluster):
+    """List the nodes of a cluster.
 
     :param cluster: Cluster name
     :type cluster: str
-    :return: The list of the cluster's machines
+    :return: The list of the cluster's nodes
     :rtype: dict
     """
     ss.load_config(cluster)
-    return ss.svars['machines']
+    return ss.svars['nodes']
 
 
 @checks.valid_cluster

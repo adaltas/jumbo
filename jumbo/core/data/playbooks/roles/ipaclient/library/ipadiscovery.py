@@ -47,7 +47,7 @@ options:
     description:  The Kerberos realm of an existing IPA deployment.
     required: false
   hostname:
-    description: The hostname of the machine to join (FQDN).
+    description: The hostname of the node to join (FQDN).
     required: false
   ca_cert_file:
     description: A CA certificate to use.
@@ -163,6 +163,7 @@ from six.moves.configparser import RawConfigParser
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.ansible_ipa_client import *
 
+
 def get_cert_path(cert_path):
     """
     If a CA certificate is passed in on the command line, use that.
@@ -179,6 +180,7 @@ def get_cert_path(cert_path):
 
     return None
 
+
 def is_client_configured():
     """
     Check if ipa client is configured.
@@ -192,6 +194,7 @@ def is_client_configured():
     return (os.path.isfile(paths.IPA_DEFAULT_CONF) and
             os.path.isfile(os.path.join(paths.IPA_CLIENT_SYSRESTORE,
                                         sysrestore.SYSRESTORE_STATEFILE)))
+
 
 def get_ipa_conf():
     """
@@ -213,9 +216,10 @@ def get_ipa_conf():
 
     return result
 
+
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
+        argument_spec=dict(
             servers=dict(required=False, type='list', default=[]),
             domain=dict(required=False),
             realm=dict(required=False),
@@ -225,7 +229,7 @@ def main():
             ntp_servers=dict(required=False, type='list', default=[]),
             no_ntp=dict(required=False, type='bool', default=False),
         ),
-        supports_check_mode = True,
+        supports_check_mode=True,
     )
 
     module._ansible_debug = True
@@ -280,7 +284,7 @@ def main():
         # There is no point to continue with installation as server list was
         # passed as a fixed list of server and thus we cannot discover any
         # better result
-        module.fail_json(msg="Failed to verify that %s is an IPA Server." % \
+        module.fail_json(msg="Failed to verify that %s is an IPA Server." %
                          ', '.join(opt_servers))
 
     if ret == ipadiscovery.BAD_HOST_CONFIG:
@@ -394,8 +398,7 @@ def main():
 
     if opt_realm and opt_realm != cli_realm:
         module.fail_json(
-            msg=
-            "The provided realm name [%s] does not match discovered one [%s]" %
+            msg="The provided realm name [%s] does not match discovered one [%s]" %
             (opt_realm, cli_realm))
 
     cli_basedn = str(ds.basedn)
@@ -457,7 +460,7 @@ def main():
         if not synced_ntp:
             module.warn("Unable to sync time with NTP server")
     else:
-        ntp_servers = [ ]
+        ntp_servers = []
 
     # Check if ipa client is already configured
     if is_client_configured():
@@ -482,6 +485,7 @@ def main():
                      dnsok=dnsok,
                      ntp_servers=ntp_servers,
                      ipa_python_version=IPA_PYTHON_VERSION)
+
 
 if __name__ == '__main__':
     main()
