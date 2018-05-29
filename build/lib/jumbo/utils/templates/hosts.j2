@@ -1,0 +1,45 @@
+{% for host in hosts %}
+{{ host.name }} ansible_host={{ host.ip }} ansible_user=vagrant
+{% endfor %}
+
+[ansiblehost]
+{% for host in hosts %}
+	{% if 'ansiblehost' in host.groups %}
+{{ host.name }}
+	{% endif %}
+{% endfor %}
+
+[pgsqlserver]
+{% for host in hosts %}
+	{% if 'pgsqlserver' in host.groups %}
+{{ host.name }}
+	{% endif %}
+{% endfor %}
+
+[ipaserver]
+{% for host in hosts %}
+	{% if 'ipaserver' in host.groups %}
+{{ host.name }}
+	{% endif %}
+{% endfor %}
+
+[ipaclients]
+{% for host in hosts %}
+	{% if 'ipaclient' in host.groups %}
+{{ host.name }}
+	{% endif %}
+{% endfor %}
+
+[ambariserver]
+{% for host in hosts %}
+	{% if 'ambariserver' in host.groups %}
+{{ host.name }}
+	{% endif %}
+{% endfor %}
+
+[ambariclients]
+{% for host in hosts %}
+	{% if 'ambariclient' in host.groups %}
+{{ host.name }}
+	{% endif %}
+{% endfor %}

@@ -1,0 +1,2 @@
+Host 10.10.10.*
+  StrictHostKeyChecking no

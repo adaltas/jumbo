@@ -1,0 +1,42 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Configure servers hostnames
+    hostname:
+      name: "{{ inventory_hostname }}.{{ domain }}"
+
+  - name : Add "ip fqdn shortname" to /etc/hosts
+    lineinfile:
+      dest: "/etc/hosts"
+      line: "{{ hostvars[item]['ansible_host'] }} {{ item }}.{{ domain }} {{ item }}"
+      insertafter: EOF
+    with_items: "{{ groups['all'] }}"
+
+  - name: EPEL repository
+    yum:
+      name: epel-release
+      state: latest
+
+  - name: Install common packages
+    yum:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+      - htop
+      - net-tools
+      - ntp
+      - vim
+      - wget
+
+  - name: Disable and stop chronyd
+    service:
+      name: chronyd
+      state: stopped
+      enabled: no
+
+  - name: Enable NTPd
+    service:
+      name: ntpd
+      state: started
+      enabled: yes
