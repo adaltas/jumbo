@@ -233,7 +233,7 @@ All the client components (tagged below) are always auto-installed on all hosts 
 
 | Version | Service             | Components              | Client |
 | ------- | ------------------- | ----------------------- | ------ |
-| 1.0     | ANSIBLE             | ANSIBLE_CLIENT          |        |
+| 0.1     | ANSIBLE             | ANSIBLE_CLIENT          |        |
 |         | POSTGRESQL          | PSQL_SERVER             |        |
 |         | AMBARI              | AMBARI_SERVER           |        |
 |         | HDFS                | NAMENODE                |        |
@@ -261,11 +261,11 @@ All the client components (tagged below) are always auto-installed on all hosts 
 |         | HBASE               | HBASE_MASTER            |        |
 |         |                     | HBASE_REGIONSERVER      |        |
 |         |                     | HBASE_CLIENT            | Yes    |
-| 1.1     | SPARK2              | SPARK2_JOBHISTORYSERVER |        |
+| 0.2     | SPARK2              | SPARK2_JOBHISTORYSERVER |        |
 |         |                     | SPARK2_CLIENT           | Yes    |
 |         | ZEPPELIN            | ZEPPELIN_MASTER         |        |
-| 1.2     | FREEIPA             | IPA_SERVER              |        |
-| 1.3     | KERBEROS            | -                       |        |
+| 0.3     | FREEIPA             | IPA_SERVER              |        |
+| 0.4     | KERBEROS            | -                       |        |
 
 You can add other HDP services through the Ambari WebUI after the cluster deployment.
 
@@ -312,17 +312,17 @@ HDP:
 
 ## Jumbo versions
 
-- **1.0** - 27/04/18: **First stable release**
-- **1.1** - 04/05/18: **Support for Spark2 and Zeppelin and minor improvements**
+- **v0.1** - 27/04/18: **First stable release**
+- **v0.2** - 04/05/18: **Support for Spark2 and Zeppelin and minor improvements**
     - Support custom URLs for the Ambari repository and the VDF of HDP with command `seturl`;
     - New list `listservices` with services states (complete or not);
     - Better looking lists;
     - Standardized command names;
     - Support for new services: SPARK2, ZEPPELIN
-- **1.2** - 09/05/18: **Support for HDFS and YARN in HA and Free IPA support**
+- **v0.3** - 09/05/18: **Support for HDFS and YARN in HA and Free IPA support**
     - Support for new service: FREEIPA
     - High Availability support for: HDFS, YARN
-- **1.3** - 17/05/2018: **Kerberos support and unit tests**
+- **v0.4** - 17/05/2018: **Kerberos support and unit tests**
     - Unit tests for: code execution, generated files (Vagrantfile, playbooks)
     - Minor fixes
     - Support for new services: KERBEROS
