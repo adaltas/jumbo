@@ -6,3 +6,5 @@ venv/
 *.pyc
 build/
 dist/
+_book/
+node_modules/
