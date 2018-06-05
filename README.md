@@ -364,7 +364,7 @@ HDP:
 - [ ] Add support for all Ambari services
 - [ ] Generalize HA support
 - [x] "Proxify" Vagrant commands into Jumbo: `start`, `stop`, `status`, `restart`, `delete`
-- [ ] Start HDP services on vagrant start
+- [x] Start HDP services on vagrant start
 - [ ] Smart cluster topology based on available ressources
 - [ ] Publish a website with the documentation
 - [ ] Allow to dupplicate existing cluster with a different name
