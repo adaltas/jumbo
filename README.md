@@ -125,7 +125,7 @@ jumbo (mycluster) > listnodes
 
 #### Service installation
 
-A service can have dependencies to other services. A service dependency is satisfied if the service is installed and if the minimum required number of each component is installed. If the requirements to install a service are not met, Jumbo will tell you what services or components you have to install:
+A service can have dependencies to other services. A dependency is satisfied if the required service is installed and if the minimum required number for each component is installed. If the requirements to install a service are not met, Jumbo will tell you what services or components you have to install:
 
 ```shell
 jumbo (mycluster) > addservice AMBARI
@@ -138,9 +138,25 @@ Service "ANSIBLE" and related clients added to cluster "mycluster".
 1 type of component auto-installed. Use "listcomponents -a" for details.
 ```
 
-When installing a service, all its components are auto-installed on the best fitting hosts by default. You can avoid the auto-installation with the flag `--no-auto`. Note that the service's clients clients will always be installed on all hosts.
+You can let Jumbo install all the dependencies with the tag `--recursive`:
 
-When you add a new node to a cluster with services already installed, the clients of each service are automatically installed on the node.
+```shell
+jumbo (mycluster) > addservice AMBARI --recursive
+The service AMBARI and its dependencies will be installed. Dependencies:
+Services:
+ - POSTGRESQL
+
+Do you want to continue? [y/N]: y
+Service "AMBARI" and related clients added to cluster "mycluster".
+Auto-installed the dependencies:
+Services:
+ - POSTGRESQL
+2 type of component auto-installed. Use "listcomponents -a" for details.
+```
+
+When installing a service, all its components are auto-installed on the best fitting hosts by default. You can avoid the auto-installation with the flag `--no-auto`.
+
+Note that the service's clients will always be installed on all hosts (even with `--no-auto`) and on nodes created after the service installation. However you can use `rmcomponent` to delete them individually afterward.
 
 A list of all the services supported by Jumbo is available [here](#supported-services-and-components).
 
@@ -321,23 +337,28 @@ HDP:
 
 - **v0.1** - 27/04/18: **First stable release**
 - **v0.2** - 04/05/18: **Support for Spark2 and Zeppelin and minor improvements**
-    - Support custom URLs for the Ambari repository and the VDF of HDP with command `seturl`;
-    - New list `listservices` with services states (complete or not);
-    - Better looking lists;
-    - Standardized command names;
+    - Support custom URLs for the Ambari repository and the VDF of HDP with command `seturl`
+    - New list `listservices` with services states (complete or not)
+    - Better looking lists
+    - Standardized command names
     - Support for new services: SPARK2, ZEPPELIN
 - **v0.3** - 09/05/18: **Support for HDFS and YARN in HA and Free IPA support**
     - Support for new service: FREEIPA
     - High Availability support for: HDFS, YARN
+    - v0.3.1: Hotfix FreeIPA install
 - **v0.4** - 17/05/2018: **Kerberos support and unit tests**
     - Unit tests for: code execution, generated files (Vagrantfile, playbooks)
     - Minor fixes
     - Support for new services: KERBEROS
+    - v0.4.0.1: Change version tags (1.* -> 0.*)
+- **v0.4.1** - 05/06/2018: **Vagrant commands integration and `-r` tag for `addservice`**
+    - New commands: `start`, `stop`, `restart`, `status` to interact with the cluster directly within Jumbo
+    - New tag `--recursive` for `addservice` to add a service and all its dependencies
 
 ## TO DO
 
 - [x] Add Kerberos support
-- [ ] Add a `-r` option on `addservice` for automatic dependency installation
+- [x] Add a `-r` option on `addservice` for automatic dependency installation
 - [ ] Open source and share (Github, artcile)
 - [ ] Add informative commands (info, version, available services...)
 - [ ] Add support for all Ambari services
