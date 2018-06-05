@@ -371,8 +371,10 @@ def listnodes(cluster):
 @click.option('--cluster', '-c')
 @click.option('--no-auto', is_flag=True, help='Avoid auto-install')
 @click.option('--ha', '-h', is_flag=True, help='High Availability mode')
+@click.option('--recursive', '-r', is_flag=True,
+              help='Also auto-install all other services needed')
 @click.pass_context
-def addservice(ctx, name, cluster, no_auto, ha):
+def addservice(ctx, name, cluster, no_auto, ha, recursive):
     """
     Add a service to a cluster and auto-install its components
     on the best fitting hosts.
@@ -382,17 +384,50 @@ def addservice(ctx, name, cluster, no_auto, ha):
         cluster = ss.svars['cluster']
 
     try:
+        msg = ''
+        auto_installed_count = 0
+        if recursive:
+            dep_serv = ''
+            dep_comp = ''
+            dependencies = services.get_service_dependencies(name=name,
+                                                             ha=ha,
+                                                             first=True,
+                                                             cluster=cluster)
+            if dependencies['components'] or dependencies['services']:
+                click.echo('The service %s and its dependencies will be'
+                           ' installed. Dependencies:' % name)
+                if dependencies['components']:
+                    dep_comp = ('Components:\n - %s\n' %
+                                '\n - '.join(
+                                    '{} {}'
+                                    .format(v, k) for k, v in
+                                    dependencies['components'].items()))
+                if dependencies['services']:
+                    dep_serv = ('Services:\n - %s\n' %
+                                '\n - '.join(dependencies['services']))
+
+                if click.confirm('{}{}\nDo you want to continue?'
+                                 .format(dep_comp, dep_serv)):
+                    auto_installed_count = services.install_dependencies(
+                        dependencies=dependencies,
+                        cluster=cluster)
+                    msg += 'Auto-installed the dependencies:\n{}{}'.format(
+                        dep_comp, dep_serv)
+                else:
+                    click.echo('Installation canceled.')
+                    return
+
         services.add_service(name=name, ha=ha, cluster=cluster)
         if no_auto:
-            msg = ('No component has been auto-installed (except clients). '
-                   'Use "addcomp" manually.')
+            msg += ('No component has been auto-installed (except clients). '
+                    'Use "addcomp" manually.')
         else:
             count = services.auto_assign(service=name, ha=ha, cluster=cluster)
-            msg = ('{} type{} of component{} auto-installed. '
-                   'Use "listcomponents -a" for details.'
-                   .format(count,
-                           's' if count > 1 else '',
-                           's' if count > 1 else ''))
+            msg += ('{} type{} of component{} auto-installed. '
+                    'Use "listcomponents -a" for details.'
+                    .format(count + auto_installed_count,
+                            's' if count > 1 else '',
+                            's' if count > 1 else ''))
     except ex.LoadError as e:
         click.secho(e.message, fg='red', err=True)
         switched = False

@@ -225,6 +225,7 @@ def check_service_req_comp(name):
                 missing_count = req_number - comp_count[comp['name']]
                 if missing_count > 0:
                     missing['ha'][comp['name']] = missing_count
+
             if not missing['ha'] or not missing['default']:
                 return {}
             return missing
@@ -680,5 +681,81 @@ def auto_install_node(node, cluster):
                                 add_component(c, node=node,
                                               cluster=cluster)
                                 count += 1
+
+    return count
+
+
+@valid_cluster
+def get_service_dependencies(name, ha=False, first=False, *, cluster):
+    """Return the missing dependencies of a service
+
+    :param name: The service name
+    :type name: str
+    :param cluster: The cluster name
+    :type cluster: str
+    :param ha: True if the service is wanted in HA mode, defaults to False
+    :param ha: bool, optional
+    :param first: True if this is the main service to, defaults to False
+    :param first: bool, optional
+    :return: The missing components and services
+    :rtype: dict {'components': {comp: number_missing, ...}, 'services': []}
+    """
+
+    dependencies = {
+        'components': {},
+        'services': []
+    }
+
+    missing_serv, missing_comp = check_service_req_service(name, ha)
+    for s in missing_serv:
+        missing_serv_dep = get_service_dependencies(name=s, cluster=cluster)
+        for dep in missing_serv_dep['services']:
+            if dep not in dependencies['services']:
+                dependencies['services'].append(dep)
+        if missing_serv_dep['components']:
+            dependencies['components'].update(missing_serv_dep['components'])
+    if not missing_serv:
+        if missing_comp:
+            dependencies['components'].update(missing_comp['default'])
+
+    if not first:
+        dependencies['services'].append(name)
+
+    return dependencies
+
+
+def get_component(name):
+    for s in config['services']:
+        for c in s['components']:
+            if c['name'] == name:
+                return c
+    raise ex.LoadError('component', name, 'NotExist')
+
+
+@valid_cluster
+def install_dependencies(dependencies, *, cluster):
+    """Install the components and services returned by get_service_dependencies
+
+    :param dependencies: The dict returned by get_service_dependencies
+    :type dependencies: dict
+    :param cluster: The cluster name
+    :type cluster: str
+    """
+
+    for comp, num in dependencies['components'].items():
+        for _ in range(0, int(num)):
+            auto_assign_service_comp(get_component(comp),
+                                     'default',
+                                     cluster,
+                                     False)
+
+    count = 0
+    for s in dependencies['services']:
+        add_service(name=s,
+                    ha=False,
+                    cluster=cluster)
+        count += auto_assign(service=s,
+                             ha=False,
+                             cluster=cluster)
 
     return count

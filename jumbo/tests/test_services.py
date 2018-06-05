@@ -94,6 +94,22 @@ class TestServices(unittest.TestCase):
                 services.check_service_complete(name=s,
                                                 cluster=self.c_name), [])
 
+    def test_add_service_recursive(self):
+        print('Test "add_service_recursive"')
+        for s in reversed(services.config['services']):
+            if s['name'] not in ss.svars['services']:
+                print('Recursively adding "%s"' % s['name'])
+                services.install_dependencies(
+                    dependencies=services.get_service_dependencies(
+                        s['name'],
+                        first=True,
+                        cluster=self.c_name),
+                    cluster=self.c_name)
+        for s in ss.svars['services']:
+            self.recursive_remove(s)
+        for s in services.config['services']:
+            self.assertFalse(services.check_service_cluster(name=s['name']))
+
     def recursive_add(self, service, ha):
         if not services.check_service_cluster(service):
             m_serv, _ = services.check_service_req_service(service, ha)
