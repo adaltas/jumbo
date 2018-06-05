@@ -2,6 +2,7 @@ import os
 import json
 import pathlib
 import string
+import subprocess
 from distutils import dir_util
 from shutil import rmtree
 
@@ -89,6 +90,11 @@ def delete_cluster(*, cluster):
     :return: True if the deletion was successfull
     """
     try:
+        # Vagrant destroy
+        current_dir = os.getcwd()
+        os.chdir(JUMBODIR + cluster + '/')
+        subprocess.check_output(['vagrant', 'destroy', '-f'])
+        os.chdir(current_dir)
         rmtree(JUMBODIR + cluster)
     except IOError as e:
         raise ex.LoadError('cluster', cluster, e.strerror)

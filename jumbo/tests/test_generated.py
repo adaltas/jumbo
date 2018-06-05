@@ -2,6 +2,7 @@ import unittest
 import random
 import string
 import os
+import subprocess
 
 from jumbo.core import clusters, nodes, services
 from jumbo.utils import session as ss, exceptions as ex
@@ -44,15 +45,17 @@ class TestServices(unittest.TestCase):
                 JUMBODIR + self.c_name + '/playbooks'):
             for filename in filenames:
                 if '.yml' in filename:
-                    ret = os.system(
-                        'ansible-playbook '
-                        '{} -i {} --syntax-check --list-tasks'
-                        .format(os.path.join(JUMBODIR,
-                                             self.c_name,
-                                             'playbooks/%s' % filename),
-                                os.path.join(JUMBODIR,
-                                             self.c_name,
-                                             'playbooks/inventory')))
+                    ret = subprocess.call(
+                        ['ansible-playbook',
+                         os.path.join(JUMBODIR,
+                                      self.c_name,
+                                      'playbooks/%s' % filename),
+                         '-i',
+                         os.path.join(JUMBODIR,
+                                      self.c_name,
+                                      'playbooks/inventory'),
+                         '--syntax-check',
+                         '--list-tasks'])
                 self.assertEqual(ret, 0)
             break
 
@@ -61,7 +64,7 @@ class TestServices(unittest.TestCase):
         prev_dir = os.getcwd()
         os.chdir(os.path.join(JUMBODIR,
                               self.c_name,))
-        ret = os.system('vagrant validate')
+        ret = subprocess.call(['vagrant', 'validate'])
         os.chdir(prev_dir)
         self.assertEqual(ret, 0)
 
