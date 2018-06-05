@@ -330,12 +330,11 @@ HDP:
 ## TO DO
 
 - [x] Add Kerberos support
+- [ ] "Proxify" Vagrant commands into Jumbo: `start`, `halt`, `status`, `reload`, `destroy`
+- [ ] Add a `-r` option on `addservice` for automatic dependency installation
+- [ ] Open source and share (Github, artcile)
+- [ ] Add informative commands (info, version, available services...)
 - [ ] Add support for all Ambari services
 - [ ] Generalize HA support
 - [ ] Publish a website with the documentation
-- [ ] Group commands by topic (e.g. 'node add', 'cluster create')
-- [ ] "Proxify" Vagrant commands into Jumbo: `start`, `halt`, `status`, `reload`, `destroy`
-- [ ] Add informative commands (info, version, available services...)
-- [ ] Add a `-r` option on `addservice` for automatic dependency installation
 - [ ] Smart cluster topology based on available ressources
-- [ ] Open source and share (Github, artcile)
