@@ -334,8 +334,10 @@ HDP:
 - [ ] Generalize HA support
 - [ ] Publish a website with the documentation
 - [ ] Group commands by topic (e.g. 'node add', 'cluster create')
-- [ ] "Proxify" Vagrant commands into Jumbo: `start`, `halt`, `status`, `reload`, `destroy`
+- [x] "Proxify" Vagrant commands into Jumbo: `start`, `stop`, `status`, `restart`, `delete`
+- [ ] Start HDP services on vagrant start
 - [ ] Add informative commands (info, version, available services...)
 - [ ] Add a `-r` option on `addservice` for automatic dependency installation
 - [ ] Smart cluster topology based on available ressources
 - [ ] Open source and share (Github, artcile)
+- [ ] Allow to dupplicate existing cluster with a different name
