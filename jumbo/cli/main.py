@@ -22,7 +22,7 @@ def jumbo(ctx, cluster):
                intro=printlogo.jumbo_ascii() +
                '\nJumbo Shell. Enter "help" for list of supported commands.' +
                ' Type "quit" to leave the Jumbo Shell.' +
-               click.style('\nJumbo v1.0',
+               click.style('\nJumbo v0.4.1',
                            fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
     ctx.meta['jumbo_shell'] = sh.shell
@@ -480,7 +480,7 @@ def rmservice(ctx, service, cluster, force):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--node', '-m', required=True)
+@click.option('--node', '-n', required=True)
 @click.option('--cluster', '-c')
 @click.pass_context
 def addcomponent(ctx, name, node, cluster):
@@ -508,7 +508,7 @@ def addcomponent(ctx, name, node, cluster):
 
 @jumbo.command()
 @click.argument('name')
-@click.option('--node', '-m', required=True)
+@click.option('--node', '-n', required=True)
 @click.option('--cluster', '-c')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 @click.pass_context
@@ -549,14 +549,14 @@ def rmcomponent(ctx, name, node, cluster, force):
 @click.option('--all', '-a', is_flag=True,
               help='List components on all nodes')
 @click.option('--abbr', is_flag=True, help='Display abbreviations')
-def listcomponents(node, cluster, all, abbr):
+def listcomponents(node, cluster, a, abbr):
     """
     List compononents on a given node.
     """
     if not cluster:
         cluster = ss.svars['cluster']
 
-    if all:
+    if a:
         for m in ss.svars['nodes']:
             comp_table = PrettyTable(['Component', 'Service'])
             comp_table.align['Component'] = 'l'
@@ -661,6 +661,7 @@ def listservices(cluster):
 ####################
 # Vagrant commands #
 ####################
+
 @jumbo.command()
 @click.option('--cluster', '-c')
 def start(cluster):
@@ -675,7 +676,6 @@ def start(cluster):
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
 
-    
 
 @jumbo.command()
 @click.option('--cluster', '-c')
@@ -687,7 +687,6 @@ def stop(cluster):
         vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
-
 
 
 @jumbo.command()
@@ -726,8 +725,6 @@ def restart(cluster):
         vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
-
-
 
 
 @jumbo.command()

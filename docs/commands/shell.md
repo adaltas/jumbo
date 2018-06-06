@@ -1,5 +1,0 @@
-# Jumbo CLI
-
-## Shell
-
-### Context

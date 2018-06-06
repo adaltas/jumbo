@@ -1,4 +1,4 @@
-# Cluster level commands
+# Cluster commands
 
 ## Create
 
