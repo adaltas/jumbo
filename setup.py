@@ -34,7 +34,6 @@ setup(
     packages=[
         'jumbo.cli',
         'jumbo.core',
-        'jumbo.tests',
         'jumbo.utils'
     ],
     package_data={

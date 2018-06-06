@@ -3,7 +3,8 @@
     "author": "Gauthier LEONARD, Xavier HERMAND",
     "plugins": [
         "code-captions",
-        "terminal"
+        "terminal",
+        "smart-nav-collapse"
     ],
     "pluginsConfig": {
         "terminal": {
