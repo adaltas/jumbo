@@ -14,7 +14,12 @@ The distribution used for the Hadoop cluster is [Hortonworks Data Platform](http
 ## Getting started
 
 A complete documentation is available in Gitbook format in the `docs/` folder.  
-Check https://github.com/GitbookIO/gitbook/blob/master/docs/setup.md for Gitbook installation.
+Check https://github.com/GitbookIO/gitbook/blob/master/docs/setup.md for Gitbook installation.  
+To start the Jumbo doc use:
+```shell
+gitbook install docs
+gitbook serve docs
+```
 
 Jumbo installation instructions are available in [`docs/getting-started/installation.md`](docs/getting-started/installation.md)
 
@@ -33,6 +38,10 @@ Jumbo installation instructions are available in [`docs/getting-started/installa
 - [ ] Smart cluster topology based on available ressources
 - [ ] Host the documentation on a website
 - [ ] Allow to dupplicate existing cluster with a different name
+
+## Contributing
+
+Jumbo is a very recent project. We would be happy to have feedback so don't hesitate to post issues or even to do a PR if you need extra features!
 
 ## Authors
 

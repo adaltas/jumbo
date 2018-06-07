@@ -31,7 +31,8 @@ Cluster "anothercluster" loaded.
 
 Now that we have created our cluster, lets add 3 virtual machines to it:
 
-*Adjust the RAM of VMs to your local machine!*
+> **danger**
+> Adjust the RAM of VMs to your local machine!
 
 ```shell
 **[terminal]
@@ -100,9 +101,11 @@ Note that the service's clients will always be installed on all hosts (even with
 
 A list of all the services supported by Jumbo is available [here](#supported-services-and-components).
 
-### High Availability support
 
-[Some services](#services-supporting-high-availability) support High Availability. To install a service in HA, use the tag `--ha` with the command `addservice`.
+> **info**
+> **High Availability support**  
+> Some services support High Availability ([list](../supported.md#services-supporting-high-availability)).  
+> To install a service in HA, use the tag `--ha` with the command `addservice`.
 
 #### Component installation
 

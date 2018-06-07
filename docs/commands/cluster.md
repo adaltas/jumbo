@@ -39,11 +39,78 @@ Clean the Jumbo shell context.
 List all the clusters managed by Jumbo. The list contains details about the domain names, the numbers of VMs, the services installed and the repositories URLs.
 
 ---
+## Provision
+
+**Command: `provision`**
+
+Start the virtual machines and force provisioning.
+
+**Options**
+
+- `--cluster` or `-c` - The cluster of the virtual machines.
+
+---
 ## Repair
 
 **Command: `repair [name]`**
 
 Recreate a `jumbo_config` file for a cluster if it has been destroyed. If this is the case, Jumbo will let you know with an error message.
+
+---
+## Restart
+
+**Command: `restart`**
+
+Restart the virtual machines of a cluster.
+
+**Options**
+
+- `--cluster` or `-c` - The cluster of the virtual machines.
+
+---
+## Set repo
+
+**Command: `setrepo [name]`**
+
+Set an URL to use for repositories downloads. The repositories that can be set are `ambari_repo` and `vdf`. See the [Advanced usage](../advanced-usage.md) section for more details.
+
+**Options**
+
+- `--value` or `-v` - The actual url of the repository.
+- `--cluster` or `-c` - The cluster on which the url should be set.
+
+---
+## Start
+
+**Command: `start`**
+
+Start the virtual machines of a cluster. Once started, starts the Hadoop services. **The first time**, it will start the virtual machines and install all components.
+
+**Options**
+
+- `--cluster` or `-c` - The cluster of the virtual machines.
+
+---
+## Status
+
+**Command: `status`**
+
+Give the status of the virtual machines of a cluster.
+
+**Options**
+
+- `--cluster` or `-c` - The cluster of the virtual machines.
+
+---
+## Stop 
+
+**Command: `stop`**
+
+Stop the virtual machines of a cluster.
+
+**Options**
+
+- `--cluster` or `-c` - The cluster of the virtual machines.
 
 ---
 ## Use
@@ -61,17 +128,3 @@ Loading mycluster...
 Cluster "mycluster" loaded.
 **[prompt jumbo (mycluster) > ]
 ```
-
----
-## Start
-
-**Command: `start`**
-
-Start the virtual machines of the cluster. Once started, starts the Hadoop services. **The first time**, it will start the virtual machines and install all components.
-
----
-## Stop 
-
-**Command: `stop`**
-
-Stop the virtual machines.

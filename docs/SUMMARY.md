@@ -1,21 +1,25 @@
 # Summary
 
 * [Overview](README.md)
-
 * [Getting started](getting-started/README.md)
     * [Key Principles](getting-started/key-principles.md)
     * [Installation](getting-started/installation.md)
     * [Cluster configuration](getting-started/configuration.md)
-    * [Cluster provisioning](getting-started/deployment.md)
+    * [Cluster provisioning](getting-started/provisioning.md)
 * [Advanced usage](advanced-usage.md)
-
 * [Commands (CLI)](commands/README.md)
     * [Cluster commands](commands/cluster.md)
         * [Create](commands/cluster.md#create)
         * [Delete](commands/cluster.md#delete)
         * [Exit](commands/cluster.md#exit)
         * [List clusters](commands/cluster.md#list-clusters)
+        * [Provision](commands/cluster.md#provision)
         * [Repair](commands/cluster.md#repair)
+        * [Restart](commands/cluster.md#restart)
+        * [Set repo](commands/cluster.md#set-repo)
+        * [Start](commands/cluster.md#start)
+        * [Status](commands/cluster.md#status)
+        * [Stop](commands/cluster.md#stop)
         * [Use](commands/cluster.md#use)
     * [Node commands](commands/node.md)
         * [Add node](commands/node.md#add-node)
@@ -30,6 +34,5 @@
         * [Add component](commands/component.md#add-component)
         * [List components](commands/component.md#list-components)
         * [Remove component](commands/component.md#remove-component)
-
 * [Supported services](supported.md)
 * [Versions](versions.md)

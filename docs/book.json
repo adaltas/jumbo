@@ -1,14 +1,14 @@
 {
     "title": "Jumbo Doc",
-    "author": "Gauthier LEONARD, Xavier HERMAND",
+    "author": "Gauthier LEONARD",
     "plugins": [
-        "code-captions",
         "terminal",
-        "smart-nav-collapse"
+        "smart-nav-collapse",
+        "styled-blockquotes"
     ],
     "pluginsConfig": {
         "terminal": {
-            "copyButtons": false,
+            "copyButtons": true,
             "fade": false
         }
     }
