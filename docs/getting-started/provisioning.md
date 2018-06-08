@@ -17,7 +17,8 @@ ok: [smaster] => {
 ```
 
 > **info**
-> **What to do in case of failure during provision?** This can happen for random reasons (like a very slow internet connexion hitting timeouts, etc...), you should just try to provision the cluster again by using the `provision` command.
+> **What to do in case of failure during provision?**  
+> This can happen for random reasons (like a very slow internet connexion hitting timeouts, etc...), you should just try to provision the cluster again by using the `provision` command.
 
 At this state you can already connect as root to any host of the cluster via ssh (be sure to have a set of key in your .ssh folder, your public key will automatically be added to the `authorized_keys` of the nodes):
 

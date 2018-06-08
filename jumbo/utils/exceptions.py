@@ -68,7 +68,8 @@ class CreationError(Error):
                                '{}'
                                .format(self.object['name'],
                                        self.object['type'],
-                                       self.conflict['value']))
+                                       self.conflict['value'])),
+            'LDAPNotCompatible': 'A "ldap" node cannot be of another type.'
         }
 
         return switcher.get(self.type, self.type)
