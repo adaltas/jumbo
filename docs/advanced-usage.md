@@ -55,37 +55,37 @@ In `jumbo/core/config/services.json`, the services are defined as follow:
 
 ```python
 {
-	"name": "ANSIBLE",	 # service name
-	"components": [		# list of the components of the service
+	"name": "ANSIBLE",				# service name
+	"components": [				   # list of the components of the service
 		{
-			"name": "ANSIBLE_CLIENT",	# component name
-			"hosts_types": [           	# node types on which the component can
-				"edge"                 	# 	be installed
+			"name": "ANSIBLE_CLIENT", # component name
+			"hosts_types": [		  # node types on which the component...
+				"edge"                # ...can be installed
 			],
-			"abbr": "ANSIBLE_C",       	# component abbreviation
+			"abbr": "ANSIBLE_C",	  # component abbreviation
 			"number": {
-			"default": 1,              	# number of this component needed in default mode
-			"ha": 1                    	# number of this component needed in HA mode
+			"default": 1,			 # number needed in default mode
+			"ha": 1			       # number needed in HA mode
 			}
 		}
 	],
 	"requirements": {
-		"ram": 1000,					# not used yet
-		"disk": 10000,					# not used yet
-		"nodes": {						# number of node of each type required to install
-			"default": {				# 	the service
+		"ram": 1000,                  # not used yet
+		"disk": 10000,			    # not used yet
+		"nodes": {					# number of node of each type required...
+			"default": {			  # ...for the service
 				"edge": 1
 			},
 			"ha": {
 				"edge": 1
 			}
 		},
-		"services": {					# other services on which the service depends
+		"services": {				 # other services on which the service depends
 			"default": [],
 			"ha": []
 		}
 	},
-	"auto_install": []					# clients of the service that will always be installed
+	"auto_install": []				# clients that will always be installed
 }
 ```
 
