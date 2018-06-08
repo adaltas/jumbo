@@ -27,7 +27,8 @@ A `node` must have at least one of the following types:
 - `edge`: hosts components exposing APIs like the HiveServer2 of Hive;
 - `ldap`: hosts security components like the IPA-server of FreeIPA.
 
-A `node` can be assigned multiple types at creation time. To deploy a functional Hadoop cluster, you will need at least:
+A `node` can be assigned multiple types at creation time, except for the type `ldap` than needs to be alone.  
+To deploy a functional Hadoop cluster, you will need at least:
 - 1 `master`
 - 1 `sidemaster`
 - 1 `edge`

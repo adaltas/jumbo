@@ -40,6 +40,11 @@ def add_node(name, ip, ram, types, cpus=1, *,
                                'A node name cannot start with a digit.',
                                'NameNotAllowed')
 
+    if 'ldap' in types:
+        if len(types) > 1:
+            raise ex.CreationError('node', name, 'type', 'ldap',
+                                   'LDAPNotCompatible')
+
     m = {
         'name': name,
         'ip': ip,
