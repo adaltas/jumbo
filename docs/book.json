@@ -1,0 +1,15 @@
+{
+    "title": "Jumbo Doc",
+    "author": "Gauthier LEONARD",
+    "plugins": [
+        "terminal",
+        "smart-nav-collapse",
+        "styled-blockquotes"
+    ],
+    "pluginsConfig": {
+        "terminal": {
+            "copyButtons": true,
+            "fade": false
+        }
+    }
+}

@@ -17,45 +17,45 @@ class CreationError(Error):
 
     def generate_message(self):
         switcher = {
-            'Exists': 'A {} with the {} `{}` already exists!'.format(
+            'Exists': 'A {} with the {} "{}" already exists!'.format(
                 self.object['type'],
                 self.conflict['property'],
                 self.conflict['value']),
-            'Installed': ('The {} `{}` is already present on the {} `{}`!'
+            'Installed': ('The {} "{}" is already present on the {} "{}"!'
                           .format(self.conflict['property'],
                                   self.conflict['value'],
                                   self.object['type'],
                                   self.object['name'])),
-            'ReqNotMet': ('The requirements to add the {} `{}` are not met!\n'
+            'ReqNotMet': ('The requirements to add the {} "{}" are not met!\n'
                           'These {} are missing:\n{}'
                           .format(self.object['type'],
                                   self.object['name'],
                                   self.conflict['property'],
                                   '\n'.join(self.conflict['value']))),
-            'NotInstalled': ('The {} `{}` is not installed on the {} `{}`!'
+            'NotInstalled': ('The {} "{}" is not installed on the {} "{}"!'
                              .format(self.conflict['property'],
                                      self.conflict['value'],
                                      self.object['type'],
                                      self.object['name'])),
-            'NotSupported': ('The `{}` {} is not supported for the {} `{}`!'
+            'NotSupported': ('The "{}" {} is not supported for the {} "{}"!'
                              .format(self.conflict['value'],
                                      self.conflict['property'],
                                      self.object['type'],
                                      self.object['name'])),
-            'Dependency': ('Cannot delete the {} `{}` because it is required '
+            'Dependency': ('Cannot delete the {} "{}" because it is required '
                            'for these {} installed:\n - {}'
                            .format(self.object['type'],
                                    self.object['name'],
                                    self.conflict['property'],
                                    '\n - '.join(self.conflict['value']))),
-            'MaxNumber': ('The maximum number of {} `{}` is already installed '
-                          'on the {} `{}`.\nRemove one `{}` before installing'
+            'MaxNumber': ('The maximum number of {} "{}" is already installed '
+                          'on the {} "{}".\nRemove one "{}" before installing'
                           ' a new one.'.format(self.conflict['property'],
                                                self.conflict['value'],
                                                self.object['type'],
                                                self.object['name'],
                                                self.conflict['value'])),
-            'TooManyHA': ('This operation is switching the {} `{}` in '
+            'TooManyHA': ('This operation is switching the {} "{}" in '
                           'High Availability mode.\nSome components intalled'
                           ' are not compatible with this mode.\n'
                           'Remove the following {} to switch to High '
@@ -63,7 +63,13 @@ class CreationError(Error):
                           .format(self.object['type'],
                                   self.object['name'],
                                   self.conflict['property'],
-                                  '\n - '.join(self.conflict['value'])))
+                                  '\n - '.join(self.conflict['value']))),
+            'NameNotAllowed': ('The name "{}" is not allowed for a {}.\n'
+                               '{}'
+                               .format(self.object['name'],
+                                       self.object['type'],
+                                       self.conflict['value'])),
+            'LDAPNotCompatible': 'A "ldap" node cannot be of another type.'
         }
 
         return switcher.get(self.type, self.type)
@@ -80,16 +86,16 @@ class LoadError(Error):
 
     def generate_message(self):
         switcher = {
-            'NotExist': 'The {} `{}` doesn\'t exist!'.format(
+            'NotExist': 'The {} "{}" doesn\'t exist!'.format(
                 self.object['type'],
                 self.object['name']),
             'NoContext': ('No cluster specified nor managed! Use "--cluster" '
                           'to specify a cluster.'),
-            'MustExit': ('You are currently managing the cluster `{}`. '
+            'MustExit': ('You are currently managing the cluster "{}". '
                          'Type "exit" to manage other clusters.'.format(
                              self.object['name'])),
-            'NoConfFile': ('Couldn\'t find the file `jumbo_config` for cluster'
-                           ' `{}`.\nAll cluster configuration has been lost.'
+            'NoConfFile': ('Couldn\'t find the file "jumbo_config" for cluster'
+                           ' "{}".\nAll cluster configuration has been lost.'
                            .format(self.object['name']))
         }
         return switcher.get(self.type, self.type)

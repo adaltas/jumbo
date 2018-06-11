@@ -1,9 +1,9 @@
-import click
-
 import os
 import json
 import pathlib
-from distutils.dir_util import copy_tree
+import string
+import subprocess
+from distutils import dir_util
 from shutil import rmtree
 
 from jumbo.utils.settings import JUMBODIR, DEFAULT_URLS
@@ -12,7 +12,7 @@ from jumbo.utils import checks
 
 
 def check_config(name):
-    """Return true if the cluster has a `jumbo_config` file.
+    """Return true if the cluster has a 'jumbo_config' file.
 
     :param name: Cluster name
     :type name: str
@@ -34,9 +34,17 @@ def create_cluster(domain, ambari_repo, vdf, *, cluster):
     if checks.check_cluster(cluster):
         raise ex.CreationError('cluster', cluster, 'name', cluster, 'Exists')
 
+    allowed_chars = string.ascii_letters + string.digits + '-'
+    for l in cluster:
+        if l not in allowed_chars:
+            raise ex.CreationError('cluster', cluster, 'name',
+                                   'Allowed characters: ' + allowed_chars,
+                                   'NameNotAllowed')
+
     pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
-    data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../data/'
-    copy_tree(data_dir, JUMBODIR + cluster)
+    data_dir = os.path.dirname(os.path.abspath(__file__)) + '/data/'
+    dir_util.copy_tree(data_dir, JUMBODIR + cluster)
+    dir_util._path_created = {}
     ss.clear()
     ss.svars['cluster'] = cluster
     ss.svars['domain'] = domain if domain else '%s.local' % cluster
@@ -50,13 +58,13 @@ def create_cluster(domain, ambari_repo, vdf, *, cluster):
 
 @checks.valid_cluster
 def repair_cluster(domain,  ambari_repo, vdf, *, cluster):
-    """Recreate the cluster `jumbo_config` file if it doesn't exist.
+    """Recreate the cluster 'jumbo_config' file if it doesn't exist.
 
     :param name: Cluster name
     :type name: str
     :param domain: Cluster domaine name
     :type domain: str
-    :return: True if the `jumbo_config` has been recreated
+    :return: True if the 'jumbo_config' has been recreated
     """
     if not check_config(cluster):
         ss.clear()
@@ -82,6 +90,11 @@ def delete_cluster(*, cluster):
     :return: True if the deletion was successfull
     """
     try:
+        # Vagrant destroy
+        current_dir = os.getcwd()
+        os.chdir(JUMBODIR + cluster + '/')
+        subprocess.check_output(['vagrant', 'destroy', '-f'])
+        os.chdir(current_dir)
         rmtree(JUMBODIR + cluster)
     except IOError as e:
         raise ex.LoadError('cluster', cluster, e.strerror)
@@ -93,7 +106,7 @@ def delete_cluster(*, cluster):
 def list_clusters():
     """List all the clusters managed by Jumbo.
 
-    :raises ex.LoadError: If a cluster doesn't have a `jumbo_config` file
+    :raises ex.LoadError: If a cluster doesn't have a 'jumbo_config' file
     :return: The list of clusters' configurations
     :rtype: dict
     """
@@ -111,16 +124,16 @@ def list_clusters():
 
 
 @checks.valid_cluster
-def list_machines(*, cluster):
-    """List the machines of a cluster.
+def list_nodes(*, cluster):
+    """List the nodes of a cluster.
 
     :param cluster: Cluster name
     :type cluster: str
-    :return: The list of the cluster's machines
+    :return: The list of the cluster's nodes
     :rtype: dict
     """
     ss.load_config(cluster)
-    return ss.svars['machines']
+    return ss.svars['nodes']
 
 
 @checks.valid_cluster
