@@ -47,7 +47,7 @@ def dump_config(services_components_hosts=None):
 
         vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
         with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w') as vf:
-            vf.write(vagrant_temp.render(hosts=svars['nodes'],
+            vf.write(vagrant_temp.render(hosts=get_ordered_nodes(),
                                          domain=svars['domain'],
                                          cluster=svars['cluster']))
 
@@ -162,6 +162,13 @@ def add_node(m):
             added = True
     if not added:
         svars['nodes'].append(m)
+
+
+def get_ordered_nodes():
+    ordered = [n for n in svars['nodes'] if 'ansiblehost' not in n['groups']]
+    ordered.extend(n for n in svars['nodes'] if 'ansiblehost' in n['groups'])
+
+    return ordered
 
 
 def generate_ansible_groups():

@@ -549,14 +549,14 @@ def rmcomponent(ctx, name, node, cluster, force):
 @click.option('--all', '-a', is_flag=True,
               help='List components on all nodes')
 @click.option('--abbr', is_flag=True, help='Display abbreviations')
-def listcomponents(node, cluster, a, abbr):
+def listcomponents(node, cluster, all, abbr):
     """
     List compononents on a given node.
     """
     if not cluster:
         cluster = ss.svars['cluster']
 
-    if a:
+    if all:
         for m in ss.svars['nodes']:
             comp_table = PrettyTable(['Component', 'Service'])
             comp_table.align['Component'] = 'l'

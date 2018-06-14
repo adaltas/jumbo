@@ -4,12 +4,23 @@
     "plugins": [
         "terminal",
         "smart-nav-collapse",
-        "styled-blockquotes"
+        "styled-blockquotes",
+        "toolbar"
     ],
     "pluginsConfig": {
         "terminal": {
             "copyButtons": true,
             "fade": false
+        },
+        "toolbar": {
+            "buttons": [
+                {
+                    "label": "GitHub",
+                    "icon": "fa fa-github",
+                    "url": "https://github.com/adaltas/jumbo",
+                    "target": "_blank"
+                }
+            ]
         }
     }
 }
