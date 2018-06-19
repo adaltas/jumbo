@@ -13,19 +13,14 @@ The distribution used for the Hadoop cluster is [Hortonworks Data Platform](http
 
 ## Getting started
 
-A complete documentation is available in Gitbook format in the `docs/` folder.  
-Check https://github.com/GitbookIO/gitbook/blob/master/docs/setup.md for Gitbook installation.  
-To start the Jumbo doc use:
-```shell
-gitbook install docs
-gitbook serve docs
-```
+A complete documentation is available on [the wiki](https://github.com/adaltas/jumbo/wiki).
+Jumbo installation instructions are available on the [`installation page`](https://github.com/adaltas/jumbo/wiki/installation)
 
-Jumbo installation instructions are available in [`docs/getting-started/installation.md`](docs/getting-started/installation.md)
+If you want a local documentation, it is also available in Gitbook format in the `docs/` folder. A website is also on its way.
 
 ## Project roadmap
 
-**Current version: [v0.4.1](docs/versions.md)**
+**Current version: [v0.4.1](https://github.com/adaltas/jumbo/wiki/versions)**
 
 - [x] Add Kerberos support
 - [x] Add a `-r` option on `addservice` for automatic dependency installation
