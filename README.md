@@ -18,7 +18,7 @@ Originally, Jumbo is designed for developers with a limited knowledge of the Had
 ## Getting started
 
 A complete documentation is available on [the wiki](https://github.com/adaltas/jumbo/wiki).
-Jumbo installation instructions are available on the [`installation page`](https://github.com/adaltas/jumbo/wiki/installation)
+Jumbo installation instructions are available on the [installation page](https://github.com/adaltas/jumbo/wiki/installation).
 
 If you want a local documentation, it is also available in Gitbook format in the `docs/` folder. A website is also on its way.
 
