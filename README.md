@@ -44,7 +44,7 @@ Jumbo is a very recent project. We would be happy to have feedback so don't hesi
 
 ## Authors
 
-Jumbo was developed by Gauthier Leonard and Xavier Hermand at [Adaltas](http://adaltas.com).
+Jumbo was developed by [Gauthier Leonard](https://github.com/Nuttymoon) and [Xavier Hermand](https://github.com/RReivax) at [Adaltas](http://adaltas.com).
 
 ## License
 
