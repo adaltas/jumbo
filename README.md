@@ -24,8 +24,8 @@ If you want a local documentation, it is also available in Gitbook format in the
 
 - [x] Add Kerberos support
 - [x] Add a `-r` option on `addservice` for automatic dependency installation
-- [ ] Open source and share (Github, article)
 - [ ] Add informative commands (info, version, available services...)
+- [ ] Allow custom configurations via JSON (services props, versions, urls...)
 - [ ] Add support for all Ambari services
 - [ ] Generalize HA support
 - [x] "Proxify" Vagrant commands into Jumbo: `start`, `stop`, `status`, `restart`, `delete`
