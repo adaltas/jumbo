@@ -1,6 +1,6 @@
 # Jumbo - A local Hadoop cluster bootstrapper
 
-Jumbo is a tool that allows you to deploy a **virtualized Hadoop cluster** on a local machine in minutes. This tool is especially targeted to developers with a limited knowledge of Hadoop to help them **quickly bootstrap development environments** without struggling with machines and services configurations.
+Jumbo is a tool that allows you to deploy a **virtualized Hadoop cluster** on a local machine in minutes. This tool is especially targeted to developers with a limited knowledge of Hadoop to help them **quickly bootstrap development environments** without struggling with nodes and services configurations.
 
 ![Jumbo shell](https://i.imgur.com/COH3aMm.png)
 
@@ -10,6 +10,10 @@ Jumbo is written in Python and relies on other tools that it coordinates:
 - [Apache Ambari](https://ambari.apache.org/), to provision and manage the Hadoop cluster.
 
 The distribution used for the Hadoop cluster is [Hortonworks Data Platform](https://hortonworks.com/products/data-platforms/hdp/).
+
+## Who can use Jumbo?
+
+Originally, Jumbo is designed for developers with a limited knowledge of Hadoop. But this doesn't mean that it cannot be helpful to others! Everything you need to create and deploy a Hadoop environnement is done by Jumbo so if you need different environments (e.g. for different projects), be sure it will be useful to you!
 
 ## Getting started
 
