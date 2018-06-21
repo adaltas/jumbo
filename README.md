@@ -2,7 +2,7 @@
 
 Jumbo is a tool that allows you to deploy a **virtualized Hadoop cluster** on a local machine in minutes. It is made to help you **quickly bootstrap development environments** without struggling with nodes and services configurations.
 
-![Jumbo shell](https://i.imgur.com/COH3aMm.png)
+![Jumbo shell](https://i.imgur.com/XuyY0qp.png)
 
 Jumbo is written in Python and relies on other tools that it coordinates:
 - [Vagrant](https://github.com/hashicorp/vagrant), to manage the virtual machines;
@@ -17,10 +17,10 @@ Originally, Jumbo is designed for developers with a limited knowledge of the Had
 
 ## Getting started
 
-A complete documentation is available on [the wiki](https://github.com/adaltas/jumbo/wiki).
-Jumbo installation instructions are available on the [installation page](https://github.com/adaltas/jumbo/wiki/installation).
+A complete documentation is available at [Jumbo website](http://jumbo.adaltas.com).
+Jumbo installation instructions are available on the [installation page](http://jumbo.adaltas.com/getting-started/installation).
 
-If you want a local documentation, it is also available in Gitbook format in the `docs/` folder. A website is also on its way.
+If you want a local documentation, it is also available in [Gitbook](https://github.com/GitbookIO/gitbook) format in the `docs/` folder.
 
 ## Project roadmap
 

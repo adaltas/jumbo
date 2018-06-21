@@ -9,7 +9,7 @@
 
 ```shell
 **[terminal]
-git clone jumbo jumbo_dir
-cd jumbo_dir
+git clone https://github.com/adaltas/jumbo jumbo
+cd jumbo
 pip install .
 ```
