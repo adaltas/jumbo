@@ -28,12 +28,12 @@ If you want a local documentation, it is also available in [Gitbook](https://git
 
 - [x] Add Kerberos support
 - [x] Add a `-r` option on `addservice` for automatic dependency installation
+- [x] "Proxify" Vagrant commands into Jumbo: `start`, `stop`, `status`, `restart`, `delete`
+- [x] Start HDP services on vagrant start
 - [ ] Add informative commands (info, version, available services...)
 - [ ] Allow custom configurations via JSON (services props, versions, urls...)
 - [ ] Add support for all Ambari services
 - [ ] Generalize HA support
-- [x] "Proxify" Vagrant commands into Jumbo: `start`, `stop`, `status`, `restart`, `delete`
-- [x] Start HDP services on vagrant start
 - [ ] Smart cluster topology based on available ressources
 - [ ] Host the documentation on a website
 - [ ] Allow to dupplicate existing cluster with a different name
