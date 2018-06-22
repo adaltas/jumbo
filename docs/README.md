@@ -4,4 +4,4 @@ This Gitbook contains the documentation of Jumbo - a tool allowing to deploy loc
 
 The versions of Jumbo and of the other project that it relies on (Vagrant, Ansible, etc.) are available [here](versions.md).
 
-![Jumbo shell](https://i.imgur.com/COH3aMm.png)
+![Jumbo shell](https://i.imgur.com/d78Cl2O.png)
