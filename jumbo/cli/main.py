@@ -141,11 +141,7 @@ def use(ctx, name):
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
-<<<<<<< HEAD
-            click.secho('Use "repair" to regenerate "jumbo_config".')
-=======
             click.echo('Use "repair" to regenerate `jumbo_config`.')
->>>>>>> Remove colors for Windows
     else:
         click.echo('Cluster "%s" loaded.' % name)
         set_context(ctx, name)
@@ -305,11 +301,7 @@ def addnode(ctx, name, types, ip, ram, cpus, cluster):
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
-<<<<<<< HEAD
-            click.secho('Use "repair" to regenerate "jumbo_config".')
-=======
             click.echo('Use "repair" to regenerate `jumbo_config`.')
->>>>>>> Remove colors for Windows
         switched = False
     else:
         click.echo('Machine "{}" added to cluster "{}". {}'
@@ -346,11 +338,7 @@ def rmnode(ctx, name, cluster, force):
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
-<<<<<<< HEAD
-            click.secho('Use "repair" to regenerate "jumbo_config"')
-=======
             click.echo('Use "repair" to regenerate `jumbo_config`')
->>>>>>> Remove colors for Windows
         switched = False
     else:
         click.echo('Machine "{}" removed of cluster "{}".'
@@ -380,11 +368,7 @@ def listnodes(cluster):
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
     else:
-<<<<<<< HEAD
-        print_with_colors(node_table)
-=======
         print_colorized_table(vm_table)
->>>>>>> Remove colors for Windows
 
 
 #####################
