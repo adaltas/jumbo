@@ -683,7 +683,7 @@ def start(cluster):
     try:
         vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -695,7 +695,7 @@ def stop(cluster):
     try:
         vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -707,7 +707,7 @@ def status(cluster):
     try:
         vagrant.cmd(['vagrant', 'status', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -720,7 +720,7 @@ def provision(cluster):
         vagrant.cmd(['vagrant', 'up', '--provision', '--color'],
                     cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -733,7 +733,7 @@ def restart(cluster):
         vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
         vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
