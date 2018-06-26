@@ -31,6 +31,11 @@ def cmd(cmd, *, cluster):
 
 
 def start_services():
+    """Call Ambari API to start all services
+       until Ambari server accepts the request
+    """
+    max_retries = 20
+
     ip = None
     for node in ss.svars['nodes']:
         for comp in node['components']:
@@ -44,10 +49,9 @@ def start_services():
                '-d \'{\"RequestInfo\": '
                '{\"context\":\"Start all services\"}, '
                '\"Body\":{\"ServiceInfo\": '
-               '{\"state\":\"STARTED\"}}}\' '
-               + ip
-               + ':8080/api/v1/clusters/'
-               + ss.svars['domain'].replace('.', '') + '/services')
+               '{\"state\":\"STARTED\"}}}\' ' +
+               ip + ':8080/api/v1/clusters/' +
+               ss.svars['domain'].replace('.', '') + '/services')
 
         retries = 0
         accepted = False
@@ -60,7 +64,7 @@ def start_services():
                 accepted = True
                 break
 
-        while not accepted and retries < 10:
+        while not accepted and retries < max_retries:
             print('Server is not up yet. Retrying to start services...')
             time.sleep(5)
             res = subprocess.Popen(cmd,
