@@ -94,9 +94,9 @@ def set_context(ctx, name):
               help='URL to the Ambari repository used for the installation')
 @click.option('--vdf',
               help='URL to the VDF file used for HDP install')
-@click.option('--preset', '-p', help='Preconfigured cluster name')
+@click.option('--template', '-p', help='Preconfigured cluster name')
 @click.pass_context
-def create(ctx, name, domain, ambari_repo, vdf, preset):
+def create(ctx, name, domain, ambari_repo, vdf, template):
     """Create a new cluster.
 
     :param name: New cluster name
@@ -108,7 +108,7 @@ def create(ctx, name, domain, ambari_repo, vdf, preset):
                                 domain=domain,
                                 ambari_repo=ambari_repo,
                                 vdf=vdf,
-                                preset=preset)
+                                template=template)
     except ex.CreationError as e:
         click.secho(e.message, fg='red', err=True)
     except ex.LoadError as e:
