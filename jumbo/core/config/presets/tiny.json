@@ -67,7 +67,7 @@
       "types": [
         "worker"
       ],
-      "cpus": 1,
+      "cpus": 2,
       "components": [
         "HDFS_CLIENT",
         "DATANODE",
