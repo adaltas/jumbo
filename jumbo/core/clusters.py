@@ -20,7 +20,7 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(domain, ambari_repo, vdf, *, cluster):
+def create_cluster(domain, ambari_repo, vdf, preset, *, cluster):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -41,11 +41,20 @@ def create_cluster(domain, ambari_repo, vdf, *, cluster):
                                    'Allowed characters: ' + allowed_chars,
                                    'NameNotAllowed')
 
-    pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
+    ss.clear()
     data_dir = os.path.dirname(os.path.abspath(__file__)) + '/data/'
+    config_dir = os.path.dirname(os.path.abspath(__file__)) + '/config/'
+    if preset:
+        try:
+            with open(config_dir + 'presets/' + preset + '.json') \
+                    as preset_file:
+                ss.svars = json.load(preset_file)
+        except:
+            raise ex.LoadError('preset', preset, 'NotExist')
+
+    pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
     dir_util.copy_tree(data_dir, JUMBODIR + cluster)
     dir_util._path_created = {}
-    ss.clear()
     ss.svars['cluster'] = cluster
     ss.svars['domain'] = domain if domain else '%s.local' % cluster
     ss.svars['urls']['ambari_repo'] = ambari_repo if ambari_repo \

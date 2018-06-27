@@ -1,0 +1,101 @@
+{
+  "cluster": "",
+  "nodes": [
+    {
+      "name": "master01",
+      "ip": "10.10.10.11",
+      "ram": 3072,
+      "types": [
+        "master",
+        "sidemaster"
+      ],
+      "cpus": 1,
+      "components": [
+        "PSQL_SERVER",
+        "AMBARI_SERVER",
+        "HDFS_CLIENT",
+        "NAMENODE",
+        "SECONDARY_NAMENODE",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "RESOURCEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_METASTORE"
+      ],
+      "groups": [
+        "pgsqlserver",
+        "ambariserver",
+        "ambariclient"
+      ]
+    },
+    {
+      "name": "edge01",
+      "ip": "10.10.10.13",
+      "ram": 2048,
+      "types": [
+        "edge"
+      ],
+      "cpus": 1,
+      "components": [
+        "ANSIBLE_CLIENT",
+        "HDFS_CLIENT",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "HISTORYSERVER",
+        "APP_TIMELINE_SERVER",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_SERVER",
+        "WEBHCAT_SERVER"
+      ],
+      "groups": [
+        "ansiblehost",
+        "ambariclient"
+      ]
+    },
+    {
+      "name": "worker01",
+      "ip": "10.10.10.12",
+      "ram": 4096,
+      "types": [
+        "worker"
+      ],
+      "cpus": 1,
+      "components": [
+        "HDFS_CLIENT",
+        "DATANODE",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "NODEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT"
+      ],
+      "groups": [
+        "ambariclient"
+      ]
+    }
+  ],
+  "services": [
+    "ANSIBLE",
+    "POSTGRESQL",
+    "AMBARI",
+    "HDFS",
+    "YARN",
+    "HIVE"
+  ],
+  "urls": {
+    "ambari_repo": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo",
+    "vdf": "http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml"
+  },
+  "domain": ""
+}
