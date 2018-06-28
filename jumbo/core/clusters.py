@@ -21,7 +21,7 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(domain, ambari_repo, vdf, template, *, cluster):
+def create_cluster(domain, ambari_repo, vdf, template=None, *, cluster):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
