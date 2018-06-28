@@ -2,9 +2,7 @@ import json
 import string
 
 from jumbo.utils import session as ss, exceptions as ex
-from jumbo.utils.settings import JUMBODIR
 from jumbo.utils.checks import valid_cluster
-from jumbo.core import clusters
 
 
 @valid_cluster

@@ -667,10 +667,13 @@ def listservices(cluster):
 ####################
 
 @jumbo.command()
+@click.argument('cluster_name', required=False)
 @click.option('--cluster', '-c')
-def start(cluster):
+def start(cluster_name, cluster):
     """Launches the VMs (vagrant up)
     """
+
+    cluster = cluster_name if cluster_name else cluster
 
     if not cluster:
         cluster = ss.svars['cluster']
@@ -682,8 +685,11 @@ def start(cluster):
 
 
 @jumbo.command()
+@click.argument('cluster_name', required=False)
 @click.option('--cluster', '-c')
-def stop(cluster):
+def stop(cluster_name, cluster):
+    cluster = cluster_name if cluster_name else cluster
+
     if not cluster:
         cluster = ss.svars['cluster']
 
@@ -694,8 +700,11 @@ def stop(cluster):
 
 
 @jumbo.command()
+@click.argument('cluster_name', required=False)
 @click.option('--cluster', '-c')
-def status(cluster):
+def status(cluster_name, cluster):
+    cluster = cluster_name if cluster_name else cluster
+
     if not cluster:
         cluster = ss.svars['cluster']
 
@@ -706,8 +715,11 @@ def status(cluster):
 
 
 @jumbo.command()
+@click.argument('cluster_name', required=False)
 @click.option('--cluster', '-c')
-def provision(cluster):
+def provision(cluster_name, cluster):
+    cluster = cluster_name if cluster_name else cluster
+
     if not cluster:
         cluster = ss.svars['cluster']
 
@@ -719,8 +731,11 @@ def provision(cluster):
 
 
 @jumbo.command()
+@click.argument('cluster_name', required=False)
 @click.option('--cluster', '-c')
-def restart(cluster):
+def restart(cluster_name, cluster):
+    cluster = cluster_name if cluster_name else cluster
+
     if not cluster:
         cluster = ss.svars['cluster']
 

@@ -12,6 +12,7 @@ def cmd(cmd, *, cluster):
     """Run a command in the vagrantfile folder and print output
     """
 
+    ss.load_config(cluster)
     try:
         res = subprocess.Popen(cmd,
                                cwd=os.path.join(JUMBODIR, cluster),
