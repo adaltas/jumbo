@@ -9,6 +9,7 @@ from shutil import rmtree
 from jumbo.utils.settings import JUMBODIR, DEFAULT_URLS
 from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils import checks
+from jumbo.core import services
 
 
 def check_config(name):
@@ -61,7 +62,12 @@ def create_cluster(domain, ambari_repo, vdf, template, *, cluster):
         else DEFAULT_URLS['ambari_repo']
     ss.svars['urls']['vdf'] = vdf if vdf \
         else DEFAULT_URLS['vdf']
-    ss.dump_config()
+
+    services_components_hosts = None
+    if template:
+        services_components_hosts = services.get_services_components_hosts()
+
+    ss.dump_config(services_components_hosts)
     return True
 
 
