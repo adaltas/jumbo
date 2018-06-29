@@ -48,6 +48,7 @@ def jumbo(ctx, cluster):
     sh.add_command(stop)
     sh.add_command(status)
     sh.add_command(provision)
+    sh.add_command(ssh)
     sh.add_command(restart)
 
     # If cluster exists, call manage command (saves the shell in session
@@ -728,6 +729,31 @@ def provision(cluster_name, cluster):
                     cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         click.secho(e.message, fg='red', err=True)
+
+
+@jumbo.command()
+@click.argument('name')
+@click.option('--cluster', '-c')
+@click.pass_context
+def ssh(ctx, name, cluster):
+    """
+    Open a SSH connection into a VM in the cluster being managed.
+    Another cluster can be specified with "--cluster".
+
+    :param name: VM name
+    """
+    switched = True if cluster else False
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vagrant.cmd(['vagrant', 'ssh', name + '_' + cluster], cluster=cluster)
+    except (ex.LoadError) as e:
+        click.secho(e.message, fg='red', err=True)
+        switched = False
+    finally:
+        if switched:
+            set_context(ctx, cluster)
 
 
 @jumbo.command()
