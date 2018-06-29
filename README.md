@@ -46,6 +46,11 @@ Jumbo is a very recent project. We would be happy to have feedback so don't hesi
 
 Jumbo was developed by [Gauthier Leonard](https://github.com/Nuttymoon) and [Xavier Hermand](https://github.com/RReivax) at [Adaltas](http://adaltas.com).
 
+## Contributors
+
+- [Pierre Sauvage](https://github.com/Pierrotws)
+- [Oscar Blazejewski](https://github.com/scascar)
+
 ## License
 
 Jumbo is licensed under MIT License. See [LICENSE](LICENSE) for the full license text.
