@@ -1,6 +1,50 @@
 {
-  "cluster": "tiny",
+  "cluster": "small-min-krb5",
   "nodes": [
+    {
+      "name": "ldap01",
+      "ip": "10.10.10.2",
+      "ram": 1024,
+      "types": [
+        "ldap"
+      ],
+      "cpus": 1,
+      "components": [
+        "IPA_SERVER"
+      ],
+      "groups": [
+        "ipaserver"
+      ]
+    },
+    {
+      "name": "edge01",
+      "ip": "10.10.10.10",
+      "ram": 1024,
+      "types": [
+        "edge"
+      ],
+      "cpus": 1,
+      "components": [
+        "ANSIBLE_CLIENT",
+        "HDFS_CLIENT",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "HISTORYSERVER",
+        "APP_TIMELINE_SERVER",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_SERVER",
+        "WEBHCAT_SERVER"
+      ],
+      "groups": [
+        "ansiblehost",
+        "ambariclient",
+        "ipaclient"
+      ]
+    },
     {
       "name": "master01",
       "ip": "10.10.10.11",
@@ -29,40 +73,13 @@
       "groups": [
         "pgsqlserver",
         "ambariserver",
-        "ambariclient"
-      ]
-    },
-    {
-      "name": "edge01",
-      "ip": "10.10.10.13",
-      "ram": 2048,
-      "types": [
-        "edge"
-      ],
-      "cpus": 1,
-      "components": [
-        "ANSIBLE_CLIENT",
-        "HDFS_CLIENT",
-        "YARN_CLIENT",
-        "MAPREDUCE2_CLIENT",
-        "SLIDER",
-        "PIG",
-        "TEZ_CLIENT",
-        "HISTORYSERVER",
-        "APP_TIMELINE_SERVER",
-        "HCAT",
-        "HIVE_CLIENT",
-        "HIVE_SERVER",
-        "WEBHCAT_SERVER"
-      ],
-      "groups": [
-        "ansiblehost",
-        "ambariclient"
+        "ambariclient",
+        "ipaclient"
       ]
     },
     {
       "name": "worker01",
-      "ip": "10.10.10.12",
+      "ip": "10.10.10.21",
       "ram": 4096,
       "types": [
         "worker"
@@ -81,7 +98,8 @@
         "HIVE_CLIENT"
       ],
       "groups": [
-        "ambariclient"
+        "ambariclient",
+        "ipaclient"
       ]
     }
   ],
@@ -91,7 +109,8 @@
     "AMBARI",
     "HDFS",
     "YARN",
-    "HIVE"
+    "HIVE",
+    "FREEIPA"
   ],
   "urls": {
     "ambari_repo": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo",

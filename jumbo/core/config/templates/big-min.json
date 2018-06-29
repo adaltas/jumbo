@@ -1,6 +1,28 @@
 {
-  "cluster": "biggy",
+  "cluster": "big-min",
   "nodes": [
+    {
+      "name": "edge01",
+      "ip": "10.10.10.10",
+      "ram": 1024,
+      "types": [
+        "edge"
+      ],
+      "cpus": 1,
+      "components": [
+        "ANSIBLE_CLIENT",
+        "ZOOKEEPER_CLIENT",
+        "HDFS_CLIENT",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG"
+      ],
+      "groups": [
+        "ansiblehost",
+        "ambariclient"
+      ]
+    },
     {
       "name": "master01",
       "ip": "10.10.10.11",
@@ -19,15 +41,10 @@
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
-        "PIG",
-        "TEZ_CLIENT",
-        "RESOURCEMANAGER",
-        "HCAT",
-        "HIVE_CLIENT"
+        "PIG"
       ],
       "groups": [
-        "ambariclient",
-        "ipaclient"
+        "ambariclient"
       ]
     },
     {
@@ -48,15 +65,10 @@
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
-        "PIG",
-        "TEZ_CLIENT",
-        "RESOURCEMANAGER",
-        "HCAT",
-        "HIVE_CLIENT"
+        "PIG"
       ],
       "groups": [
-        "ambariclient",
-        "ipaclient"
+        "ambariclient"
       ]
     },
     {
@@ -77,52 +89,17 @@
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
-        "PIG",
-        "TEZ_CLIENT",
-        "HCAT",
-        "HIVE_CLIENT",
-        "HIVE_METASTORE"
+        "PIG"
       ],
       "groups": [
         "pgsqlserver",
         "ambariserver",
-        "ambariclient",
-        "ipaclient"
-      ]
-    },
-    {
-      "name": "edge01",
-      "ip": "10.10.10.14",
-      "ram": 2048,
-      "types": [
-        "edge"
-      ],
-      "cpus": 1,
-      "components": [
-        "ANSIBLE_CLIENT",
-        "ZOOKEEPER_CLIENT",
-        "HDFS_CLIENT",
-        "YARN_CLIENT",
-        "MAPREDUCE2_CLIENT",
-        "SLIDER",
-        "PIG",
-        "TEZ_CLIENT",
-        "HISTORYSERVER",
-        "APP_TIMELINE_SERVER",
-        "HCAT",
-        "HIVE_CLIENT",
-        "HIVE_SERVER",
-        "WEBHCAT_SERVER"
-      ],
-      "groups": [
-        "ansiblehost",
-        "ambariclient",
-        "ipaclient"
+        "ambariclient"
       ]
     },
     {
       "name": "worker01",
-      "ip": "10.10.10.15",
+      "ip": "10.10.10.21",
       "ram": 4096,
       "types": [
         "worker"
@@ -137,18 +114,15 @@
         "SLIDER",
         "PIG",
         "TEZ_CLIENT",
-        "NODEMANAGER",
-        "HCAT",
-        "HIVE_CLIENT"
+        "NODEMANAGER"
       ],
       "groups": [
-        "ambariclient",
-        "ipaclient"
+        "ambariclient"
       ]
     },
     {
       "name": "worker02",
-      "ip": "10.10.10.16",
+      "ip": "10.10.10.22",
       "ram": 4096,
       "types": [
         "worker"
@@ -163,28 +137,10 @@
         "SLIDER",
         "PIG",
         "TEZ_CLIENT",
-        "NODEMANAGER",
-        "HCAT",
-        "HIVE_CLIENT"
+        "NODEMANAGER"
       ],
       "groups": [
-        "ambariclient",
-        "ipaclient"
-      ]
-    },
-    {
-      "name": "ldap01",
-      "ip": "10.10.10.17",
-      "ram": 2048,
-      "types": [
-        "ldap"
-      ],
-      "cpus": 1,
-      "components": [
-        "IPA_SERVER"
-      ],
-      "groups": [
-        "ipaserver"
+        "ambariclient"
       ]
     }
   ],
@@ -194,9 +150,7 @@
     "AMBARI",
     "ZOOKEEPER",
     "HDFS",
-    "YARN",
-    "HIVE",
-    "FREEIPA"
+    "YARN"
   ],
   "urls": {
     "ambari_repo": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo",

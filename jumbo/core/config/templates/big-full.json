@@ -1,0 +1,184 @@
+{
+  "cluster": "big-full",
+  "nodes": [
+    {
+      "name": "edge01",
+      "ip": "10.10.10.10",
+      "ram": 1024,
+      "types": [
+        "edge"
+      ],
+      "cpus": 1,
+      "components": [
+        "ANSIBLE_CLIENT",
+        "ZOOKEEPER_CLIENT",
+        "HDFS_CLIENT",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "HISTORYSERVER",
+        "APP_TIMELINE_SERVER",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_SERVER",
+        "WEBHCAT_SERVER"
+      ],
+      "groups": [
+        "ansiblehost",
+        "ambariclient"
+      ]
+    },
+    {
+      "name": "master01",
+      "ip": "10.10.10.11",
+      "ram": 2048,
+      "types": [
+        "master"
+      ],
+      "cpus": 1,
+      "components": [
+        "ZOOKEEPER_CLIENT",
+        "ZOOKEEPER_SERVER",
+        "HDFS_CLIENT",
+        "NAMENODE",
+        "JOURNALNODE",
+        "ZKFC",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "RESOURCEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT"
+      ],
+      "groups": [
+        "ambariclient"
+      ]
+    },
+    {
+      "name": "master02",
+      "ip": "10.10.10.12",
+      "ram": 2048,
+      "types": [
+        "master"
+      ],
+      "cpus": 1,
+      "components": [
+        "ZOOKEEPER_CLIENT",
+        "ZOOKEEPER_SERVER",
+        "HDFS_CLIENT",
+        "NAMENODE",
+        "JOURNALNODE",
+        "ZKFC",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "RESOURCEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT"
+      ],
+      "groups": [
+        "ambariclient"
+      ]
+    },
+    {
+      "name": "master03",
+      "ip": "10.10.10.13",
+      "ram": 2048,
+      "types": [
+        "sidemaster"
+      ],
+      "cpus": 1,
+      "components": [
+        "PSQL_SERVER",
+        "AMBARI_SERVER",
+        "ZOOKEEPER_CLIENT",
+        "ZOOKEEPER_SERVER",
+        "HDFS_CLIENT",
+        "JOURNALNODE",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_METASTORE"
+      ],
+      "groups": [
+        "pgsqlserver",
+        "ambariserver",
+        "ambariclient"
+      ]
+    },
+    {
+      "name": "worker01",
+      "ip": "10.10.10.21",
+      "ram": 4096,
+      "types": [
+        "worker"
+      ],
+      "cpus": 2,
+      "components": [
+        "ZOOKEEPER_CLIENT",
+        "HDFS_CLIENT",
+        "DATANODE",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "NODEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT"
+      ],
+      "groups": [
+        "ambariclient"
+      ]
+    },
+    {
+      "name": "worker02",
+      "ip": "10.10.10.22",
+      "ram": 4096,
+      "types": [
+        "worker"
+      ],
+      "cpus": 2,
+      "components": [
+        "ZOOKEEPER_CLIENT",
+        "HDFS_CLIENT",
+        "DATANODE",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "NODEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT"
+      ],
+      "groups": [
+        "ambariclient"
+      ]
+    }
+  ],
+  "services": [
+    "ANSIBLE",
+    "POSTGRESQL",
+    "AMBARI",
+    "ZOOKEEPER",
+    "HDFS",
+    "YARN",
+    "HIVE"
+  ],
+  "urls": {
+    "ambari_repo": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo",
+    "vdf": "http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml"
+  },
+  "domain": ""
+}
