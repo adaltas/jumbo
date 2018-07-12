@@ -24,7 +24,7 @@ If you want a local documentation, it is also available in [Gitbook](https://git
 
 ## Project roadmap
 
-**Current version: [v0.4.2](https://github.com/adaltas/jumbo/wiki/versions)**
+**Current version: [v0.4.2](http://jumbo.adaltas.com/overview/versions)**
 
 - [x] Add Kerberos support
 - [x] Add a `-r` option on `addservice` for automatic dependency installation
