@@ -2,7 +2,7 @@
 
 ## Add service
 
-**Command: `addservice [name]`**
+**Command: `addservice <name>`**
 
 Add a service to a cluster and install the service's clients on all nodes. By default, also auto-install the service's components on the best fitting hosts.  
 The list of the services is available in the [Supported services](../supported.md) section.
@@ -17,7 +17,7 @@ The list of the services is available in the [Supported services](../supported.m
 ---
 ## Check service
 
-**Command: `checkservice [name]`**
+**Command: `checkservice <name>`**
 
 Check if a service is complete (if all the components needed for it to be functional are installed) on a cluster. If not, a list of the missing components is given.
 
@@ -43,7 +43,7 @@ If a service misses components, they are listed.
 ---
 ## Remove service
 
-**Command: `rmservice [name]`**
+**Command: `rmservice <name>`**
 
 Remove a service and all its components of a cluster. A service cannot be deleted if other services depend on it.
 

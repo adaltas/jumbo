@@ -2,7 +2,7 @@
 
 ## Add component
 
-**Command: `addcomponent [name]`**
+**Command: `addcomponent <name>`**
 
 Add a component to a node.
 The list of the components is available in the [Supported services](../supported.md) section.
@@ -28,7 +28,7 @@ List the components installed on a node.
 ---
 ## Remove component
 
-**Command: `rmcomponent [name]`**
+**Command: `rmcomponent <name>`**
 
 Remove a component of a node.
 

@@ -46,8 +46,8 @@ Cluster "mycluster" created (domain name = "mycluster.local").
 +----------+--------------------+-------------+----------+------+
 ```
 
-If this is your first time using Jumbo, we still recommend following this tutorial to learn everything you need to know!  
-See the list of available templates on the Github repo ([jumbo/core/config/templates/docs](https://github.com/adaltas/jumbo/tree/master/jumbo/core/config/templates/docs))
+If this is your first time using Jumbo, we recommend following this tutorial to learn everything you need to know, but you can jump straight to [Cluster provisioning](provisioning.md) from here.  
+See the list of available templates on the Github repo ([templates/docs](https://github.com/adaltas/jumbo/tree/master/jumbo/core/config/templates/docs)).
 
 ## Virtual machine creation
 

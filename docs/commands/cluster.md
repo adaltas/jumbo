@@ -2,20 +2,21 @@
 
 ## Create
 
-**Command: `create [name]`**
+**Command: `create <name>`**
 
 Create a new empty cluster with a specified name. After the cluster creation, the context is automatically set to this cluster.
 
 **Options**
 
 - `--domain DOMAIN` or `-d DOMAIN` - Specify a domain name for the cluster. By default, it is generated as `<name>.local`. The domain name is used for nodes urls and for the Kerberos realm which is the domain in uppercase letters.
+- `--template TEMPLATE` or `-t TEMPLATE` - Use a template to configure the cluster. See the list of available templates on the Github repo ([templates/docs](https://github.com/adaltas/jumbo/tree/master/jumbo/core/config/templates/docs)).
 - `--ambari-repo REPO-URL` - Specify the url where the Ambari repository should be downloaded. By default, it is the official repository of Ambari 2.6.1.5 (http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo).
 - `--vdf VDF-URL` - Specify the url where the [VDF file](https://docs.hortonworks.com/HDPDocuments/Ambari-2.6.0.0/bk_ambari-release-notes/content/ambari_relnotes-2.6.0.0-behavioral-changes.html) for the HDP stack should be downloaded. By default, it is the official VDF file for HDP 2.6.4.0 (http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml).
 
 ---
 ## Delete
 
-**Command: `delete [name]`**
+**Command: `delete <name>`**
 
 Delete a cluster previously created. On deletion, the Vagrant virtual machines of the cluster are also destroyed.
 
@@ -42,7 +43,7 @@ List all the clusters managed by Jumbo. The list contains details about the doma
 ---
 ## Provision
 
-**Command: `provision`**
+**Command: `provision [name]`**
 
 Start the virtual machines and force provisioning.
 
@@ -53,14 +54,14 @@ Start the virtual machines and force provisioning.
 ---
 ## Repair
 
-**Command: `repair [name]`**
+**Command: `repair <name>`**
 
 Recreate a `jumbo_config` file for a cluster if it has been destroyed. If this is the case, Jumbo will let you know with an error message.
 
 ---
 ## Restart
 
-**Command: `restart`**
+**Command: `restart [name]`**
 
 Restart the virtual machines of a cluster.
 
@@ -71,7 +72,7 @@ Restart the virtual machines of a cluster.
 ---
 ## Set repo
 
-**Command: `setrepo [name]`**
+**Command: `setrepo <name>`**
 
 Set an URL to use for repositories downloads. The repositories that can be set are `ambari_repo` and `vdf`. See the [Advanced usage](../advanced-usage.md) section for more details.
 
@@ -83,7 +84,7 @@ Set an URL to use for repositories downloads. The repositories that can be set a
 ---
 ## Start
 
-**Command: `start`**
+**Command: `start [name]`**
 
 Start the virtual machines of a cluster. Once started, starts the Hadoop services. **The first time**, it will start the virtual machines and install all components.
 
@@ -94,7 +95,7 @@ Start the virtual machines of a cluster. Once started, starts the Hadoop service
 ---
 ## Status
 
-**Command: `status`**
+**Command: `status [name]`**
 
 Give the status of the virtual machines of a cluster.
 
@@ -105,7 +106,7 @@ Give the status of the virtual machines of a cluster.
 ---
 ## Stop 
 
-**Command: `stop`**
+**Command: `stop [name]`**
 
 Stop the virtual machines of a cluster.
 
@@ -116,7 +117,7 @@ Stop the virtual machines of a cluster.
 ---
 ## Use
 
-**Command: `use [name]`**
+**Command: `use <name>`**
 
 > **info**
 > Only usefull in the Jumbo shell.
