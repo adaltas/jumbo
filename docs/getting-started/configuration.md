@@ -27,6 +27,28 @@ Cluster "anothercluster" loaded.
 **[prompt jumbo (anothercluster) > ]
 ```
 
+### If you are in a hurry, use templates
+
+When creating a cluster, you can reference a template. The cluster will then be configured in one second:
+
+```
+**[terminal]
+**[prompt jumbo > ]**[command create mycluster --template small-full]
+Creating mycluster...
+Cluster "mycluster" created (domain name = "mycluster.local").
+**[prompt jumbo (mycluster) > ]**[command listnodes]
++----------+--------------------+-------------+----------+------+
+|   Name   |       Types        |      IP     | RAM (MB) | CPUs |
++----------+--------------------+-------------+----------+------+
+|  edge01  |        edge        | 10.10.10.10 |   1024   |  1   |
+| master01 | master, sidemaster | 10.10.10.11 |   3072   |  1   |
+| worker01 |       worker       | 10.10.10.21 |   4096   |  2   |
++----------+--------------------+-------------+----------+------+
+```
+
+If this is your first time using Jumbo, we still recommend following this tutorial to learn everything you need to know!  
+See the list of available templates on the Github repo ([jumbo/core/config/templates/docs](https://github.com/adaltas/jumbo/tree/master/jumbo/core/config/templates/docs))
+
 ## Virtual machine creation
 
 Now that we have created our cluster, lets add 3 virtual machines to it:

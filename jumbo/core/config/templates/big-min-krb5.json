@@ -172,7 +172,8 @@
     "ZOOKEEPER",
     "HDFS",
     "YARN",
-    "FREEIPA"
+    "FREEIPA",
+    "KERBEROS"
   ],
   "urls": {
     "ambari_repo": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo",
