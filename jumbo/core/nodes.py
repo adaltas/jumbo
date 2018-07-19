@@ -57,6 +57,34 @@ def add_node(name, ip, ram, types, cpus=1, *,
     ss.add_node(m)
     ss.dump_config()
 
+@valid_cluster
+def edit_node(name, ip, ram, cpus=1, *,
+             cluster):
+    """Modify an existing node in a cluster cluster.
+
+    """
+    if check_node(cluster=cluster, node=name):
+        raise ex.CreationError('node', name, 'name', name, 'Exists')
+
+    if check_ip(ip, cluster=cluster):
+        raise ex.CreationError('node', name, 'IP', ip, 'Exists')
+
+    if name[0] in string.digits:
+        raise ex.CreationError('node', name, 'name',
+                               'A node name cannot start with a digit.',
+                               'NameNotAllowed')
+
+    m = {
+        'name': name,
+        'ip': ip,
+        'ram': ram,
+        'cpus': cpus,
+    }
+
+    ss.load_config(cluster=cluster)
+    ss.edit_node(m)
+    ss.dump_config()
+
 
 @valid_cluster
 def remove_node(*, cluster, node):

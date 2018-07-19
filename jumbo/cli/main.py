@@ -752,6 +752,45 @@ def restart(cluster_name, cluster):
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
+@jumbo.command()
+@click.argument('node', required=True)
+@click.option('--ip', '-i', callback=validate_ip_cb, prompt='IP',
+              help='VM new IP address')
+@click.option('--ram', '-r', type=int, prompt='RAM (MB)',
+              help='RAM allocated to the VM in MB')
+@click.option('--cpus', '-p', default=1,
+              help='Number of CPUs allocated to the VM')
+@click.option('--cluster', '-c')
+@click.pass_context
+
+def editnode(ctx, name, types, ip, ram, cpus, cluster):
+    """
+    Modifies an already existing VM in the cluster being managed.
+
+    """
+
+    switched = True if cluster else False
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+
+    try:
+        nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
+        count = services.auto_install_node(name, cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
+        if e.type == 'NoConfFile':
+            click.echo('Use "repair" to regenerate `jumbo_config`.')
+        switched = False
+    else:
+        click.echo('Machine "{}" modified in cluster "{}". {}'
+                   .format(name, cluster,
+                           '{} clients auto installed on "{}".'
+                           .format(count, name) if count else ''))
+    finally:
+        if switched:
+            set_context(ctx, cluster)
+
 
 @jumbo.command()
 def logo():
