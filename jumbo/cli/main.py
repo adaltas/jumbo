@@ -26,11 +26,12 @@ def jumbo(ctx, cluster):
     """
 
     # Create the shell
-    sh = Shell(prompt=click.style('jumbo > ', fg='green') if OS != 'Windows' else 'jumbo > ',
+    sh = Shell(prompt=click.style('jumbo > ', fg='green') if OS != 'Windows'
+               else 'jumbo > ',
                intro=printlogo.jumbo_ascii() +
                '\nJumbo Shell. Enter "help" for list of supported commands.' +
                ' Type "quit" to leave the Jumbo Shell.' +
-               click.style('\nJumbo v0.4.1',
+               click.style('\nJumbo v0.4.2',
                            fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
     ctx.meta['jumbo_shell'] = sh.shell
@@ -370,7 +371,7 @@ def listnodes(cluster):
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
     else:
-        print_colorized_table(vm_table)
+        print_colorized_table(node_table)
 
 
 #####################
