@@ -6,6 +6,14 @@ from prettytable import PrettyTable
 from jumbo.core import clusters, nodes, services, vagrant
 from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
+from jumbo.utils.settings import OS
+
+
+def print_with_color(message, color):
+    if OS != 'Windows':
+        click.secho(message, fg=color)
+    else:
+        click.echo(message)
 
 
 @click.group(invoke_without_command=True)
@@ -18,11 +26,12 @@ def jumbo(ctx, cluster):
     """
 
     # Create the shell
-    sh = Shell(prompt=click.style('jumbo > ', fg='green'),
+    sh = Shell(prompt=click.style('jumbo > ', fg='green') if OS != 'Windows'
+               else 'jumbo > ',
                intro=printlogo.jumbo_ascii() +
                '\nJumbo Shell. Enter "help" for list of supported commands.' +
                ' Type "quit" to leave the Jumbo Shell.' +
-               click.style('\nJumbo v0.4.1',
+               click.style('\nJumbo v0.4.2',
                            fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
     ctx.meta['jumbo_shell'] = sh.shell
@@ -83,8 +92,9 @@ def exit(ctx):
 ####################
 
 def set_context(ctx, name):
+    to_print = 'jumbo (%s) > ' % name
     ctx.meta['jumbo_shell'].prompt = click.style(
-        'jumbo (%s) > ' % name, fg='green')
+        to_print, fg='green') if OS != 'Windows' else to_print
 
 
 @jumbo.command()
@@ -110,9 +120,7 @@ def create(ctx, name, domain, ambari_repo, vdf, template):
                                 vdf=vdf,
                                 template=template)
     except ex.CreationError as e:
-        click.secho(e.message, fg='red', err=True)
-    except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     else:
         click.echo('Cluster "{}" created (domain name = "{}").'.format(
             name,
@@ -134,9 +142,9 @@ def use(ctx, name):
     try:
         ss.load_config(cluster=name)
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
-            click.secho('Use "repair" to regenerate "jumbo_config".')
+            click.echo('Use "repair" to regenerate `jumbo_config`.')
     else:
         click.echo('Cluster "%s" loaded.' % name)
         set_context(ctx, name)
@@ -160,7 +168,7 @@ def delete(ctx, name, force):
     try:
         clusters.delete_cluster(cluster=name)
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     else:
         click.echo('Cluster "%s" deleted.' % name)
         ss.clear()
@@ -191,7 +199,7 @@ def listclusters(full):
                                    '\n'.join(cluster['services']),
                                    '\n'.join(urls)])
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
             click.echo('Use "repair" to regenerate "jumbo_config".')
     else:
@@ -243,7 +251,7 @@ def setrepo(ctx, name, value, cluster):
                          value=value,
                          cluster=cluster)
     except (ex.CreationError, ex.LoadError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         switched = False
     else:
         click.echo('"{}" of cluster "{}" set to {}'
@@ -294,9 +302,9 @@ def addnode(ctx, name, types, ip, ram, cpus, cluster):
         nodes.add_node(name, ip, ram, types, cpus, cluster=cluster)
         count = services.auto_install_node(name, cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
-            click.secho('Use "repair" to regenerate "jumbo_config".')
+            click.echo('Use "repair" to regenerate `jumbo_config`.')
         switched = False
     else:
         click.echo('Machine "{}" added to cluster "{}". {}'
@@ -331,9 +339,9 @@ def rmnode(ctx, name, cluster, force):
     try:
         nodes.remove_node(cluster=cluster, node=name)
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
-            click.secho('Use "repair" to regenerate "jumbo_config"')
+            click.echo('Use "repair" to regenerate `jumbo_config`')
         switched = False
     else:
         click.echo('Machine "{}" removed of cluster "{}".'
@@ -361,9 +369,9 @@ def listnodes(cluster):
             node_table.add_row([m['name'], ', '.join(m['types']), m['ip'],
                                 m['ram'], m['cpus']])
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     else:
-        print_with_colors(node_table)
+        print_colorized_table(node_table)
 
 
 #####################
@@ -433,13 +441,13 @@ def addservice(ctx, name, cluster, no_auto, ha, recursive):
                             's' if count > 1 else '',
                             's' if count > 1 else ''))
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         switched = False
         if e.type == 'NotExist':
             click.echo('Available services:\n - %s'
                        % '\n - '.join(services.get_available_services()))
     except ex.CreationError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     else:
         click.echo('Service "{}" and related clients added to cluster "{}".\n'
                    .format(name, cluster) + msg)
@@ -470,9 +478,9 @@ def rmservice(ctx, service, cluster, force):
     try:
         services.remove_service(service, cluster=cluster)
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     except ex.CreationError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         switched = True
     else:
         click.echo('Service "{}" and its components removed from cluster "{}".'
@@ -498,10 +506,10 @@ def addcomponent(ctx, name, node, cluster):
     try:
         services.add_component(name, node=node, cluster=cluster)
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         switched = False
     except ex.CreationError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     else:
         click.echo('Component "{}" added to node "{}/{}".'
                    .format(name, cluster, node))
@@ -535,10 +543,10 @@ def rmcomponent(ctx, name, node, cluster, force):
                                   node=node,
                                   cluster=cluster)
     except ex.LoadError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
         switched = False
     except ex.CreationError as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     else:
         click.echo('Component "{}" removed of node "{}/{}"'
                    .format(name, cluster, node))
@@ -576,9 +584,9 @@ def listcomponents(node, cluster, all, abbr):
                     ])
                     comp_table.sortby = 'Service'
             except ex.LoadError as e:
-                click.secho(e.message, fg='red', err=True)
+                print_with_color(e.message, 'red')
             else:
-                print_with_colors(comp_table)
+                print_colorized_table(comp_table)
 
     else:
         if node is None:
@@ -598,9 +606,9 @@ def listcomponents(node, cluster, all, abbr):
                 ])
                 comp_table.sortby = 'Service'
         except ex.LoadError as e:
-            click.secho(e.message, fg='red', err=True)
+            print_with_color(e.message, 'red')
         else:
-            print_with_colors(comp_table)
+            print_colorized_table(comp_table)
 
 
 @jumbo.command()
@@ -619,7 +627,7 @@ def checkservice(name, cluster):
         missing_comp = services.check_service_complete(name=name,
                                                        cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     else:
         if missing_comp:
             click.echo('The service "{}" misses:\n{}'
@@ -657,7 +665,7 @@ def listservices(cluster):
                                 print_missing])
         table_serv.sortby = 'Service'
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
     else:
         click.echo(table_serv)
 
@@ -681,7 +689,7 @@ def start(cluster_name, cluster):
     try:
         vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -696,7 +704,7 @@ def stop(cluster_name, cluster):
     try:
         vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -711,7 +719,7 @@ def status(cluster_name, cluster):
     try:
         vagrant.cmd(['vagrant', 'status', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -727,7 +735,7 @@ def provision(cluster_name, cluster):
         vagrant.cmd(['vagrant', 'up', '--provision', '--color'],
                     cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -743,7 +751,7 @@ def restart(cluster_name, cluster):
         vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
         vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
-        click.secho(e.message, fg='red', err=True)
+        print_with_color(e.message, 'red')
 
 
 @jumbo.command()
@@ -754,15 +762,21 @@ def logo():
     click.echo(printlogo.jumbo_ascii())
 
 
-def print_with_colors(table):
+def print_colorized_table(table):
     to_print = []
-    color = False
-    lines = table.get_string().split('\n')
-    for i, l in enumerate(lines):
-        if i > 2 and lines[i] != lines[-1]:
-            to_print.append(click.style(l, fg='blue' if color else 'white'))
-            color = not color
-        else:
-            to_print.append(l)
+
+    if OS != 'Windows':
+        color = False
+        lines = table.get_string().split('\n')
+        for i, l in enumerate(lines):
+            if i > 2 and lines[i] != lines[-1]:
+                to_print.append(click.style(
+                    l, fg='blue' if color else 'white'))
+                color = not color
+            else:
+                to_print.append(l)
+    else:
+        to_print = table
+
     for l in to_print:
         click.echo(l)
