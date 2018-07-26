@@ -1,0 +1,16 @@
+---
+- name: Download version 9.4
+  yum:
+    name: "{{ services.POSTGRESQL.url }}"
+
+- name: Install version 9.4
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - postgresql94
+    - postgresql94-server
+
+- name: Initiate database
+  command: /usr/pgsql-9.4/bin/postgresql94-setup initdb
+           creates=/var/lib/pgsql/data/postgresql.conf
+  ignore_errors: yes

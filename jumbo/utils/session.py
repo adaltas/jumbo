@@ -1,6 +1,7 @@
 from jinja2 import Environment, PackageLoader
 import json
 import yaml
+import os
 
 from jumbo.utils import exceptions as ex, checks
 from jumbo.utils.settings import JUMBODIR, NOT_HADOOP_COMP
@@ -57,8 +58,8 @@ def dump_config(services_components_hosts=None):
             vf.write(hosts_temp.render(hosts=svars['nodes']))
 
         with open(JUMBODIR + svars['cluster'] +
-                  '/playbooks/inventory/group_vars/all', 'w') as vf:
-            yaml.dump(generate_ansible_vars(), vf, default_flow_style=False,
+                  '/playbooks/inventory/group_vars/all', 'w') as gva:
+            yaml.dump(generate_ansible_vars(), gva, default_flow_style=False,
                       explicit_start=True)
 
         if services_components_hosts:
@@ -232,6 +233,38 @@ def get_ipaserver_host():
             return fqdn(node['name'])
 
 
+def get_versions():
+    """Get the versions to use for each service/platform/ressource
+
+    :raises ex.LoadError: If the file versions.json doesn't exist
+    :return: The versions to use
+    :rtype: dict
+    """
+
+    versions = {
+        'services': {}
+    }
+
+    if not os.path.isfile(JUMBODIR + 'versions.json'):
+        raise ex.LoadError('file', JUMBODIR + 'versions.json', 'NotExist')
+
+    if os.path.isfile(JUMBODIR + svars['cluster'] + '/versions.json'):
+        with open(JUMBODIR + svars['cluster'] + '/versions.json', 'r') as vs:
+            user_versions = json.load(vs)
+    else:
+        with open(JUMBODIR + 'versions.json', 'r') as vs:
+            user_versions = json.load(vs)
+
+    for s in user_versions['services']:
+        use_version = [v for v in s['versions']
+                       if v['version'] == s['default']][0]
+        versions['services'].update({
+            s['name']: use_version
+        })
+
+    return versions
+
+
 def generate_ansible_vars():
     """Generate the group_vars/all variables for Ansible playbooks.
 
@@ -245,7 +278,7 @@ def generate_ansible_vars():
         if 'pgsqlserver' in m['groups']:
             pgsqlserver = m['name']
 
-    return {
+    ansible_vars = {
         'domain': svars['domain'],
         'realm': svars['domain'].upper(),
         'ipa_dm_password': 'dm_p4ssw0rd',
@@ -263,6 +296,10 @@ def generate_ansible_vars():
         },
         'kerberos_enabled': ('KERBEROS' in svars['services'])
     }
+
+    ansible_vars.update(get_versions())
+
+    return ansible_vars
 
 
 def bp_create_conf_section(section):
@@ -819,8 +856,8 @@ def generate_krb5_conf():
                 dns_lookup_realm = false
                 dns_lookup_kdc = false
                 default_ccache_name = /tmp/krb5cc_%{uid}
-                #default_tgs_enctypes = {{encryption_types}}
-                #default_tkt_enctypes = {{encryption_types}}
+                # default_tgs_enctypes = {{encryption_types}}
+                # default_tkt_enctypes = {{encryption_types}}
               {% if domains %}
               [domain_realm]
               {%- for domain in domains.split(',') %}
