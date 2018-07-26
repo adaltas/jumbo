@@ -1,30 +1,3 @@
 {
-    "services": [
-        {
-            "name": "POSTGRESQL",
-            "versions": [
-                {
-                    "version": "9.3",
-                    "url": "https://download.postgresql.org/pub/repos/yum/9.3/redhat/rhel-7-x86_64/pgdg-centos93-9.3-3.noarch.rpm"
-                },
-                {
-                    "version": "9.4",
-                    "url": "https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-7-x86_64/pgdg-centos94-9.4-3.noarch.rpm"
-                },
-                {
-                    "version": "9.5",
-                    "url": "https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-3.noarch.rpm"
-                },
-                {
-                    "version": "9.6",
-                    "url": "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm"
-                },
-                {
-                    "version": "10",
-                    "url": "https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm"
-                }
-            ],
-            "default": "10"
-        }
-    ]
+    "services": []
 }

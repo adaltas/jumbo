@@ -248,19 +248,26 @@ def get_versions():
     if not os.path.isfile(JUMBODIR + 'versions.json'):
         raise ex.LoadError('file', JUMBODIR + 'versions.json', 'NotExist')
 
-    if os.path.isfile(JUMBODIR + svars['cluster'] + '/versions.json'):
-        with open(JUMBODIR + svars['cluster'] + '/versions.json', 'r') as vs:
-            user_versions = json.load(vs)
-    else:
-        with open(JUMBODIR + 'versions.json', 'r') as vs:
-            user_versions = json.load(vs)
+    with open(JUMBODIR + 'versions.json', 'r') as vs:
+        jumbo_versions = json.load(vs)
 
-    for s in user_versions['services']:
+    for s in jumbo_versions['services']:
         use_version = [v for v in s['versions']
                        if v['version'] == s['default']][0]
         versions['services'].update({
             s['name']: use_version
         })
+
+    if os.path.isfile(JUMBODIR + svars['cluster'] + '/versions.json'):
+        with open(JUMBODIR + svars['cluster'] + '/versions.json', 'r') as vs:
+            cluster_versions = json.load(vs)
+
+        for s in cluster_versions['services']:
+            use_version = [v for v in s['versions']
+                           if v['version'] == s['default']][0]
+            versions['services'].update({
+                s['name']: use_version
+            })
 
     return versions
 
@@ -285,7 +292,6 @@ def generate_ansible_vars():
         'ipa_admin_password': 'adm1n_p4ssw0rd',
         'pgsqlserver': fqdn(pgsqlserver),
         'jdbc_driver': 'postgresql-42.2.1.jar',
-        'ambari_repo_url': svars['urls']['ambari_repo'],
         'use_blueprint': True,
         'blueprint_name': svars['domain'].replace('.', '-') + '-blueprint',
         'cluster_name': svars['domain'].replace('.', ''),

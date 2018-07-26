@@ -13,6 +13,7 @@ def cmd(cmd, *, cluster):
     """
 
     ss.load_config(cluster)
+    ss.dump_config()
     try:
         res = subprocess.Popen(cmd,
                                cwd=os.path.join(JUMBODIR, cluster),

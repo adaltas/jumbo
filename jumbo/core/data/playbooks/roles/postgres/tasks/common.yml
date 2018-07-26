@@ -65,4 +65,4 @@
 - name: Set search_path for ambari schema
   command: psql -d ambari -c "ALTER ROLE ambari SET search_path to 'ambarischema', 'public';"
   become_user: postgres
-  ignore_error: yes
+  ignore_errors: yes

@@ -1,0 +1,44 @@
+{
+    "services": [
+        {
+            "name": "POSTGRESQL",
+            "versions": [
+                {
+                    "version": "9.3",
+                    "url": "https://download.postgresql.org/pub/repos/yum/9.3/redhat/rhel-7-x86_64/pgdg-centos93-9.3-3.noarch.rpm"
+                },
+                {
+                    "version": "9.4",
+                    "url": "https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-7-x86_64/pgdg-centos94-9.4-3.noarch.rpm"
+                },
+                {
+                    "version": "9.5",
+                    "url": "https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-3.noarch.rpm"
+                },
+                {
+                    "version": "9.6",
+                    "url": "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm"
+                },
+                {
+                    "version": "10",
+                    "url": "https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm"
+                }
+            ],
+            "default": "10"
+        },
+        {
+            "name": "AMBARI",
+            "versions": [
+                {
+                    "version": "2.6.1.5",
+                    "url": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo"
+                },
+                {
+                    "version": "2.6.2.2",
+                    "url": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.2.2/ambari.repo"
+                }
+            ],
+            "default": "2.6.2.2"
+        }
+    ]
+}

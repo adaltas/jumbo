@@ -56,7 +56,7 @@ def create_cluster(domain, ambari_repo, vdf, template=None, *, cluster):
     pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
 
     if not os.path.isfile(JUMBODIR + 'versions.json'):
-        copyfile(data_dir + 'versions.json', JUMBODIR + 'versions.json')
+        copyfile(config_dir + 'versions.json', JUMBODIR + 'versions.json')
 
     dir_util.copy_tree(data_dir, JUMBODIR + cluster)
     dir_util._path_created = {}
