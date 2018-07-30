@@ -42,6 +42,7 @@ def jumbo(ctx, cluster):
     sh.add_command(use)
     sh.add_command(addnode)
     sh.add_command(rmnode)
+    sh.add_command(editnode)
     sh.add_command(listclusters)
     sh.add_command(listnodes)
     sh.add_command(repair)
@@ -752,6 +753,35 @@ def restart(cluster_name, cluster):
         vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
+
+@jumbo.command()
+@click.argument('name', required=True)
+@click.option('--ip', '-i',
+              help='VM new IP address')
+@click.option('--ram', '-r', type=int,
+              help='RAM allocated to the VM in MB')
+@click.option('--cpus', '-p', 
+              help='Number of CPUs allocated to the VM')
+@click.option('--cluster', '-c')
+@click.pass_context
+
+def editnode(ctx, name, ip, ram, cpus, cluster):
+    """
+    Modifies an already existing VM in the cluster being managed.
+
+    """
+
+    switched = True if cluster else False
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    if ip is not None:
+        click.echo('Warning: Changing IP adress after cluster provisionning will break things!')
+
+    nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
+
+    if switched:
+        set_context(ctx, cluster)
 
 
 @jumbo.command()
