@@ -774,6 +774,9 @@ def editnode(ctx, name, ip, ram, cpus, cluster):
     if not cluster:
         cluster = ss.svars['cluster']
 
+    if ip is not None:
+        click.echo('Warning: Changing IP adress after cluster provisionning will break things!')
+
     nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
 
     if switched:
