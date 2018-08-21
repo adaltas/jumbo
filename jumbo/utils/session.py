@@ -3,7 +3,7 @@ import json
 import yaml
 import os
 
-from jumbo.utils import exceptions as ex, checks
+from jumbo.utils import exceptions as ex, checks, versions as vs
 from jumbo.utils.settings import JUMBODIR, NOT_HADOOP_COMP
 from jumbo.core import clusters
 
@@ -104,6 +104,8 @@ def load_config(cluster):
                 svars = json.load(jc)
         except IOError as e:
             raise ex.LoadError('cluster', cluster, e.strerror)
+
+    vs.update_versions_file()
 
     return True
 
@@ -233,45 +235,6 @@ def get_ipaserver_host():
             return fqdn(node['name'])
 
 
-def get_versions():
-    """Get the versions to use for each service/platform/ressource
-
-    :raises ex.LoadError: If the file versions.json doesn't exist
-    :return: The versions to use
-    :rtype: dict
-    """
-
-    versions = {
-        'services': {}
-    }
-
-    if not os.path.isfile(JUMBODIR + 'versions.json'):
-        raise ex.LoadError('file', JUMBODIR + 'versions.json', 'NotExist')
-
-    with open(JUMBODIR + 'versions.json', 'r') as vs:
-        jumbo_versions = json.load(vs)
-
-    for s in jumbo_versions['services']:
-        use_version = [v for v in s['versions']
-                       if v['version'] == s['default']][0]
-        versions['services'].update({
-            s['name']: use_version
-        })
-
-    if os.path.isfile(JUMBODIR + svars['cluster'] + '/versions.json'):
-        with open(JUMBODIR + svars['cluster'] + '/versions.json', 'r') as vs:
-            cluster_versions = json.load(vs)
-
-        for s in cluster_versions['services']:
-            use_version = [v for v in s['versions']
-                           if v['version'] == s['default']][0]
-            versions['services'].update({
-                s['name']: use_version
-            })
-
-    return versions
-
-
 def generate_ansible_vars():
     """Generate the group_vars/all variables for Ansible playbooks.
 
@@ -303,7 +266,7 @@ def generate_ansible_vars():
         'kerberos_enabled': ('KERBEROS' in svars['services'])
     }
 
-    ansible_vars.update(get_versions())
+    ansible_vars.update(vs.get_yaml_config(svars['cluster']))
 
     return ansible_vars
 

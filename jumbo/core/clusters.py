@@ -4,7 +4,7 @@ import pathlib
 import string
 import subprocess
 from distutils import dir_util
-from shutil import rmtree, copyfile
+from shutil import rmtree
 
 from jumbo.utils.settings import JUMBODIR, DEFAULT_URLS
 from jumbo.utils import session as ss, exceptions as ex
@@ -54,9 +54,6 @@ def create_cluster(domain, ambari_repo, vdf, template=None, *, cluster):
             raise ex.LoadError('template', template, 'NotExist')
 
     pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
-
-    if not os.path.isfile(JUMBODIR + 'versions.json'):
-        copyfile(config_dir + 'versions.json', JUMBODIR + 'versions.json')
 
     dir_util.copy_tree(data_dir, JUMBODIR + cluster)
     dir_util._path_created = {}

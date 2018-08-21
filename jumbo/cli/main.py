@@ -141,6 +141,7 @@ def use(ctx, name):
 
     try:
         ss.load_config(cluster=name)
+        ss.dump_config(services.get_services_components_hosts())
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
