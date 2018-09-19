@@ -12,7 +12,7 @@
     name: firewalld
     state: stopped
     enabled: no
-  ignore_errors: true
+  ignore_errors: yes
 
 - name: Permanently disable SELinux
   selinux:

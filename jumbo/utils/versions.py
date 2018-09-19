@@ -22,7 +22,7 @@ def get_yaml_config(cluster=None):
 
     yaml_versions = {
         'services': {},
-        'platforms': {}
+        'platform': {}
     }
 
     if not os.path.isfile(JUMBODIR + 'versions.json'):
@@ -78,7 +78,7 @@ def update_yaml_versions(yaml_versions, json_versions):
                     }
                 })
 
-            yaml_versions['platforms'].update({
+            yaml_versions['platform'].update({
                 platform['name']: {
                     'version': version,
                     'resources': platform_resources
