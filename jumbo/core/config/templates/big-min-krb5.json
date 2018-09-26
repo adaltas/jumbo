@@ -5,24 +5,16 @@
       "name": "ldap01",
       "ip": "10.10.10.2",
       "ram": 1024,
-      "types": [
-        "ldap"
-      ],
+      "types": ["ldap"],
       "cpus": 1,
-      "components": [
-        "IPA_SERVER"
-      ],
-      "groups": [
-        "ipaserver"
-      ]
+      "components": ["IPA_SERVER"],
+      "groups": ["ipaserver"]
     },
     {
       "name": "edge01",
       "ip": "10.10.10.10",
       "ram": 1024,
-      "types": [
-        "edge"
-      ],
+      "types": ["edge"],
       "cpus": 1,
       "components": [
         "ANSIBLE_CLIENT",
@@ -33,19 +25,13 @@
         "SLIDER",
         "PIG"
       ],
-      "groups": [
-        "ansiblehost",
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["ansiblehost", "ambariclient", "ipaclient"]
     },
     {
       "name": "master01",
       "ip": "10.10.10.11",
       "ram": 2048,
-      "types": [
-        "master"
-      ],
+      "types": ["master"],
       "cpus": 1,
       "components": [
         "ZOOKEEPER_CLIENT",
@@ -59,18 +45,13 @@
         "SLIDER",
         "PIG"
       ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["ambariclient", "ipaclient"]
     },
     {
       "name": "master02",
       "ip": "10.10.10.12",
       "ram": 2048,
-      "types": [
-        "master"
-      ],
+      "types": ["master"],
       "cpus": 1,
       "components": [
         "ZOOKEEPER_CLIENT",
@@ -84,18 +65,13 @@
         "SLIDER",
         "PIG"
       ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["ambariclient", "ipaclient"]
     },
     {
       "name": "master03",
       "ip": "10.10.10.13",
       "ram": 2048,
-      "types": [
-        "sidemaster"
-      ],
+      "types": ["sidemaster"],
       "cpus": 1,
       "components": [
         "PSQL_SERVER",
@@ -109,20 +85,13 @@
         "SLIDER",
         "PIG"
       ],
-      "groups": [
-        "pgsqlserver",
-        "ambariserver",
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["pgsqlserver", "ambariserver", "ambariclient", "ipaclient"]
     },
     {
       "name": "worker01",
       "ip": "10.10.10.21",
       "ram": 4096,
-      "types": [
-        "worker"
-      ],
+      "types": ["worker"],
       "cpus": 2,
       "components": [
         "ZOOKEEPER_CLIENT",
@@ -135,18 +104,13 @@
         "TEZ_CLIENT",
         "NODEMANAGER"
       ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["ambariclient", "ipaclient"]
     },
     {
       "name": "worker02",
       "ip": "10.10.10.22",
       "ram": 4096,
-      "types": [
-        "worker"
-      ],
+      "types": ["worker"],
       "cpus": 2,
       "components": [
         "ZOOKEEPER_CLIENT",
@@ -159,10 +123,7 @@
         "TEZ_CLIENT",
         "NODEMANAGER"
       ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["ambariclient", "ipaclient"]
     }
   ],
   "services": [
@@ -175,9 +136,5 @@
     "FREEIPA",
     "KERBEROS"
   ],
-  "urls": {
-    "ambari_repo": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo",
-    "vdf": "http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml"
-  },
   "domain": ""
 }

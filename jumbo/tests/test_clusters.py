@@ -15,8 +15,6 @@ class TestClusters(unittest.TestCase):
             k=5))
         self.m_name = 'test01'
         clusters.create_cluster(domain=None,
-                                ambari_repo=None,
-                                vdf=None,
                                 cluster=self.c_name)
         print('\n\nCluster "%s" created' % self.c_name)
 
@@ -38,8 +36,6 @@ class TestClusters(unittest.TestCase):
 
     def create_same_name(self):
         clusters.create_cluster(domain=None,
-                                ambari_repo=None,
-                                vdf=None,
                                 cluster=self.c_name)
 
     def test_delete_cluster(self):
@@ -52,23 +48,12 @@ class TestClusters(unittest.TestCase):
         os.remove(JUMBODIR + self.c_name + '/jumbo_config')
         print('Repairing cluster...')
         clusters.repair_cluster(domain=None,
-                                ambari_repo=None,
-                                vdf=None,
                                 cluster=self.c_name)
         self.assertTrue(clusters.check_config(self.c_name))
 
     def test_list_clusters(self):
         print('Test "list_clusters"')
         self.assertIn(ss.svars, clusters.list_clusters())
-
-    def test_set_url(self):
-        print('Test "set_url"')
-        clusters.set_url(url='ambari_repo',
-                         value='http://test.url',
-                         cluster=self.c_name)
-        c = [cl for cl in clusters.list_clusters()
-             if cl['cluster'] == self.c_name][0]
-        self.assertEqual('http://test.url', c['urls']['ambari_repo'])
 
 
 if __name__ == '__main__':

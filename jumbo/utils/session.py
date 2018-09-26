@@ -12,10 +12,6 @@ svars = {
     'domain': None,
     'nodes': [],
     'services': [],
-    'urls': {
-        'ambari_repo': None,
-        'vdf': None
-    }
 }
 
 jinja_env = Environment(
@@ -118,11 +114,7 @@ def clear():
     svars = {
         'cluster': None,
         'nodes': [],
-        'services': [],
-        'urls': {
-            'ambari_repo': None,
-            'vdf': None
-        }
+        'services': []
     }
     bp = {
         'configurations': [],
@@ -257,7 +249,6 @@ def generate_ansible_vars():
         'use_blueprint': True,
         'blueprint_name': svars['domain'].replace('.', '-') + '-blueprint',
         'cluster_name': svars['domain'].replace('.', ''),
-        'vdf_file_url': svars['urls']['vdf'],
         'ambari': {
             'user': 'admin',
             'pwd': 'admin'

@@ -5,24 +5,16 @@
       "name": "ldap01",
       "ip": "10.10.10.2",
       "ram": 1024,
-      "types": [
-        "ldap"
-      ],
+      "types": ["ldap"],
       "cpus": 1,
-      "components": [
-        "IPA_SERVER"
-      ],
-      "groups": [
-        "ipaserver"
-      ]
+      "components": ["IPA_SERVER"],
+      "groups": ["ipaserver"]
     },
     {
       "name": "edge01",
       "ip": "10.10.10.10",
       "ram": 1024,
-      "types": [
-        "edge"
-      ],
+      "types": ["edge"],
       "cpus": 1,
       "components": [
         "ANSIBLE_CLIENT",
@@ -39,20 +31,13 @@
         "HIVE_SERVER",
         "WEBHCAT_SERVER"
       ],
-      "groups": [
-        "ansiblehost",
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["ansiblehost", "ambariclient", "ipaclient"]
     },
     {
       "name": "master01",
       "ip": "10.10.10.11",
       "ram": 3072,
-      "types": [
-        "master",
-        "sidemaster"
-      ],
+      "types": ["master", "sidemaster"],
       "cpus": 1,
       "components": [
         "PSQL_SERVER",
@@ -70,20 +55,13 @@
         "HIVE_CLIENT",
         "HIVE_METASTORE"
       ],
-      "groups": [
-        "pgsqlserver",
-        "ambariserver",
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["pgsqlserver", "ambariserver", "ambariclient", "ipaclient"]
     },
     {
       "name": "worker01",
       "ip": "10.10.10.21",
       "ram": 4096,
-      "types": [
-        "worker"
-      ],
+      "types": ["worker"],
       "cpus": 2,
       "components": [
         "HDFS_CLIENT",
@@ -97,10 +75,7 @@
         "HCAT",
         "HIVE_CLIENT"
       ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
-      ]
+      "groups": ["ambariclient", "ipaclient"]
     }
   ],
   "services": [
@@ -113,9 +88,5 @@
     "FREEIPA",
     "KERBEROS"
   ],
-  "urls": {
-    "ambari_repo": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo",
-    "vdf": "http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml"
-  },
   "domain": ""
 }

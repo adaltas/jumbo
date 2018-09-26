@@ -17,8 +17,6 @@ class TestServices(unittest.TestCase):
         self.m_names = ['master', 'master',
                         'sidemaster_edge', 'worker', 'ldap']
         clusters.create_cluster(domain=None,
-                                ambari_repo=None,
-                                vdf=None,
                                 cluster=self.c_name)
         print('\n\nCluster "%s" created' % self.c_name)
 
