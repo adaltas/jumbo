@@ -5,6 +5,7 @@ Jumbo is a tool that allows you to deploy a **virtualized Hadoop cluster** on a 
 ![Jumbo shell](https://i.imgur.com/d78Cl2O.png)
 
 Jumbo is written in Python and relies on other tools that it coordinates:
+
 - [Vagrant](https://github.com/hashicorp/vagrant), to manage the virtual machines;
 - [Ansible](https://github.com/ansible/ansible), to configure the cluster;
 - [Apache Ambari](https://ambari.apache.org/), to provision and manage the Hadoop cluster.
@@ -31,8 +32,8 @@ If you want a local documentation, it is also available in [Gitbook](https://git
 - [x] "Proxify" Vagrant commands into Jumbo: `start`, `stop`, `status`, `restart`, `delete`
 - [x] Start HDP services on vagrant start
 - [x] Host the documentation on a website ([jumbo.adaltas.com](http://jumbo.adaltas.com))
-- [ ] Add informative commands (info, version, available services...)
-- [ ] Allow custom configurations via JSON (services props, versions, urls...)
+- [x] Allow custom configurations via JSON (versions, urls...)
+- [ ] Add informative commands (info, versions, available services...)
 - [ ] Add support for all HDP services
 - [ ] Generalize HA support
 - [ ] Smart cluster topology based on available ressources

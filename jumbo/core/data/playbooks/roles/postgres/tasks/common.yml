@@ -44,6 +44,7 @@
     db: "{{ item }}"
     name: "{{ item }}"
     password: "{{ item }}"
+    encrypted: yes
   become_user: postgres
   with_items:
     - hive
