@@ -2,6 +2,8 @@
 
 ## Jumbo versions
 
+- **v0.4.3** - 29/09/2018: **Versions and repositories management**
+  - New file `versions.json` to manage software versions and repositories used for cluster provisioning
 - **v0.4.2** - 12/07/2018: **Templates for clusters**
   - New option for `create` command: `--template`
 - **v0.4.1** - 05/06/2018: **Vagrant commands integration and `-r` tag for `addservice`**
