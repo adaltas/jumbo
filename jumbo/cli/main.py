@@ -31,7 +31,7 @@ def jumbo(ctx, cluster):
                intro=printlogo.jumbo_ascii() +
                '\nJumbo Shell. Enter "help" for list of supported commands.' +
                ' Type "quit" to leave the Jumbo Shell.' +
-               click.style('\nJumbo v0.4.2',
+               click.style('\nJumbo v0.4.3',
                            fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
     ctx.meta['jumbo_shell'] = sh.shell
@@ -707,17 +707,17 @@ def restart(cluster_name, cluster):
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
+
 @jumbo.command()
 @click.argument('name', required=True)
 @click.option('--ip', '-i',
               help='VM new IP address')
 @click.option('--ram', '-r', type=int,
               help='RAM allocated to the VM in MB')
-@click.option('--cpus', '-p', 
+@click.option('--cpus', '-p',
               help='Number of CPUs allocated to the VM')
 @click.option('--cluster', '-c')
 @click.pass_context
-
 def editnode(ctx, name, ip, ram, cpus, cluster):
     """
     Modifies an already existing VM in the cluster being managed.
@@ -729,7 +729,8 @@ def editnode(ctx, name, ip, ram, cpus, cluster):
         cluster = ss.svars['cluster']
 
     if ip is not None:
-        click.echo('Warning: Changing IP adress after cluster provisionning will break things!')
+        click.echo(
+            'Warning: Changing IP adress after cluster provisionning will break things!')
 
     nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
 

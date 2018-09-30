@@ -22,7 +22,7 @@ def generate_package_data(package_dir, data_dirs):
 
 setup(
     name='Jumbo',
-    version='0.4.2',
+    version='0.4.3',
     install_requires=[
         'Click',
         'click-shell',
