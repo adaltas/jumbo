@@ -13,8 +13,6 @@ class TestMachines(unittest.TestCase):
             k=5))
         self.m_name = 'test01'
         clusters.create_cluster(domain=None,
-                                ambari_repo=None,
-                                vdf=None,
                                 cluster=self.c_name)
         print('\n\nCluster "%s" created' % self.c_name)
 

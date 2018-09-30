@@ -12,7 +12,7 @@
     name: firewalld
     state: stopped
     enabled: no
-  ignore_errors: true
+  ignore_errors: yes
 
 - name: Permanently disable SELinux
   selinux:
@@ -23,3 +23,8 @@
     path: /etc/profile
     line: "umask 0022"
     insertafter: EOF
+
+- name: Add Ambari repo
+  get_url:
+    url: "{{ services.AMBARI.url }}"
+    dest: /etc/yum.repos.d/ambari.repo

@@ -1,38 +1,79 @@
 # Advanced usage
 
-## Repositories URLs
+## Versions and repositories URLs
 
-You might want to use local repositories for your cluster to avoid unnecessary downloads. It is possible to configure the URLs used by Jumbo during the cluster provisioning with the [`setrepo`](commands/cluster.md#set-repo) command or on [cluster creation](commands/cluster.md#create) for:
-- the Ambari repository (`ambari_repo`) - only Ambari 2.6.0 and higher versions are supported by Jumbo. Don't hesitate to contribute if you need support for other versions!
-- the VDF file URL (`vdf`)
+Since v0.4.3, Jumbo supports fine grained versions and repositories management. All configurations are done through files called `versions.json`. When upgrading to v0.4.3, the default `versions.json` will be added to the `~/.jumbo` directory, and an empty `versions.json` file to any new cluster's root directory (e.g. `~/.jumbo/newcluster/versions.json`).
 
-The VDF file was introduced in Ambari 2.6.0 ([release notes](https://docs.hortonworks.com/HDPDocuments/Ambari-2.6.0.0/bk_ambari-release-notes/content/ambari_relnotes-2.6.0.0-behavioral-changes.html)). In this file you can specify the URLs of HDP repositories and the version of HDP services. The default VDF file used is [HDP-2.6.4.0-91.xml](http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0/HDP-2.6.4.0-91.xml).
+### How does it work?
 
-For example, to change the HDP repo URL, modify the `<baseurl>`:
-```xml
-<repository-version xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="version_definition.xsd">
-    <release>...</release>
-    <manifest>...</manifest>
-    <available-services/>
-    <repository-info>
-        <os family="redhat7">
-            <package-version>2_6_4_0_*</package-version>
-            <repo>
-                <baseurl>
-                    http://my.url/hdp.repo/
-                </baseurl>
-                <repoid>HDP-2.6</repoid>
-                <reponame>HDP</reponame>
-                <unique>true</unique>
-                </repo>
-            <repo>...</repo>
-            <repo>...</repo>
-        </os>
-    </repository-info>
-</repository-version>
+`versions.json` work in "cascading" mode, with priority to the cluster level `versions.json`. If a version definition is not found in this files, the global version set in `~/.jumbo/versions.json` will be used.
+
+In `versions.json` files, you will find 3 sets of items:
+
+- `services` - Jumbo services not part of a specific Big Data platform (e.g. POSTGRESQL or AMBARI),
+- `resources` - pieces of software used by platforms,
+- `platforms` - Big Data platforms such as HDP or CDH.
+
+`services` and `resources` share the same structure:
+
+```json
+{
+  "name": "POSTGRESQL",
+  "versions": {
+    "9.6": "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm",
+    "10": "https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm"
+  }
+}
 ```
 
-You then have to host this file on an HTTPD server and register it with `setrepo`.
+Each `service`/`resource` has several versions available and each version is associated with its repository. The default `versions.json` file uses the official repositories of each software.
+
+`platforms` also have several versions, each of which is tied to a version of each `resource` it uses:
+
+```json
+{
+  "name": "HDP",
+  "versions": {
+    "2.6.4.0": [
+      {
+        "resource": "HDP",
+        "version": "2.6.4.0"
+      },
+      {
+        "resource": "HDP_GPL",
+        "version": "2.6.4.0"
+      },
+      {
+        "resource": "HDP_UTILS",
+        "version": "1.1.0.22"
+      },
+      {
+        "resource": "POSTGRESQL_JDBC_DRIVER",
+        "version": "42.2.1"
+      }
+    ]
+  }
+}
+```
+
+### How to change the versions used?
+
+`services` and `platforms` have a `default` attribute, which is set to the latest version by default. Change this attribute to whatever version you want to use (the version has to be described in `versions`).
+
+```json
+{
+  "name": "POSTGRESQL",
+  "versions": {
+    "9.6": "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm",
+    "10": "https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm"
+  },
+  "default": "9.6" // set the version to use here
+}
+```
+
+### How to change the repositories used?
+
+In `services` and `resources`, simply change the url associated with the version you are using. This can be useful to use private local repositories.
 
 ## Kerberos
 
@@ -50,7 +91,7 @@ The cluster will be kerberized after the HDP installation.
 It is possible to disable it afterward within the Ambari UI.
 
 ## Custom node types
- 
+
 In `jumbo/core/config/services.json`, the services are defined as follow:
 
 ```python
@@ -90,9 +131,9 @@ In `jumbo/core/config/services.json`, the services are defined as follow:
 ```
 
 A component can only be installed on nodes of `hosts_types` types. You might want to create custom types (e.g. to isolate a service). The node types are defined in the list `node_types`. To create a new type, add it to:
+
 - the `node_types` list;
 - `hosts_types` lists of the components that you want to install on nodes of the new type.
-
 
 > **info**
 > On auto-installation of a service, the components are added in priority to nodes of the first type of the `hosts_types` list.

@@ -1,9 +1,4 @@
 ---
-- name: Add ambari repo (on server)
-  get_url:
-    url: "{{ ambari_repo_url }}"
-    dest: /etc/yum.repos.d/ambari.repo
-
 - name: Download and install ambari-server
   yum:
     name: ambari-server
@@ -15,12 +10,12 @@
 
 - name: Download PostgreSQL JDBC driver
   get_url:
-    url: "https://jdbc.postgresql.org/download/{{ jdbc_driver }}"
-    dest: /var/lib/ambari-server
+    url: "{{ platform.HDP.resources.POSTGRESQL_JDBC_DRIVER.url }}"
+    dest: "/var/lib/ambari-server/postgresql-jdbc-{{ platform.HDP.resources.POSTGRESQL_JDBC_DRIVER.version }}.jar"
 
 - name: Set jdbc driver
   command: ambari-server setup \
-    --jdbc-driver=/var/lib/ambari-server/{{ jdbc_driver }} \
+    --jdbc-driver=/var/lib/ambari-server/postgresql-jdbc-{{ platform.HDP.resources.POSTGRESQL_JDBC_DRIVER.version }}.jar \
     --jdbc-db=postgres
 
 - name: Ambari setup

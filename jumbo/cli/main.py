@@ -42,6 +42,7 @@ def jumbo(ctx, cluster):
     sh.add_command(use)
     sh.add_command(addnode)
     sh.add_command(rmnode)
+    sh.add_command(editnode)
     sh.add_command(listclusters)
     sh.add_command(listnodes)
     sh.add_command(repair)
@@ -51,7 +52,6 @@ def jumbo(ctx, cluster):
     sh.add_command(rmservice)
     sh.add_command(rmcomponent)
     sh.add_command(checkservice)
-    sh.add_command(setrepo)
     sh.add_command(listservices)
     sh.add_command(start)
     sh.add_command(stop)
@@ -100,13 +100,9 @@ def set_context(ctx, name):
 @jumbo.command()
 @click.argument('name')
 @click.option('--domain', '-d', help='Domain name of the cluster')
-@click.option('--ambari-repo',
-              help='URL to the Ambari repository used for the installation')
-@click.option('--vdf',
-              help='URL to the VDF file used for HDP install')
 @click.option('--template', '-t', help='Preconfigured cluster name')
 @click.pass_context
-def create(ctx, name, domain, ambari_repo, vdf, template):
+def create(ctx, name, domain, template):
     """Create a new cluster.
 
     :param name: New cluster name
@@ -116,8 +112,6 @@ def create(ctx, name, domain, ambari_repo, vdf, template):
     try:
         clusters.create_cluster(cluster=name,
                                 domain=domain,
-                                ambari_repo=ambari_repo,
-                                vdf=vdf,
                                 template=template)
     except ex.CreationError as e:
         print_with_color(e.message, 'red')
@@ -141,6 +135,7 @@ def use(ctx, name):
 
     try:
         ss.load_config(cluster=name)
+        ss.dump_config(services.get_services_components_hosts())
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
@@ -184,20 +179,15 @@ def listclusters(full):
         if full:
             limit = 1000
         cluster_table = PrettyTable(['Name', 'Domain Name', 'VMs',
-                                     'Services', 'URLs'])
+                                     'Services'])
         cluster_table.align['Name'] = 'l'
         cluster_table.align['Domain Name'] = 'l'
         cluster_table.align['Services'] = 'l'
-        cluster_table.align['URLs'] = 'l'
         for cluster in clusters.list_clusters():
-            urls = []
-            for k, v in cluster['urls'].items():
-                urls.append((k + '=' + v)[:limit] + ('' if full else '...'))
             cluster_table.add_row([cluster['cluster'],
                                    cluster['domain'],
                                    len(cluster['nodes']),
-                                   '\n'.join(cluster['services']),
-                                   '\n'.join(urls)])
+                                   '\n'.join(cluster['services'])])
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
@@ -210,55 +200,19 @@ def listclusters(full):
 @jumbo.command()
 @click.argument('name')
 @click.option('--domain', '-d', help='Domain name of the cluster')
-@click.option('--ambari-repo',
-              help='URL to the Ambari repository used for the installation')
-@click.option('--vdf',
-              help='URL to the VDF file used for HDP install')
-def repair(name, domain, ambari_repo, vdf):
+def repair(name, domain):
     """Recreate "jumbo_config" if it doesn't exist.
 
     :param name: Cluster name
     """
 
     if clusters.repair_cluster(cluster=name,
-                               domain=domain,
-                               ambari_repo=ambari_repo,
-                               vdf=vdf):
+                               domain=domain):
         click.echo('Recreated "jumbo_config" from scratch '
                    'for cluster "{}" (domain name = "{}").'
                    .format(name, domain if domain else '%s.local' % name))
     else:
         click.echo('Nothing to repair in cluster "%s".' % name)
-
-
-@jumbo.command()
-@click.argument('name')
-@click.option('--value', '-v', prompt='URL', required=True, help='URL string')
-@click.option('--cluster', '-c')
-@click.pass_context
-def setrepo(ctx, name, value, cluster):
-    """Set an URL to use for downloads.
-
-    :param name: URL name ("ambari_repo" or "vdf")
-    """
-
-    switched = True if cluster else False
-    if not cluster:
-        cluster = ss.svars['cluster']
-
-    try:
-        clusters.set_url(url=name,
-                         value=value,
-                         cluster=cluster)
-    except (ex.CreationError, ex.LoadError) as e:
-        print_with_color(e.message, 'red')
-        switched = False
-    else:
-        click.echo('"{}" of cluster "{}" set to {}'
-                   .format(name, cluster, value))
-    finally:
-        if switched:
-            set_context(ctx, cluster)
 
 
 ###############
@@ -752,6 +706,35 @@ def restart(cluster_name, cluster):
         vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
+
+@jumbo.command()
+@click.argument('name', required=True)
+@click.option('--ip', '-i',
+              help='VM new IP address')
+@click.option('--ram', '-r', type=int,
+              help='RAM allocated to the VM in MB')
+@click.option('--cpus', '-p', 
+              help='Number of CPUs allocated to the VM')
+@click.option('--cluster', '-c')
+@click.pass_context
+
+def editnode(ctx, name, ip, ram, cpus, cluster):
+    """
+    Modifies an already existing VM in the cluster being managed.
+
+    """
+
+    switched = True if cluster else False
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    if ip is not None:
+        click.echo('Warning: Changing IP adress after cluster provisionning will break things!')
+
+    nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
+
+    if switched:
+        set_context(ctx, cluster)
 
 
 @jumbo.command()

@@ -1,0 +1,75 @@
+{
+  "services": [
+    {
+      "name": "POSTGRESQL",
+      "versions": {
+        "9.3": "https://download.postgresql.org/pub/repos/yum/9.3/redhat/rhel-7-x86_64/pgdg-centos93-9.3-3.noarch.rpm",
+        "9.4": "https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-7-x86_64/pgdg-centos94-9.4-3.noarch.rpm",
+        "9.5": "https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-3.noarch.rpm",
+        "9.6": "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm",
+        "10": "https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm"
+      },
+      "default": "10"
+    },
+    {
+      "name": "AMBARI",
+      "versions": {
+        "2.6.1.5": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo",
+        "2.6.2.2": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.2.2/ambari.repo"
+      },
+      "default": "2.6.2.2"
+    }
+  ],
+  "platforms": [
+    {
+      "name": "HDP",
+      "versions": {
+        "2.6.4.0": [
+          {
+            "resource": "HDP",
+            "version": "2.6.4.0"
+          },
+          {
+            "resource": "HDP_GPL",
+            "version": "2.6.4.0"
+          },
+          {
+            "resource": "HDP_UTILS",
+            "version": "1.1.0.22"
+          },
+          {
+            "resource": "POSTGRESQL_JDBC_DRIVER",
+            "version": "42.2.1"
+          }
+        ]
+      },
+      "default": "2.6.4.0"
+    }
+  ],
+  "resources": [
+    {
+      "name": "HDP",
+      "versions": {
+        "2.6.4.0": "http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0"
+      }
+    },
+    {
+      "name": "HDP_GPL",
+      "versions": {
+        "2.6.4.0": "http://public-repo-1.hortonworks.com/HDP-GPL/centos7/2.x/updates/2.6.4.0"
+      }
+    },
+    {
+      "name": "HDP_UTILS",
+      "versions": {
+        "1.1.0.22": "http://public-repo-1.hortonworks.com/HDP-UTILS-1.1.0.22/repos/centos7"
+      }
+    },
+    {
+      "name": "POSTGRESQL_JDBC_DRIVER",
+      "versions": {
+        "42.2.1": "https://jdbc.postgresql.org/download/postgresql-42.2.1.jar"
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import subprocess
 from distutils import dir_util
 from shutil import rmtree
 
-from jumbo.utils.settings import JUMBODIR, DEFAULT_URLS
+from jumbo.utils.settings import JUMBODIR
 from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils import checks
 from jumbo.core import services
@@ -21,7 +21,7 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(domain, ambari_repo, vdf, template=None, *, cluster):
+def create_cluster(domain, template=None, *, cluster):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -54,14 +54,11 @@ def create_cluster(domain, ambari_repo, vdf, template=None, *, cluster):
             raise ex.LoadError('template', template, 'NotExist')
 
     pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
+
     dir_util.copy_tree(data_dir, JUMBODIR + cluster)
     dir_util._path_created = {}
     ss.svars['cluster'] = cluster
     ss.svars['domain'] = domain if domain else '%s.local' % cluster
-    ss.svars['urls']['ambari_repo'] = ambari_repo if ambari_repo \
-        else DEFAULT_URLS['ambari_repo']
-    ss.svars['urls']['vdf'] = vdf if vdf \
-        else DEFAULT_URLS['vdf']
 
     services_components_hosts = None
     if template:
@@ -72,7 +69,7 @@ def create_cluster(domain, ambari_repo, vdf, template=None, *, cluster):
 
 
 @checks.valid_cluster
-def repair_cluster(domain,  ambari_repo, vdf, *, cluster):
+def repair_cluster(domain, *, cluster):
     """Recreate the cluster 'jumbo_config' file if it doesn't exist.
 
     :param name: Cluster name
@@ -85,10 +82,6 @@ def repair_cluster(domain,  ambari_repo, vdf, *, cluster):
         ss.clear()
         ss.svars['cluster'] = cluster
         ss.svars['domain'] = domain if domain else '%s.local' % cluster
-        ss.svars['urls']['ambari_repo'] = ambari_repo if ambari_repo \
-            else DEFAULT_URLS['ambari_repo']
-        ss.svars['urls']['vdf'] = vdf if vdf \
-            else DEFAULT_URLS['vdf']
         ss.dump_config()
         return True
 
@@ -149,15 +142,3 @@ def list_nodes(*, cluster):
     """
     ss.load_config(cluster)
     return ss.svars['nodes']
-
-
-@checks.valid_cluster
-def set_url(url, value, *, cluster):
-    if url not in DEFAULT_URLS:
-        raise ex.LoadError('URL', url, 'NotExist')
-
-    if cluster != ss.svars['cluster']:
-        ss.load_config(cluster)
-
-    ss.svars['urls'][url] = value
-    ss.dump_config()

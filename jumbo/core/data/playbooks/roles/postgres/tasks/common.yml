@@ -1,0 +1,69 @@
+---
+- name: Install Psycopg
+  yum:
+    name: python-psycopg2
+    state: latest
+
+- name: Authorize password connection from remote hosts
+  lineinfile:
+    path: "/var/lib/pgsql/{{ services.POSTGRESQL.version }}/data/pg_hba.conf"
+    line: host all all 0.0.0.0/0 md5
+    insertbefore: BOF
+
+- name: Authorize password connection from localhost for ambari
+  lineinfile:
+    path: "/var/lib/pgsql/{{ services.POSTGRESQL.version }}/data/pg_hba.conf"
+    line: local all ambari md5
+    insertbefore: BOF
+
+- name: Enable PostgreSQL listen on all addresses
+  replace:
+    path: "/var/lib/pgsql/{{ services.POSTGRESQL.version }}/data/postgresql.conf"
+    replace: listen_addresses = '*'
+    regexp: '^.*listen_addresses =.*$'
+
+- name: Restart and enable PostgreSQL
+  service:
+    name: "postgresql-{{ services.POSTGRESQL.version }}"
+    state: restarted
+    enabled: yes
+
+- name: Create DBs
+  postgresql_db:
+    name: "{{ item }}"
+  become_user: postgres
+  with_items:
+    - hive
+    - oozie
+    - druid
+    - superset
+    - ambari
+
+- name: Create users
+  postgresql_user:
+    db: "{{ item }}"
+    name: "{{ item }}"
+    password: "{{ item }}"
+    encrypted: yes
+  become_user: postgres
+  with_items:
+    - hive
+    - oozie
+    - druid
+    - superset
+    - ambari
+
+- name: Create pgsql schema for ambari db
+  command: psql -d ambari -c "CREATE SCHEMA ambarischema AUTHORIZATION ambari;"
+  become_user: postgres
+  ignore_errors: yes
+
+- name: Set schema owner to ambari user
+  command: psql -d ambari -c "ALTER SCHEMA ambarischema OWNER TO ambari"
+  become_user: postgres
+  ignore_errors: yes
+
+- name: Set search_path for ambari schema
+  command: psql -d ambari -c "ALTER ROLE ambari SET search_path to 'ambarischema', 'public';"
+  become_user: postgres
+  ignore_errors: yes

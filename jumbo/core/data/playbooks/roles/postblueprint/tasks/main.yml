@@ -52,41 +52,10 @@
     body_format: raw
     status_code: 200, 201, 202
  
-- name: Get version definitions list
-  uri:
-    url: "http://{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:8080/api/v1/version_definitions"
-    headers:
-      X-Requested-By: ambari
-    method: GET
-    force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
-    status_code: 200, 201, 202, 404
-    body_format: json
-    return_content: yes
-  register: version_defs
-
-- name: Get version definitions ids
-  vars:
-    versions_ids: []
-  set_fact:
-    versions_ids: "{{ versions_ids }} + [ {{ item }} ]"
-  with_items: "{{ (version_defs.content|from_json)|json_query('items[*].VersionDefinition.id') }}"
-  no_log: true
-  ignore_errors: true
-
-- set_fact:
-    existing_url: false
-
-- include_tasks: check-vdf.yml
-  when: versions_ids is defined
-
 - name: Template VDF file
   template:
-    src: version-definitions.j2
-    dest: /tmp/version-definitions.json
-  delegate_to: 127.0.0.1
-  when: not existing_url
+    src: "version-definitions-{{ platform.HDP.version }}.j2"
+    dest: "/tmp/version-definitions.xml"
 
 - name: Post version_definition to ambariserver
   uri:
@@ -97,10 +66,10 @@
     force_basic_auth: yes
     user: "{{ ambari.user }}"
     password: "{{ ambari.pwd }}"
-    body: " {{ lookup('file', '/tmp/version-definitions.json')}}"
+    body: " {{ lookup('file', 'version-definitions-url.json')}}"
     body_format: raw
     status_code: 200, 201, 202, 400
-  when: not existing_url
+  ignore_errors: yes
 
 - name: Create cluster instance
   uri:
