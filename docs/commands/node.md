@@ -15,6 +15,7 @@ Add a new empty node to a cluster.
 - `--cluster` or `-c` - The cluster to which the node should be added.
 
 ---
+
 ## List nodes
 
 **Command: `listnodes`**
@@ -26,6 +27,7 @@ List the nodes of a cluster.
 - `--cluster` or `-c` - The cluster on which to list the nodes.
 
 ---
+
 ## Remove node
 
 **Command: `rmnode <name>`**
@@ -36,3 +38,18 @@ Remove a node from a cluster.
 
 - `--force` or `-f` - Avoid the confirmation prompt.
 - `--cluster` or `-c` - The cluster in which the node should be deleted.
+
+---
+
+## Edit node
+
+**Command: `editnode <name>`**
+
+Change the configuration of a node.
+
+**Options**
+
+- `--ip` or `-i` - The new node IP address.
+- `--ram` or `-r` - The new memory allocated to the node in MB.
+- `--cpus` or `-p` - The new number of CPUs allocated to the node.
+- `--cluster` or `-c` - The cluster in which the node should be edited.

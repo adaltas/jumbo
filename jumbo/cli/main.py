@@ -220,6 +220,8 @@ def repair(name, domain):
 ###############
 
 def validate_ip_cb(ctx, param, value):
+    if not value:
+        return value
     try:
         ipadd.ip_address(value)
     except ValueError:
@@ -303,6 +305,48 @@ def rmnode(ctx, name, cluster, force):
     finally:
         if switched:
             set_context(ctx, cluster)
+
+
+@jumbo.command()
+@click.argument('name', required=True)
+@click.option('--ip', '-i', callback=validate_ip_cb,
+              help='VM new IP address')
+@click.option('--ram', '-r', type=int,
+              help='RAM allocated to the VM in MB')
+@click.option('--cpus', '-p',
+              help='Number of CPUs allocated to the VM')
+@click.option('--cluster', '-c')
+@click.pass_context
+def editnode(ctx, name, ip, ram, cpus, cluster):
+    """Modify an already existing node in the cluster being managed.
+    """
+
+    switched = True if cluster else False
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    if ip:
+        if not click.confirm('Changing IP adress after cluster provisionning '
+                             'will break things. Do you want to continue?'):
+            return
+
+    if ip or ram or cpus:
+        try:
+            changed = nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
+            if changed:
+                click.echo('\n"{}" configurations changed:\n - {}'.format(
+                    name,
+                    '\n - '.join(
+                        '{}: {} -> {}'
+                        .format(c[0], c[1], c[2]) for c in changed))
+                )
+        except (ex.LoadError, ex.CreationError) as e:
+            print_with_color(e.message, 'red')
+    else:
+        click.echo('Nothing to do. Type "help editnode" for usage.')
+
+    if switched:
+        set_context(ctx, cluster)
 
 
 @jumbo.command()
@@ -706,36 +750,6 @@ def restart(cluster_name, cluster):
         vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
-
-
-@jumbo.command()
-@click.argument('name', required=True)
-@click.option('--ip', '-i',
-              help='VM new IP address')
-@click.option('--ram', '-r', type=int,
-              help='RAM allocated to the VM in MB')
-@click.option('--cpus', '-p',
-              help='Number of CPUs allocated to the VM')
-@click.option('--cluster', '-c')
-@click.pass_context
-def editnode(ctx, name, ip, ram, cpus, cluster):
-    """
-    Modifies an already existing VM in the cluster being managed.
-
-    """
-
-    switched = True if cluster else False
-    if not cluster:
-        cluster = ss.svars['cluster']
-
-    if ip is not None:
-        click.echo(
-            'Warning: Changing IP adress after cluster provisionning will break things!')
-
-    nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
-
-    if switched:
-        set_context(ctx, cluster)
 
 
 @jumbo.command()
