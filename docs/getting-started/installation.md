@@ -1,9 +1,10 @@
 # Installation
 
-> **tip**
-> **Requirements**
+> **tip** > **Requirements**
+>
 > - Vagrant has to be installed on your local machine.
 > - You need a valid SSH public key in `~/.ssh/id_rsa.pub` to provision the clusters.
+> - Jumbo only works with Python 3 (use the right `pip` to install it)
 
 ## On Linux
 
