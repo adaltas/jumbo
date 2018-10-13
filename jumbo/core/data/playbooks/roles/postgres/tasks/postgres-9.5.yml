@@ -5,10 +5,10 @@
 
 - name: Install version 9.5
   yum:
-    name: "{{ item }}"
-  with_items:
-    - postgresql95
-    - postgresql95-server
+    name: [
+      postgresql95,
+      postgresql95-server
+    ]
 
 - name: Initiate database
   command: /usr/pgsql-9.5/bin/postgresql95-setup initdb

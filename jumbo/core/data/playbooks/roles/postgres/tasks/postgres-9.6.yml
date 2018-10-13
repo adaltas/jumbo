@@ -5,10 +5,10 @@
 
 - name: Install version 9.6
   yum:
-    name: "{{ item }}"
-  with_items:
-    - postgresql96
-    - postgresql96-server
+    name: [
+      postgresql96,
+      postgresql96-server
+    ]
 
 - name: Initiate database
   command: /usr/pgsql-9.6/bin/postgresql96-setup initdb

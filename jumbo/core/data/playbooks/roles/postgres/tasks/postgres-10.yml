@@ -5,10 +5,10 @@
 
 - name: Install version 10
   yum:
-    name: "{{ item }}"
-  with_items:
-    - postgresql10
-    - postgresql10-server
+    name: [
+      postgresql10,
+      postgresql10-server
+    ]
 
 - name: Initiate database
   command: /usr/pgsql-10/bin/postgresql-10-setup initdb

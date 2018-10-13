@@ -1,12 +1,12 @@
 ---
 - name: Download ipa-server
   yum:
-    name: "{{ item }}"
+    name: [
+      ipa-server,
+      ipa-server-dns,
+      bind
+    ]
     state: latest
-  with_items:
-    - ipa-server
-    - ipa-server-dns
-    - bind
 
 - name: Restart dbus
   service:

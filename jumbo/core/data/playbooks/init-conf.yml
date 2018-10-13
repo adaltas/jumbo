@@ -20,14 +20,14 @@
 
   - name: Install common packages
     yum:
-      name: "{{ item }}"
+      name: [
+        htop,
+        net-tools,
+        ntp,
+        vim,
+        wget
+      ]
       state: latest
-    with_items:
-      - htop
-      - net-tools
-      - ntp
-      - vim
-      - wget
 
   - name: Disable and stop chronyd
     service:

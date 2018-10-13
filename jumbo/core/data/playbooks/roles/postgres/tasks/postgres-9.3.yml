@@ -5,10 +5,10 @@
 
 - name: Install version 9.3
   yum:
-    name: "{{ item }}"
-  with_items:
-    - postgresql93
-    - postgresql93-server
+    name: [
+      postgresql93,
+      postgresql93-server
+    ]
 
 - name: Initiate database
   command: /usr/pgsql-9.3/bin/postgresql93-setup initdb
