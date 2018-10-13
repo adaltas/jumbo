@@ -37,7 +37,7 @@ If you want a local documentation, it is also available in [Gitbook](https://git
 - [ ] Add support for all HDP services
 - [ ] Generalize HA support
 - [ ] Smart cluster topology based on available ressources
-- [ ] Allow to dupplicate existing cluster with a different name
+- [ ] Allow to duplicate existing cluster with a different name
 
 ## Contributing
 
