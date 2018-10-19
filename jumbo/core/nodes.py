@@ -63,13 +63,14 @@ def edit_node(name, ip=None, ram=None, cpus=None, *, cluster):
     """Modify an existing node in a cluster.
 
     """
+    ss.load_config(cluster=cluster)
+
     if not check_node(cluster=cluster, node=name):
         raise ex.LoadError('node', name, 'NotExist')
 
     if check_ip(ip, cluster=cluster):
         raise ex.CreationError('node', name, 'IP', ip, 'Exists')
 
-    ss.load_config(cluster=cluster)
 
     changed = []
 
