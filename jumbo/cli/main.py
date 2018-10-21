@@ -31,7 +31,7 @@ def jumbo(ctx, cluster):
                intro=printlogo.jumbo_ascii() +
                '\nJumbo Shell. Enter "help" for list of supported commands.' +
                ' Type "quit" to leave the Jumbo Shell.' +
-               click.style('\nJumbo v0.4.3',
+               click.style('\nJumbo v0.4.4',
                            fg='cyan'))
     # Save the shell in the click context (to modify its prompt later on)
     ctx.meta['jumbo_shell'] = sh.shell
