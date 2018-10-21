@@ -2,6 +2,9 @@
 
 ## Jumbo versions
 
+- **v0.4.4** - 21/10/2018: **Bug fixes**
+  - Storage pool creation for libvirt at Jumbo installation ([issue #7](https://github.com/adaltas/jumbo/issues/7))
+  - Minor fixes
 - **v0.4.3** - 29/09/2018: **Versions and repositories management**
   - New file `versions.json` to manage software versions and repositories used for cluster provisioning
   - Remove command `setrepo` as it is handled by `versions.json`

@@ -9,7 +9,7 @@ from jumbo.utils import exceptions as ex
 
 
 if not os.path.isfile(JUMBODIR + 'versions.json'):
-    if not os.path.isdir(JUMBODIR)
+    if not os.path.isdir(JUMBODIR):
         pathlib.Path(JUMBODIR).mkdir()
     copyfile(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +
              '/core/config/versions.json', JUMBODIR + 'versions.json')
