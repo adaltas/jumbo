@@ -97,8 +97,19 @@ def set_context(ctx, name):
         to_print, fg='green') if OS != 'Windows' else to_print
 
 
+def validate_cluster_name_cb(ctx, param, value):
+    if not value:
+        return value
+
+    if '-' in value:
+        raise click.BadParameter('"%s" is not a valid name for a cluster.\n'
+                                 'Forbidden characters: "-"' % value)
+
+    return value
+
+
 @jumbo.command()
-@click.argument('name')
+@click.argument('name', callback=validate_cluster_name_cb)
 @click.option('--domain', '-d', help='Domain name of the cluster')
 @click.option('--template', '-t', help='Preconfigured cluster name')
 @click.pass_context
@@ -225,7 +236,7 @@ def validate_ip_cb(ctx, param, value):
     try:
         ipadd.ip_address(value)
     except ValueError:
-        raise click.BadParameter('%s is not a valid IP address.' % value)
+        raise click.BadParameter('"%s" is not a valid IP address.' % value)
 
     return value
 

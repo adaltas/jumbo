@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 
 from shutil import copyfile
 
@@ -8,6 +9,8 @@ from jumbo.utils import exceptions as ex
 
 
 if not os.path.isfile(JUMBODIR + 'versions.json'):
+    if not os.path.isdir(JUMBODIR)
+        pathlib.Path(JUMBODIR).mkdir()
     copyfile(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +
              '/core/config/versions.json', JUMBODIR + 'versions.json')
 
@@ -49,6 +52,18 @@ def get_yaml_config(cluster=None):
 
 
 def update_yaml_versions(yaml_versions, json_versions):
+    """
+    Update the versions dictionnary to be printed in YAML with values from 
+    the JSON versions dictionnary found in versions.json.
+
+    :param yaml_versions: versions dict to be printed in YAML format
+    :type yaml_versions: dict
+    :param json_versions: versions dict in JSON format
+    :type json_versions: dict
+    :return: versions dict to be printed in YAML format
+    :rtype: dict
+    """
+
     if json_versions.get('services', False):
         for service in json_versions['services']:
             version, url = [(v, u) for (v, u) in service['versions'].items()
@@ -89,6 +104,12 @@ def update_yaml_versions(yaml_versions, json_versions):
 
 
 def update_versions_file():
+    """
+    Update the versions.json file found in ~/.jumbo/ with the newest 
+    available versions
+
+    """
+
     config_dir = os.path.dirname(
         os.path.dirname(os.path.abspath(__file__))) + '/core/config/'
 

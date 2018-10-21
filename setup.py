@@ -9,7 +9,7 @@ POOLNAME = 'jumbo-storage'
 POOLDIR = '/var/lib/libvirt/images/%s' % POOLNAME
 
 
-def generate_package_data(package_dir, data_dirs):
+def list_package_data(package_dir, data_dirs):
     """Return the list of all the data subdirectories for a package
 
     :param package_dir: The directory of the package
@@ -97,8 +97,8 @@ setup(
         'jumbo.utils'
     ],
     package_data={
-        'jumbo.core': generate_package_data('jumbo/core', ['data', 'config']),
-        'jumbo.utils':  generate_package_data('jumbo/utils', ['templates'])
+        'jumbo.core': list_package_data('jumbo/core', ['data', 'config']),
+        'jumbo.utils':  list_package_data('jumbo/utils', ['templates'])
     },
     entry_points='''
         [console_scripts]
