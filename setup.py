@@ -1,5 +1,12 @@
-from setuptools import setup
 import os
+import pathlib
+import subprocess
+
+from setuptools import setup
+from shutil import which
+
+POOLNAME = 'jumbo-storage'
+POOLDIR = '/var/lib/libvirt/images/%s' % POOLNAME
 
 
 def generate_package_data(package_dir, data_dirs):
@@ -18,6 +25,59 @@ def generate_package_data(package_dir, data_dirs):
             data.append('%s/*' % dir_name.split(package_dir + '/')[1])
 
     return data
+
+
+def create_storage_pool():
+    """Create a storage pool jumbo-storage to provision clusters using libvirt
+    """
+
+    if which('virsh'):
+        if not os.path.isdir(POOLDIR):
+            pathlib.Path(POOLDIR).mkdir()
+
+        pool_test = subprocess.Popen([
+            'sudo',
+            'virsh',
+            'pool-info',
+            POOLNAME
+        ])
+
+        # If the storage pool doesn't exist
+        if not pool_test.poll():
+            res = subprocess.Popen([
+                'sudo',
+                'virsh',
+                'pool-define-as',
+                '--target', POOLDIR,
+                '--name', POOLNAME,
+                '--type', 'dir'
+            ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+
+            for line in res.stdout:
+                print(line.decode('utf-8').rstrip())
+
+            res = subprocess.Popen([
+                'sudo',
+                'virsh',
+                'pool-autostart',
+                POOLNAME
+            ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+
+            res = subprocess.Popen([
+                'sudo',
+                'virsh',
+                'pool-start',
+                POOLNAME
+            ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
 
 
 setup(
@@ -45,3 +105,5 @@ setup(
         jumbo=jumbo.cli.main:jumbo
     '''
 )
+
+create_storage_pool()

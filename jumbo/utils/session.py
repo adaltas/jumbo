@@ -4,7 +4,7 @@ import yaml
 import os
 
 from jumbo.utils import exceptions as ex, checks, versions as vs
-from jumbo.utils.settings import JUMBODIR, NOT_HADOOP_COMP
+from jumbo.utils.settings import JUMBODIR, NOT_HADOOP_COMP, POOLNAME
 from jumbo.core import clusters
 
 svars = {
@@ -46,7 +46,8 @@ def dump_config(services_components_hosts=None):
         with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w') as vf:
             vf.write(vagrant_temp.render(hosts=get_ordered_nodes(),
                                          domain=svars['domain'],
-                                         cluster=svars['cluster']))
+                                         cluster=svars['cluster'],
+                                         pool_name=POOLNAME))
 
         hosts_temp = jinja_env.get_template('hosts.j2')
         with open(JUMBODIR + svars['cluster'] + '/playbooks/inventory/hosts',
