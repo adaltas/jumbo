@@ -3,12 +3,15 @@ import json
 import pathlib
 import string
 import subprocess
+import time
 from distutils import dir_util
 from shutil import rmtree
 
 from jumbo.utils.settings import JUMBODIR
 from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils import checks
+from jumbo.utils import vagrant
+from jumbo.utils import ambari
 from jumbo.core import services
 
 
@@ -21,7 +24,7 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(domain, template=None, *, cluster):
+def create_cluster(domain, template=None, remote=None, *, cluster):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -59,6 +62,7 @@ def create_cluster(domain, template=None, *, cluster):
     dir_util._path_created = {}
     ss.svars['cluster'] = cluster
     ss.svars['domain'] = domain if domain else '%s.local' % cluster
+    ss.svars['location'] = 'remote' if remote else 'local'
 
     services_components_hosts = None
     if template:
@@ -69,7 +73,7 @@ def create_cluster(domain, template=None, *, cluster):
 
 
 @checks.valid_cluster
-def repair_cluster(domain, *, cluster):
+def repair_cluster(domain, remote=None, *, cluster):
     """Recreate the cluster 'jumbo_config' file if it doesn't exist.
 
     :param name: Cluster name
@@ -82,6 +86,7 @@ def repair_cluster(domain, *, cluster):
         ss.clear()
         ss.svars['cluster'] = cluster
         ss.svars['domain'] = domain if domain else '%s.local' % cluster
+        ss.svars['location'] = 'remote' if remote else 'local'
         ss.dump_config()
         return True
 
@@ -142,3 +147,57 @@ def list_nodes(*, cluster):
     """
     ss.load_config(cluster)
     return ss.svars['nodes']
+
+
+@checks.valid_cluster
+def start(*, cluster):
+    ss.load_config(cluster)
+
+    if ss.svars["location"] == "remote":
+        # TODO
+        pass
+    else:  # local
+        vagrant.start(cluster=cluster)
+        start_services()
+
+
+@checks.valid_cluster
+def stop(*, cluster):
+    ss.load_config(cluster)
+
+    if ss.svars["location"] == "remote":
+        # TODO
+        pass
+    else:  # local
+        vagrant.stop(cluster=cluster)
+
+
+@checks.valid_cluster
+def status(*, cluster):
+    ss.load_config(cluster)
+
+    if ss.svars["location"] == "remote":
+        # TODO
+        pass
+    else:  # local
+        vagrant.status(cluster=cluster)
+
+
+@checks.valid_cluster
+def restart(*, cluster):
+    ss.load_config(cluster)
+
+    if ss.svars["location"] == "remote":
+        # TODO
+        pass
+    else:  # local
+        vagrant.restart(cluster=cluster)
+
+
+def start_services():
+    """ Start all services on the loaded cluster.
+    """
+    if "AMBARI" in ss.svars['services']:
+        ambari.start_services()
+    else:
+        raise ex.Error("Only Ambari is supported at the moment.")

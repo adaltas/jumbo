@@ -3,7 +3,7 @@ from click_shell.core import Shell
 import ipaddress as ipadd
 from prettytable import PrettyTable
 
-from jumbo.core import clusters, nodes, services, vagrant
+from jumbo.core import clusters, nodes, services
 from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
 from jumbo.utils.settings import OS
@@ -87,41 +87,6 @@ def exit(ctx):
         click.echo('Use "quit" to quit the shell. Exit only removes context.')
 
 
-####################
-# cluster commands #
-####################
-
-def set_context(ctx, name):
-    to_print = 'jumbo (%s) > ' % name
-    ctx.meta['jumbo_shell'].prompt = click.style(
-        to_print, fg='green') if OS != 'Windows' else to_print
-
-
-@jumbo.command()
-@click.argument('name')
-@click.option('--domain', '-d', help='Domain name of the cluster')
-@click.option('--template', '-t', help='Preconfigured cluster name')
-@click.pass_context
-def create(ctx, name, domain, template):
-    """Create a new cluster.
-
-    :param name: New cluster name
-    """
-
-    click.echo('Creating "%s"...' % name)
-    try:
-        clusters.create_cluster(cluster=name,
-                                domain=domain,
-                                template=template)
-    except ex.CreationError as e:
-        print_with_color(e.message, 'red')
-    else:
-        click.echo('Cluster "{}" created (domain name = "{}").'.format(
-            name,
-            domain if domain else '%s.local' % name))
-        set_context(ctx, name)
-
-
 @jumbo.command()
 @click.argument('name')
 @click.pass_context
@@ -142,6 +107,44 @@ def use(ctx, name):
             click.echo('Use "repair" to regenerate `jumbo_config`.')
     else:
         click.echo('Cluster "%s" loaded.' % name)
+        set_context(ctx, name)
+
+
+####################
+# cluster commands #
+####################
+
+
+def set_context(ctx, name):
+    to_print = 'jumbo (%s) > ' % name
+    ctx.meta['jumbo_shell'].prompt = click.style(
+        to_print, fg='green') if OS != 'Windows' else to_print
+
+
+@jumbo.command()
+@click.argument('name')
+@click.option('--domain', '-d', help='Domain name of the cluster')
+@click.option('--template', '-t', help='Preconfigured cluster name')
+@click.option('--remote', '-r', is_flag=True, help='Use existing machines')
+@click.pass_context
+def create(ctx, name, domain, template, remote):
+    """Create a new cluster.
+
+    :param name: New cluster name
+    """
+
+    click.echo('Creating "%s"...' % name)
+    try:
+        clusters.create_cluster(cluster=name,
+                                domain=domain,
+                                template=template,
+                                remote=remote)
+    except ex.CreationError as e:
+        print_with_color(e.message, 'red')
+    else:
+        click.echo('Cluster "{}" created (domain name = "{}").'.format(
+            name,
+            domain if domain else '%s.local' % name))
         set_context(ctx, name)
 
 
@@ -200,14 +203,16 @@ def listclusters(full):
 @jumbo.command()
 @click.argument('name')
 @click.option('--domain', '-d', help='Domain name of the cluster')
-def repair(name, domain):
+@click.option('--remote', '-r', is_flag=True, help='Use existing machines')
+def repair(name, domain, remote):
     """Recreate "jumbo_config" if it doesn't exist.
 
     :param name: Cluster name
     """
 
     if clusters.repair_cluster(cluster=name,
-                               domain=domain):
+                               domain=domain,
+                               remote=remote):
         click.echo('Recreated "jumbo_config" from scratch '
                    'for cluster "{}" (domain name = "{}").'
                    .format(name, domain if domain else '%s.local' % name))
@@ -215,9 +220,9 @@ def repair(name, domain):
         click.echo('Nothing to repair in cluster "%s".' % name)
 
 
-###############
-# VM commands #
-###############
+##################
+# Nodes commands #
+##################
 
 def validate_ip_cb(ctx, param, value):
     try:
@@ -303,6 +308,36 @@ def rmnode(ctx, name, cluster, force):
     finally:
         if switched:
             set_context(ctx, cluster)
+
+
+@jumbo.command()
+@click.argument('name', required=True)
+@click.option('--ip', '-i',
+              help='VM new IP address')
+@click.option('--ram', '-r', type=int,
+              help='RAM allocated to the VM in MB')
+@click.option('--cpus', '-p',
+              help='Number of CPUs allocated to the VM')
+@click.option('--cluster', '-c')
+@click.pass_context
+def editnode(ctx, name, ip, ram, cpus, cluster):
+    """
+    Modifies an already existing VM in the cluster being managed.
+
+    """
+
+    switched = True if cluster else False
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    if ip is not None:
+        click.echo(
+            'Warning: Changing IP adress after cluster provisionning will break things!')
+
+    nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
+
+    if switched:
+        set_context(ctx, cluster)
 
 
 @jumbo.command()
@@ -625,7 +660,7 @@ def listservices(cluster):
 
 
 ####################
-# Vagrant commands #
+#  Cluster state   #
 ####################
 
 @jumbo.command()
@@ -636,12 +671,11 @@ def start(cluster_name, cluster):
     """
 
     cluster = cluster_name if cluster_name else cluster
-
     if not cluster:
         cluster = ss.svars['cluster']
 
     try:
-        vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
+        clusters.start(cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
@@ -656,7 +690,7 @@ def stop(cluster_name, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
+        clusters.stop(cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
@@ -671,23 +705,7 @@ def status(cluster_name, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        vagrant.cmd(['vagrant', 'status', '--color'], cluster=cluster)
-    except (ex.LoadError, ex.CreationError) as e:
-        print_with_color(e.message, 'red')
-
-
-@jumbo.command()
-@click.argument('cluster_name', required=False)
-@click.option('--cluster', '-c')
-def provision(cluster_name, cluster):
-    cluster = cluster_name if cluster_name else cluster
-
-    if not cluster:
-        cluster = ss.svars['cluster']
-
-    try:
-        vagrant.cmd(['vagrant', 'up', '--provision', '--color'],
-                    cluster=cluster)
+        clusters.status(cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
@@ -702,41 +720,31 @@ def restart(cluster_name, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        vagrant.cmd(['vagrant', 'halt', '--color'], cluster=cluster)
-        vagrant.cmd(['vagrant', 'up', '--color'], cluster=cluster)
+        clusters.restart(cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
 
 @jumbo.command()
-@click.argument('name', required=True)
-@click.option('--ip', '-i',
-              help='VM new IP address')
-@click.option('--ram', '-r', type=int,
-              help='RAM allocated to the VM in MB')
-@click.option('--cpus', '-p',
-              help='Number of CPUs allocated to the VM')
+@click.argument('cluster_name', required=False)
 @click.option('--cluster', '-c')
-@click.pass_context
-def editnode(ctx, name, ip, ram, cpus, cluster):
-    """
-    Modifies an already existing VM in the cluster being managed.
+def provision(cluster_name, cluster):
+    cluster = cluster_name if cluster_name else cluster
 
-    """
-
-    switched = True if cluster else False
     if not cluster:
         cluster = ss.svars['cluster']
 
-    if ip is not None:
-        click.echo(
-            'Warning: Changing IP adress after cluster provisionning will break things!')
+    try:
+        # TODO
+        print_with_color("Not implemented yet.", 'yellow')
+        pass
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
 
-    nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
 
-    if switched:
-        set_context(ctx, cluster)
-
+#########
+# Bonus #
+#########
 
 @jumbo.command()
 def logo():
