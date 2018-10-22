@@ -1,40 +1,13 @@
-from jumbo.utils.settings import JUMBODIR
-from jumbo.utils.checks import valid_cluster
-from jumbo.utils import session as ss
-
 import subprocess
 import time
-import os
 
-
-@valid_cluster
-def cmd(cmd, *, cluster):
-    """Run a command in the vagrantfile folder and print output
-    """
-
-    ss.load_config(cluster)
-    ss.dump_config()
-    try:
-        res = subprocess.Popen(cmd,
-                               cwd=os.path.join(JUMBODIR, cluster),
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT
-                               )
-
-        for line in res.stdout:
-            print(line.decode('utf-8').rstrip())
-
-        if cmd[1] == 'up':
-            # Start services after a vagrant up
-            start_services()
-
-    except KeyboardInterrupt:
-        res.kill()
+from jumbo.utils import session as ss
+from jumbo.utils import exceptions as ex
 
 
 def start_services():
-    """Call Ambari API to start all services
-       until Ambari server accepts the request
+    """ Call Ambari API to start all services
+        until Ambari server accepts the request
     """
     max_retries = 20
 

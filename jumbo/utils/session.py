@@ -42,12 +42,13 @@ def dump_config(services_components_hosts=None):
         with open(JUMBODIR + svars['cluster'] + '/jumbo_config', 'w') as cfg:
             json.dump(svars, cfg)
 
-        vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
-        with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w') as vf:
-            vf.write(vagrant_temp.render(hosts=get_ordered_nodes(),
-                                         domain=svars['domain'],
-                                         cluster=svars['cluster'],
-                                         pool_name=POOLNAME))
+        if svars["location"] == "local":
+            vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
+            with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w') as vf:
+                vf.write(vagrant_temp.render(hosts=get_ordered_nodes(),
+                                             domain=svars['domain'],
+                                             cluster=svars['cluster'])
+                         pool_name=POOLNAME)
 
         hosts_temp = jinja_env.get_template('hosts.j2')
         with open(JUMBODIR + svars['cluster'] + '/playbooks/inventory/hosts',
