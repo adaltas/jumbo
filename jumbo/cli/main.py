@@ -160,26 +160,30 @@ def create(ctx, name, domain, template, remote):
 
 
 @jumbo.command()
-@click.argument('name')
+@click.argument('cluster_name', required=False)
+@click.option('--cluster', '-c')
 @click.option('--force', '-f', is_flag=True, help='Force deletion')
 @click.pass_context
-def delete(ctx, name, force):
+def delete(ctx, cluster_name, cluster, force):
     """Delete a cluster.
 
     :param name: Name of the cluster to delete
     """
+    cluster = cluster_name if cluster_name else cluster
+    if not cluster:
+        cluster = ss.svars['cluster']
 
     if not force:
         if not click.confirm(
-                'Are you sure you want to delete the cluster %s' % name):
+                'Are you sure you want to delete the cluster %s' % cluster):
             return
 
     try:
-        clusters.delete_cluster(cluster=name)
+        clusters.delete_cluster(cluster=cluster)
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
     else:
-        click.echo('Cluster "%s" deleted.' % name)
+        click.echo('Cluster "%s" deleted.' % cluster)
         ss.clear()
         ctx.meta['jumbo_shell'].prompt = click.style('jumbo > ', fg='green')
 

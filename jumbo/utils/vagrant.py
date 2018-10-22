@@ -32,6 +32,12 @@ def restart(*, cluster):
 
 
 @valid_cluster
+def delete(*, cluster):
+    cmd = ['vagrant', 'destroy', '-f']
+    handle_cmd(cmd, cluster=cluster)
+
+
+@valid_cluster
 def handle_cmd(cmd, *, cluster):
     try:
         res = subprocess.Popen(cmd,
