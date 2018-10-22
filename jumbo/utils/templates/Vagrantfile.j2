@@ -70,14 +70,6 @@ Vagrant.configure("2") do |config|
         sudo cp /home/vagrant/.ssh/config /root/.ssh/
       SHELL
     end
-    node.vm.provision "Import playbook", type: "file", source: "#{Dir.pwd}/playbooks", destination: "/home/vagrant/cluster-playbook"
-    node.vm.provision "shell", inline: "export ANSIBLE_FORCE_COLOR=True"
-    node.vm.provision "Install ansible and run playbook", type: "ansible_local" do |ansible|
-      ansible.playbook = "cluster-playbook/full-deploy.yml"
-      ansible.provisioning_path = "/home/vagrant/"
-      ansible.inventory_path = "cluster-playbook/inventory/"
-      ansible.limit = "all"
-    end
     {% endif %}
   end
   {% endfor %}

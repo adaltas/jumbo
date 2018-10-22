@@ -57,9 +57,10 @@ def add_node(name, ip, ram, types, cpus=1, *,
     ss.add_node(m)
     ss.dump_config()
 
+
 @valid_cluster
 def edit_node(name, ip=None, ram=None, cpus=None, *,
-             cluster):
+              cluster):
     """Modify an existing node in a cluster.
 
     """
@@ -68,7 +69,6 @@ def edit_node(name, ip=None, ram=None, cpus=None, *,
 
     if check_ip(ip, cluster=cluster):
         raise ex.CreationError('node', name, 'IP', ip, 'Exists')
-
 
     ss.load_config(cluster=cluster)
 
@@ -80,7 +80,6 @@ def edit_node(name, ip=None, ram=None, cpus=None, *,
                 ss.svars['nodes'][i]['ram'] = ram
             if cpus is not None:
                 ss.svars['nodes'][i]['cpus'] = cpus
-
 
     ss.dump_config()
 
