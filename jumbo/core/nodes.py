@@ -71,7 +71,6 @@ def edit_node(name, ip=None, ram=None, cpus=None, *, cluster):
     if check_ip(ip, cluster=cluster):
         raise ex.CreationError('node', name, 'IP', ip, 'Exists')
 
-
     changed = []
 
     for i, m in enumerate(ss.svars['nodes']):

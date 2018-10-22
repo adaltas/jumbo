@@ -146,14 +146,19 @@ def list_nodes(*, cluster):
 
 
 @checks.valid_cluster
-def start(*, cluster):
+def start(no_provision, *, cluster):
     ss.load_config(cluster)
 
     if ss.svars["location"] == "remote":
         # TODO
+        # start_services()
         pass
     else:  # local
+        already_created = vagrant.vms_created(cluster=cluster)
         vagrant.start(cluster=cluster)
+        if no_provision is False:
+            if already_created is False:
+                provision(cluster=cluster)
         start_services()
 
 
@@ -188,6 +193,25 @@ def restart(*, cluster):
         pass
     else:  # local
         vagrant.restart(cluster=cluster)
+
+
+@checks.valid_cluster
+def provision(*, cluster):
+    ss.load_config(cluster)
+
+    cmd = ["ansible-playbook", "playbooks/full-deploy.yml",
+           "-i", "playbooks/inventory"]
+    try:
+        res = subprocess.Popen(cmd,
+                               cwd=os.path.join(JUMBODIR, cluster),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT)
+
+        for line in res.stdout:
+            print(line.decode('utf-8').rstrip())
+
+    except KeyboardInterrupt:
+        res.kill()
 
 
 def start_services():

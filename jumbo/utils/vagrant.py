@@ -38,6 +38,20 @@ def delete(*, cluster):
 
 
 @valid_cluster
+def vms_created(*, cluster):
+    res = subprocess.Popen(["vagrant", "status"],
+                           cwd=os.path.join(JUMBODIR, cluster),
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT)
+
+    for line in res.stdout:
+        if "not created" in str(line):
+            return False
+
+    return True
+
+
+@valid_cluster
 def handle_cmd(cmd, *, cluster):
     try:
         res = subprocess.Popen(cmd,

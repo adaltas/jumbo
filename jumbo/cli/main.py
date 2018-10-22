@@ -701,7 +701,8 @@ def listservices(cluster):
 @jumbo.command()
 @click.argument('cluster_name', required=False)
 @click.option('--cluster', '-c')
-def start(cluster_name, cluster):
+@click.option('--no-provision', is_flag=True)
+def start(cluster_name, cluster, no_provision):
     """Launches the VMs (vagrant up)
     """
 
@@ -710,7 +711,7 @@ def start(cluster_name, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        clusters.start(cluster=cluster)
+        clusters.start(no_provision, cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
@@ -770,7 +771,7 @@ def provision(cluster_name, cluster):
         cluster = ss.svars['cluster']
 
     try:
-        # TODO
+        clusters.provision(cluster=cluster)
         print_with_color("Not implemented yet.", 'yellow')
         pass
     except (ex.LoadError, ex.CreationError) as e:
