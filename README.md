@@ -1,6 +1,6 @@
 # Jumbo - A local Hadoop cluster bootstrapper
 
-Jumbo is a tool that allows you to deploy a **virtualized Hadoop cluster** on a local machine in minutes. It is made to help you **quickly bootstrap development environments** without struggling with nodes and services configurations.
+Jumbo is a tool that allows you to deploy a **virtualized Hadoop cluster** on a local machine in minutes, or to **provision remote machines** you own. It is made to help you **quickly bootstrap development environments** without struggling with nodes and services configurations. 
 
 ![Jumbo shell](https://i.imgur.com/d78Cl2O.png)
 
