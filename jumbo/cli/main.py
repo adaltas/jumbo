@@ -394,8 +394,9 @@ def listnodes(cluster):
 @click.option('--ha', '-h', is_flag=True, help='High Availability mode')
 @click.option('--recursive', '-r', is_flag=True,
               help='Also auto-install all other services needed')
+@click.option('--force', '-f', is_flag=True, help='Accept all prompts')
 @click.pass_context
-def addservice(ctx, name, cluster, no_auto, ha, recursive):
+def addservice(ctx, name, cluster, no_auto, ha, recursive, force):
     """
     Add a service to a cluster and auto-install its components
     on the best fitting hosts.
@@ -427,8 +428,11 @@ def addservice(ctx, name, cluster, no_auto, ha, recursive):
                     dep_serv = ('Services:\n - %s\n' %
                                 '\n - '.join(dependencies['services']))
 
-                if click.confirm('{}{}\nDo you want to continue?'
-                                 .format(dep_comp, dep_serv)):
+                confirmed = True if force else click.confirm(
+                    '{}{}\nDo you want to continue?'
+                    .format(dep_comp, dep_serv))
+
+                if confirmed:
                     auto_installed_count = services.install_dependencies(
                         dependencies=dependencies,
                         cluster=cluster)
