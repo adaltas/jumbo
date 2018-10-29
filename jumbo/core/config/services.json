@@ -8,39 +8,6 @@
   ],
   "services": [
     {
-      "name": "ANSIBLE",
-      "components": [
-        {
-          "name": "ANSIBLE_CLIENT",
-          "hosts_types": [
-            "edge"
-          ],
-          "abbr": "ANSIBLE_C",
-          "number": {
-            "default": 1,
-            "ha": 1
-          }
-        }
-      ],
-      "requirements": {
-        "ram": 1000,
-        "disk": 10000,
-        "nodes": {
-          "default": {
-            "edge": 1
-          },
-          "ha": {
-            "edge": 1
-          }
-        },
-        "services": {
-          "default": [],
-          "ha": []
-        }
-      },
-      "auto_install": []
-    },
-    {
       "name": "POSTGRESQL",
       "components": [
         {
@@ -67,12 +34,8 @@
           }
         },
         "services": {
-          "default": [
-            "ANSIBLE"
-          ],
-          "ha": [
-            "ANSIBLE"
-          ]
+          "default": [],
+          "ha": []
         }
       },
       "auto_install": []
@@ -101,11 +64,9 @@
         },
         "services": {
           "default": [
-            "ANSIBLE",
             "POSTGRESQL"
           ],
           "ha": [
-            "ANSIBLE",
             "POSTGRESQL"
           ]
         }
@@ -135,12 +96,8 @@
           "ha": {}
         },
         "services": {
-          "default": [
-            "ANSIBLE"
-          ],
-          "ha": [
-            "ANSIBLE"
-          ]
+          "default": [],
+          "ha": []
         }
       },
       "auto_install": []

@@ -50,27 +50,6 @@ Vagrant.configure("2") do |config|
       d.cpus = {{ host.cpus }}
       d.customize ["modifyvm", :id, "--ioapic", "on"]
     end
-      {% if 'ansiblehost' in host.groups %}
-    node.vm.provision "Import vagrant_insecure_key", type: "shell" do |s|
-      s.inline = <<-SHELL
-        sudo mkdir -p /root/.ssh/
-        sudo echo "#{vagrant_insecure_key}" > /root/.ssh/id_rsa
-        sudo chmod 600 /root/.ssh/id_rsa
-        sudo head -1 /home/vagrant/.ssh/authorized_keys > /root/.ssh/id_rsa.pub
-        echo "#{vagrant_insecure_key}" > /home/vagrant/.ssh/id_rsa
-        chmod 600 /home/vagrant/.ssh/id_rsa
-        sudo head -1 /home/vagrant/.ssh/authorized_keys >> /root/.ssh/authorized_keys
-        head -1 /home/vagrant/.ssh/authorized_keys > /home/vagrant/.ssh/id_rsa.pub
-        sudo chown vagrant -R /home/vagrant/.ssh/id_rsa
-      SHELL
-    end
-    node.vm.provision "Import ssh config", type: "file", source: "#{Dir.pwd}/ssh_config", destination: "/home/vagrant/.ssh/config"
-    node.vm.provision "Copy ssh config to root", type: "shell" do |s|
-      s.inline = <<-SHELL
-        sudo cp /home/vagrant/.ssh/config /root/.ssh/
-      SHELL
-    end
-    {% endif %}
   end
   {% endfor %}
   config.vm.provision "Add ssh_pub_key", type: "shell" do |s|

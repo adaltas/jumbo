@@ -5,7 +5,9 @@
       "name": "edge01",
       "ip": "10.10.10.10",
       "ram": 1024,
-      "types": ["edge"],
+      "types": [
+        "edge"
+      ],
       "cpus": 1,
       "components": [
         "ANSIBLE_CLIENT",
@@ -22,13 +24,18 @@
         "HIVE_SERVER",
         "WEBHCAT_SERVER"
       ],
-      "groups": ["ansiblehost", "ambariclient"]
+      "groups": [
+        "ambariclient"
+      ]
     },
     {
       "name": "master01",
       "ip": "10.10.10.11",
       "ram": 3072,
-      "types": ["master", "sidemaster"],
+      "types": [
+        "master",
+        "sidemaster"
+      ],
       "cpus": 1,
       "components": [
         "PSQL_SERVER",
@@ -46,13 +53,19 @@
         "HIVE_CLIENT",
         "HIVE_METASTORE"
       ],
-      "groups": ["pgsqlserver", "ambariserver", "ambariclient"]
+      "groups": [
+        "pgsqlserver",
+        "ambariserver",
+        "ambariclient"
+      ]
     },
     {
       "name": "worker01",
       "ip": "10.10.10.21",
       "ram": 4096,
-      "types": ["worker"],
+      "types": [
+        "worker"
+      ],
       "cpus": 2,
       "components": [
         "HDFS_CLIENT",
@@ -66,9 +79,17 @@
         "HCAT",
         "HIVE_CLIENT"
       ],
-      "groups": ["ambariclient"]
+      "groups": [
+        "ambariclient"
+      ]
     }
   ],
-  "services": ["ANSIBLE", "POSTGRESQL", "AMBARI", "HDFS", "YARN", "HIVE"],
+  "services": [
+    "POSTGRESQL",
+    "AMBARI",
+    "HDFS",
+    "YARN",
+    "HIVE"
+  ],
   "domain": ""
 }

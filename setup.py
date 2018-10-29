@@ -29,7 +29,8 @@ setup(
         'jinja2',
         'prettytable',
         'pyyaml',
-        'ipaddress'
+        'ipaddress',
+        'ansible'
     ],
     packages=[
         'jumbo.cli',

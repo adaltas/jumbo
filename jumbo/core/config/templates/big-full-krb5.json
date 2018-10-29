@@ -4,20 +4,27 @@
     {
       "name": "ldap01",
       "ip": "10.10.10.2",
-      "ram": 1024,
-      "types": ["ldap"],
+      "ram": 2048,
+      "types": [
+        "ldap"
+      ],
       "cpus": 1,
-      "components": ["IPA_SERVER"],
-      "groups": ["ipaserver"]
+      "components": [
+        "IPA_SERVER"
+      ],
+      "groups": [
+        "ipaserver"
+      ]
     },
     {
       "name": "edge01",
       "ip": "10.10.10.10",
       "ram": 1024,
-      "types": ["edge"],
+      "types": [
+        "edge"
+      ],
       "cpus": 1,
       "components": [
-        "ANSIBLE_CLIENT",
         "ZOOKEEPER_CLIENT",
         "HDFS_CLIENT",
         "YARN_CLIENT",
@@ -32,13 +39,18 @@
         "HIVE_SERVER",
         "WEBHCAT_SERVER"
       ],
-      "groups": ["ansiblehost", "ambariclient", "ipaclient"]
+      "groups": [
+        "ambariclient",
+        "ipaclient"
+      ]
     },
     {
       "name": "master01",
       "ip": "10.10.10.11",
       "ram": 2048,
-      "types": ["master"],
+      "types": [
+        "master"
+      ],
       "cpus": 1,
       "components": [
         "ZOOKEEPER_CLIENT",
@@ -56,13 +68,18 @@
         "HCAT",
         "HIVE_CLIENT"
       ],
-      "groups": ["ambariclient", "ipaclient"]
+      "groups": [
+        "ambariclient",
+        "ipaclient"
+      ]
     },
     {
       "name": "master02",
       "ip": "10.10.10.12",
       "ram": 2048,
-      "types": ["master"],
+      "types": [
+        "master"
+      ],
       "cpus": 1,
       "components": [
         "ZOOKEEPER_CLIENT",
@@ -80,13 +97,18 @@
         "HCAT",
         "HIVE_CLIENT"
       ],
-      "groups": ["ambariclient", "ipaclient"]
+      "groups": [
+        "ambariclient",
+        "ipaclient"
+      ]
     },
     {
       "name": "master03",
       "ip": "10.10.10.13",
       "ram": 2048,
-      "types": ["sidemaster"],
+      "types": [
+        "sidemaster"
+      ],
       "cpus": 1,
       "components": [
         "PSQL_SERVER",
@@ -104,13 +126,20 @@
         "HIVE_CLIENT",
         "HIVE_METASTORE"
       ],
-      "groups": ["pgsqlserver", "ambariserver", "ambariclient", "ipaclient"]
+      "groups": [
+        "pgsqlserver",
+        "ambariserver",
+        "ambariclient",
+        "ipaclient"
+      ]
     },
     {
       "name": "worker01",
       "ip": "10.10.10.21",
       "ram": 4096,
-      "types": ["worker"],
+      "types": [
+        "worker"
+      ],
       "cpus": 2,
       "components": [
         "ZOOKEEPER_CLIENT",
@@ -125,13 +154,18 @@
         "HCAT",
         "HIVE_CLIENT"
       ],
-      "groups": ["ambariclient", "ipaclient"]
+      "groups": [
+        "ambariclient",
+        "ipaclient"
+      ]
     },
     {
       "name": "worker02",
       "ip": "10.10.10.22",
       "ram": 4096,
-      "types": ["worker"],
+      "types": [
+        "worker"
+      ],
       "cpus": 2,
       "components": [
         "ZOOKEEPER_CLIENT",
@@ -146,11 +180,13 @@
         "HCAT",
         "HIVE_CLIENT"
       ],
-      "groups": ["ambariclient", "ipaclient"]
+      "groups": [
+        "ambariclient",
+        "ipaclient"
+      ]
     }
   ],
   "services": [
-    "ANSIBLE",
     "POSTGRESQL",
     "AMBARI",
     "ZOOKEEPER",
