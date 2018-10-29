@@ -47,8 +47,8 @@ def dump_config(services_components_hosts=None):
             with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w') as vf:
                 vf.write(vagrant_temp.render(hosts=get_ordered_nodes(),
                                              domain=svars['domain'],
-                                             cluster=svars['cluster'])
-                         pool_name=POOLNAME)
+                                             cluster=svars['cluster'],
+                                             pool_name=POOLNAME))
 
         hosts_temp = jinja_env.get_template('hosts.j2')
         with open(JUMBODIR + svars['cluster'] + '/playbooks/inventory/hosts',
@@ -838,7 +838,8 @@ def generate_krb5_conf():
               {%- if kdc_hosts > 0 -%}
               {%- set kdc_host_list = kdc_hosts.split(',')  -%}
               {%- if kdc_host_list and kdc_host_list|length > 0 %}
-                  admin_server = {{admin_server_host|default(kdc_host_list[0]|trim(), True)}}
+                  admin_server = {
+                      {admin_server_host|default(kdc_host_list[0]|trim(), True)}}
               {%- if kdc_host_list -%}
               {%- if master_kdc and (master_kdc not in kdc_host_list) %}
                   kdc = {{master_kdc|trim()}}
