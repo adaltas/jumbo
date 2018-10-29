@@ -2,13 +2,6 @@
 {{ host.name }} ansible_host={{ host.ip }} ansible_user=vagrant
 {% endfor %}
 
-[ansiblehost]
-{% for host in hosts %}
-	{% if 'ansiblehost' in host.groups %}
-{{ host.name }}
-	{% endif %}
-{% endfor %}
-
 [pgsqlserver]
 {% for host in hosts %}
 	{% if 'pgsqlserver' in host.groups %}
