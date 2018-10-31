@@ -159,7 +159,7 @@ def start(no_provision, *, cluster):
         if no_provision is False:
             if already_created is False:
                 provision(cluster=cluster)
-        start_services()
+        start_services(cluster)
 
 
 @checks.valid_cluster
@@ -214,10 +214,10 @@ def provision(*, cluster):
         res.kill()
 
 
-def start_services():
+def start_services(cluster):
     """ Start all services on the loaded cluster.
     """
     if "AMBARI" in ss.svars['services']:
-        ambari.start_services()
+        ambari.start_services(cluster)
     else:
         raise ex.Error("Only Ambari is supported at the moment.")
