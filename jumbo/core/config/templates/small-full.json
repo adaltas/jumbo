@@ -10,7 +10,6 @@
       ],
       "cpus": 1,
       "components": [
-        "ANSIBLE_CLIENT",
         "HDFS_CLIENT",
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
