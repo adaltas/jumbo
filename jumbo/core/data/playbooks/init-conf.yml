@@ -13,10 +13,13 @@
       insertafter: EOF
     with_items: "{{ groups['all'] }}"
 
-  - name: EPEL repository
-    yum:
-      name: epel-release
-      state: latest
+  - name: Set Yum repositories
+    get_url:
+      url: "{{ item.value.source }}"
+      dest: "{{ item.value.dest }}"
+      force: yes
+    with_dict: "{{ repositories }}"
+
 
   - name: Install common packages
     yum:

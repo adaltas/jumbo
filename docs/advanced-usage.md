@@ -13,6 +13,7 @@ In `versions.json` files, you will find 3 sets of items:
 - `services` - Jumbo services not part of a specific Big Data platform (e.g. POSTGRESQL or AMBARI),
 - `resources` - pieces of software used by platforms,
 - `platforms` - Big Data platforms such as HDP or CDH.
+- `repositories` - Yum repositories
 
 `services` and `resources` share the same structure:
 
@@ -74,6 +75,17 @@ Each `service`/`resource` has several versions available and each version is ass
 ### How to change the repositories used?
 
 In `services` and `resources`, simply change the url associated with the version you are using. This can be useful to use private local repositories.
+
+For any other configuration file, you can use the `repositories` field. For example, to set a custom Centos yum repository:
+```json
+ "repositories": [
+    {
+      "name": "centos",
+      "source": "http://custom.address/centos7/centos.repo",
+      "dest": "/etc/yum.repos.d/CentOS-Base.repo"
+    }
+  ]
+```
 
 ## Kerberos
 

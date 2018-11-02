@@ -25,7 +25,8 @@ def get_yaml_config(cluster=None):
 
     yaml_versions = {
         'services': {},
-        'platform': {}
+        'platform': {},
+        'repositories': {}
     }
 
     if not os.path.isfile(JUMBODIR + 'versions.json'):
@@ -64,6 +65,14 @@ def update_yaml_versions(yaml_versions, json_versions):
     :rtype: dict
     """
 
+    if json_versions.get('repositories', False):
+        for repo in json_versions['repositories']:
+            yaml_versions['repositories'].update({
+                repo['name']: {
+                    'source': repo['source'],
+                    'dest': repo['dest']
+                }
+            })
     if json_versions.get('services', False):
         for service in json_versions['services']:
             version, url = [(v, u) for (v, u) in service['versions'].items()
@@ -146,6 +155,8 @@ def update_versions_file():
                 current_url = current_resource[0]['versions'].get(vers, False)
                 if current_url:
                     resource['versions'][vers] = current_url
+
+    up_to_date_versions['repositories'] = current_versions['repositories']
 
     with open(JUMBODIR + 'versions.json', 'w') as c_vs:
         json.dump(up_to_date_versions, c_vs, indent=2)

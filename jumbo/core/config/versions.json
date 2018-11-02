@@ -71,5 +71,6 @@
         "42.2.1": "https://jdbc.postgresql.org/download/postgresql-42.2.1.jar"
       }
     }
-  ]
+  ],
+  "repositories": []
 }
