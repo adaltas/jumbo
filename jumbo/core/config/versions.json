@@ -41,6 +41,24 @@
             "resource": "POSTGRESQL_JDBC_DRIVER",
             "version": "42.2.1"
           }
+        ],
+        "2.6.5.0": [
+          {
+            "resource": "HDP",
+            "version": "2.6.5.0"
+          },
+          {
+            "resource": "HDP_GPL",
+            "version": "2.6.5.0"
+          },
+          {
+            "resource": "HDP_UTILS",
+            "version": "1.1.0.22"
+          },
+          {
+            "resource": "POSTGRESQL_JDBC_DRIVER",
+            "version": "42.2.1"
+          }
         ]
       },
       "default": "2.6.4.0"
@@ -50,13 +68,15 @@
     {
       "name": "HDP",
       "versions": {
-        "2.6.4.0": "http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0"
+        "2.6.4.0": "http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0",
+        "2.6.5.0": "http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.5.0"
       }
     },
     {
       "name": "HDP_GPL",
       "versions": {
-        "2.6.4.0": "http://public-repo-1.hortonworks.com/HDP-GPL/centos7/2.x/updates/2.6.4.0"
+        "2.6.4.0": "http://public-repo-1.hortonworks.com/HDP-GPL/centos7/2.x/updates/2.6.4.0",
+        "2.6.5.0": "http://public-repo-1.hortonworks.com/HDP-GPL/centos7/2.x/updates/2.6.5.0"
       }
     },
     {
