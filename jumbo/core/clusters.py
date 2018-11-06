@@ -103,7 +103,9 @@ def delete_cluster(*, cluster):
     :return: True if the deletion was successfull
     """
     try:
-        vagrant.delete(cluster=cluster)
+        ss.load_config(cluster=cluster)
+        if ss.svars['location'] == 'local':
+            vagrant.delete(cluster=cluster)
         rmtree(JUMBODIR + cluster)
     except IOError as e:
         raise ex.LoadError('cluster', cluster, e.strerror)
