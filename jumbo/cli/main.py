@@ -135,10 +135,11 @@ def validate_cluster_name_cb(ctx, param, value):
 @jumbo.command()
 @click.argument('name', callback=validate_cluster_name_cb)
 @click.option('--domain', '-d', help='Domain name of the cluster')
+@click.option('--realm', '-R', help='Realm of the cluster')
 @click.option('--template', '-t', help='Preconfigured cluster name')
 @click.option('--remote', '-r', is_flag=True, help='Use existing machines')
 @click.pass_context
-def create(ctx, name, domain, template, remote):
+def create(ctx, name, domain, realm, template, remote):
     """Create a new cluster.
 
     :param name: New cluster name
@@ -148,6 +149,7 @@ def create(ctx, name, domain, template, remote):
     try:
         clusters.create_cluster(cluster=name,
                                 domain=domain,
+                                realm=realm,
                                 template=template,
                                 remote=remote)
     except ex.CreationError as e:

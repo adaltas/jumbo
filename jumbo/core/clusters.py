@@ -24,7 +24,7 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + name + '/jumbo_config')
 
 
-def create_cluster(domain, template=None, remote=None, *, cluster):
+def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -61,7 +61,8 @@ def create_cluster(domain, template=None, remote=None, *, cluster):
     dir_util.copy_tree(data_dir, JUMBODIR + cluster)
     dir_util._path_created = {}
     ss.svars['cluster'] = cluster
-    ss.svars['domain'] = domain if domain else '%s.local' % cluster
+    ss.svars['domain'] = domain or '%s.local' % cluster
+    ss.svars['realm'] = realm or ss.svars['domain'].upper()
     ss.svars['location'] = 'remote' if remote else 'local'
 
     services_components_hosts = None

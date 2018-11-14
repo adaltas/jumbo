@@ -244,7 +244,7 @@ def generate_ansible_vars():
 
     ansible_vars = {
         'domain': svars['domain'],
-        'realm': svars['domain'].upper(),
+        'realm': svars['realm'] or svars['domain'].upper(),
         'ipa_dm_password': 'dm_p4ssw0rd',
         'ipa_admin_password': 'adm1n_p4ssw0rd',
         'pgsqlserver': fqdn(pgsqlserver),
