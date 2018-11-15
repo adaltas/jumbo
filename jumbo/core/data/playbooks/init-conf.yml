@@ -37,6 +37,8 @@
       name: chronyd
       state: stopped
       enabled: no
+    register: disable_chronyd
+    failed_when: 'disable_chronyd is failed and "Could not find the requested service chronyd" not in disable_chronyd.msg'
 
   - name: Enable NTPd
     service:
