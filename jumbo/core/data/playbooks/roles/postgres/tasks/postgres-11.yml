@@ -1,0 +1,16 @@
+---
+- name: Download version 11
+  yum:
+    name: "{{ services.POSTGRESQL.url }}"
+
+- name: Install version 11
+  yum:
+    name: [
+      postgresql11,
+      postgresql11-server
+    ]
+
+- name: Initiate database
+  command: /usr/pgsql-11/bin/postgresql-11-setup initdb
+           creates=/var/lib/pgsql/data/postgresql.conf
+  ignore_errors: yes
