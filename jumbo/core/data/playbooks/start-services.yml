@@ -1,6 +1,5 @@
 ---
 - hosts: ambariserver
-- hosts: localhost
   tasks:
   - name: Wait for all services
     uri: 
