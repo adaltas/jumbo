@@ -13,4 +13,5 @@
 - name: Initiate database
   command: /usr/pgsql-11/bin/postgresql-11-setup initdb
            creates=/var/lib/pgsql/data/postgresql.conf
-  ignore_errors: yes
+  register: reg_initdb
+  failed_when: 'reg_initdb is failed and "Data directory is not empty!" not in reg_initdb.stdout'
