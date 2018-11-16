@@ -14,6 +14,11 @@
     enabled: no
   ignore_errors: yes
 
+- name: Install libselinux-python
+  yum:
+    name: libselinux-python
+    state: latest
+
 - name: Permanently disable SELinux
   selinux:
     state: disabled
