@@ -56,7 +56,8 @@
 - name: Create pgsql schema for ambari db
   command: psql -d ambari -c "CREATE SCHEMA ambarischema AUTHORIZATION ambari;"
   become_user: postgres
-  ignore_errors: yes
+  register: reg_postgres
+  failed_when: 'reg_postgres is failed and "already exists" not in reg_postgres.stderr'
 
 - name: Set schema owner to ambari user
   command: psql -d ambari -c "ALTER SCHEMA ambarischema OWNER TO ambari"
