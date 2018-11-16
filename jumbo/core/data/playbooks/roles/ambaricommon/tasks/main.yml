@@ -12,7 +12,8 @@
     name: firewalld
     state: stopped
     enabled: no
-  ignore_errors: yes
+  register: reg_disable_firewalld
+  failed_when: 'reg_disable_firewalld is failed and "Could not find the requested service firewalld" not in reg_disable_firewalld.msg'
 
 - name: Install libselinux-python
   yum:
