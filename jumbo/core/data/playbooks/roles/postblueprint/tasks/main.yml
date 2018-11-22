@@ -114,4 +114,9 @@
 
 - name: Installed finished
   debug:
+    msg: "Installed finished"
+
+- name: Installed finished
+  debug:
     msg: "Starting kerberization"
+  when: kerberos_enabled

@@ -253,8 +253,15 @@ def generate_ansible_vars():
         'cluster_name': svars['domain'].replace('.', ''),
         'ambari': {
             'user': 'admin',
-            'pwd': 'admin'
+            'pwd': 'admin',
+            'ssl': {
+                'enabled': 'no',
+                'port': 8442
+            }
         },
+        'ambari_url': ("{{ 'https' if ambari.ssl.enabled else 'http' }}://"
+                       "{{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}"
+                       ":{{ ambari.ssl.port if ambari.ssl.enabled else '8080' }}"),
         'kerberos_enabled': ('KERBEROS' in svars['services'])
     }
 

@@ -1,0 +1,28 @@
+---
+- name: Load requirements file
+  include_vars:
+    file: /tmp/kerberos_identities.json
+    name: ki
+
+- name: Create keytabs folder
+  file:
+    path: /etc/security/keytabs
+    state: directory
+    owner: root
+    group: hadoop
+
+- name: Copy keytabs and set permissions
+  copy:
+    src: "/tmp/keytabs/{{ item['KerberosIdentity']['keytab_file_path'].split('/')[-1] }}"
+    dest: "{{ item['KerberosIdentity']['keytab_file_path'] }}"
+    owner: "{{ item['KerberosIdentity']['keytab_file_owner'] }}"
+    group: "{{ item['KerberosIdentity']['keytab_file_group'] }}"
+    mode: "{{ item['KerberosIdentity']['keytab_file_mode'] }}"
+  loop: "{{ ki['items'] }}"
+  when: "item['KerberosIdentity']['host_name'].find(ansible_hostname) != -1 and item['KerberosIdentity']['description'] != 'ambari-server'"
+
+- name: Fetch krb5.conf
+  fetch: 
+    src: /etc/krb5.conf
+    dest: /tmp/krb5.conf
+    flat: yes

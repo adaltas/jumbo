@@ -1,219 +1,54 @@
 ---
+- hosts: all
+  vars:
+    ambari:
+      ssl:
+        enabled: False
+        port: 8442
+      url: >
+        {{ 'https' if ambari.ssl.enabled else 'http' }}://
+        {{ hostvars[groups["ambariserver"][0]]["ansible_all_ipv4_addresses"][0] }}:
+        {{ ambari.ssl.port if ambari.ssl.enabled else '8080' }}
+
+- hosts: ambariserver
+  roles:
+    - role: kerberos
+      action: "krb_install"
+      # vars:
+      #   ambari_url: "{{ 'https' if ambari.ssl.enabled else 'http' }}://\
+      #                   {{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:\
+      #                   {{ ambari.ssl.port if ambari.ssl.enabled else '8080' }}"
+
+
+- hosts: ipaserver
+  become: true
+  roles:
+    - role: kerberos
+      action: "krb_add_users_services"
+    - role: kerberos
+      action: "krb_ambari_keytab"
+
 - hosts: ambariserver
   become: true
   roles:
-    - { role: kerberos-part1, when: kerberos_enabled == true }
+    - role: kerberos
+      action: "krb_ambari_setup"
 
 - hosts: ipaserver
   become: true
-  tasks:
-  - meta: end_play
-    when: kerberos_enabled == false
-
-  - name: Download Kerberos requirements CVS file
-    shell: |
-      curl -u admin:admin \
-      -H "X-Requested-By: ambari" \
-      -k -X GET "http://{{ hostvars[item]['ansible_host'] }}:8080/api/v1/clusters/{{ cluster_name }}/kerberos_identities?fields=*&format=CSV" \
-      > /tmp/kerberos.csv
-    args:
-      warn: false
-    with_inventory_hostnames:
-      - ambariserver
-
-  - name: Kinit admin
-    shell: echo {{ ipa_admin_password }} | kinit admin@{{ realm }}
-
-  - name: Generate service script
-    shell: awk -F"," '/SERVICE/ {print "ipa service-add --force "$3}' /tmp/kerberos.csv | sort -u > ipa-add-spn.sh
-
-  - name: Generate principals script
-    shell: awk -F"," '/USER/ {print "ipa user-add "$5" --first="$5" --last=Hadoop --shell=/sbin/nologin"}' /tmp/kerberos.csv > ipa-add-upn.sh
-
-  - name: Run service script
-    shell: echo "" | sh ipa-add-spn.sh
-    ignore_errors: yes
-
-  - name: Run principals script
-    shell: echo "" | sh ipa-add-upn.sh
-    ignore_errors: yes
-
-  # https://docs.hortonworks.com/HDPDocuments/Ambari-2.6.1.5/bk_ambari-security/content/set_up_kerberos_for_ambari_server.html
-  - name: 1 Add Ambari user and principal
-    command: ipa user-add Ambari --first=Ambari --last=Hadoop --principal=ambari-server@{{ realm }}
-    ignore_errors: yes
-
-  - name: 2 Create keytab
-    command: "kadmin.local -q \"xst -k /tmp/ambari.server.keytab ambari-server@{{ realm }}\""
-
-  - name: Fetch ambari keytab
-    fetch:
-      src: /tmp/ambari.server.keytab
-      dest: /tmp/ambari.server.keytab
-      flat: yes
-
-  - name: Remove csv
-    shell: rm -rf /tmp/kerberos.csv
-
-
-- hosts: ambariserver
-  become: true
-  tasks:
-  - meta: end_play
-    when: kerberos_enabled == false
-
-  - name: Create keytab directory on ambari server
-    file:
-      path: /etc/security/keytabs
-      state: directory
-      mode: 0755
-
-  - name: Retrieve ambari.server.keytab
-    copy:
-      src: /tmp/ambari.server.keytab
-      dest: /etc/security/keytabs/ambari.server.keytab
-      mode: 0400
-
-  - name: Stop ambari server
-    command: ambari-server stop
-
-  - name: Get expect for ambari-setup utility
-    yum:
-      name: expect
-      state: latest
-
-  - name: Create script for ambari-server setup-security 1
-    command: touch /tmp/security-script
-
-  - name: Create script for ambari-server setup-security 2
-    blockinfile:
-      path: /tmp/security-script
-      block: |
-        spawn ambari-server setup-security
-        expect "Enter choice, (1-5):"
-        send "3\n"
-        expect ":"
-        send "ambari-server@{{ realm }}\n"
-        expect ":"
-        send "/etc/security/keytabs/ambari.server.keytab\n"
-        expect eof
-
-  - name: Setup Ambari kerberos JAAS Configuration
-    command: expect /tmp/security-script
-
-  - name: Restart ambari server
-    command: ambari-server restart
-
-- hosts: ipaserver
-  become: true
-  tasks:
-  - meta: end_play
-    when: kerberos_enabled == false
-
-  - name: Download Kerberos requirements CSV file
-    shell: |
-      curl -u admin:admin \
-      -H "X-Requested-By: ambari" \
-      -k -X GET "http://{{ hostvars[item]['ansible_host'] }}:8080/api/v1/clusters/{{ cluster_name }}/kerberos_identities?fields=*&format=CSV" \
-      > /tmp/kerberos.csv
-    args:
-      warn: false
-    with_inventory_hostnames:
-      - ambariserver
-
-  - name: Create keytabs folder
-    file:
-      path: /tmp/keytabs
-      state: directory
-      mode: 0755
-
-  - name: Create keytabs generation script
-    shell: |
-      awk -F"," \
-      '{if (NR!=1 && $2!="ambari-server") {split($6, k, "/"); print "ipa-getkeytab -s '{{ item }}.{{ domain }}' -p "$3" -k /tmp/keytabs/"k[5]"; chmod 0666 /tmp/keytabs/"k[5]""}}' \
-      /tmp/kerberos.csv > /tmp/gen_keytabs.sh
-    with_inventory_hostnames:
-      - ipaserver
-
-  - name: Kinit admin
-    shell: echo {{ ipa_admin_password }} | kinit admin@{{ realm }}
-
-  - name: Run keytabs generation script
-    shell: sh /tmp/gen_keytabs.sh
-    ignore_errors: yes
-
-  - name: Set "default_ccache_name" 
-    ini_file:
-      path: /etc/krb5.conf 
-      section: libdefaults 
-      option: default_ccache_name 
-      value: FILE:/tmp/krb5cc_%{uid}
-
-  - name: Fetch krb5.conf
-    fetch:
-      src: /etc/krb5.conf
-      dest: /tmp/krb5.conf
-      flat: yes
-
-  - name: List keytabs to fetch
-    shell: cd /tmp/keytabs && find . -maxdepth 1 -type f | cut -d '/' -f2
-    register: keytabs_to_copy
-
-  - name: Fetch keytabs
-    fetch:
-      src: /tmp/keytabs/{{ item }}
-      dest: /tmp/keytabs/
-      flat: yes
-    with_items: "{{ keytabs_to_copy.stdout_lines }}"
-
-  - name: Download Kerberos identities requirements
-    shell: |
-      curl -H "X-Requested-By:ambari" \
-      -u admin:admin \
-      -X GET "http://{{ hostvars[item]['ansible_host'] }}:8080/api/v1/clusters/{{ cluster_name }}/kerberos_identities?fields=*" \
-      > /tmp/kerberos_identities.json
-    with_inventory_hostnames:
-      - ambariserver
-
-  - name: Fetch Kerberos identities 
-    fetch:
-      src: /tmp/kerberos_identities.json
-      dest: /tmp/kerberos_identities.json
-      flat: yes
-
+  roles:
+    - role: kerberos
+      action: "krb_generate_keytabs"
 
 - hosts: all:!ipaserver
   become: true
-  tasks:
-  - meta: end_play
-    when: kerberos_enabled == false
+  roles:
+    - role: kerberos
+      action: "krb_distribute_keytabs"
 
-  - name: Distribute krb5.conf
-    copy:
-      src: /tmp/krb5.conf
-      dest: /etc/krb5.conf
+- hosts: all
+  become: true
+  roles:
+    - role: kerberos
+      action: "krb_set_krb5_conf"
 
-  - name: Load requirements file
-    include_vars:
-      file: /tmp/kerberos_identities.json
-      name: ki
-
-  - name: Create keytabs folder
-    file:
-      path: /etc/security/keytabs
-      state: directory
-      owner: root
-      group: hadoop
-
-  - name: Copy keytabs and set permissions
-    copy:
-      src: "/tmp/keytabs/{{ item['KerberosIdentity']['keytab_file_path'].split('/')[-1] }}"
-      dest: "{{ item['KerberosIdentity']['keytab_file_path'] }}"
-      owner: "{{ item['KerberosIdentity']['keytab_file_owner'] }}"
-      group: "{{ item['KerberosIdentity']['keytab_file_group'] }}"
-      mode: "{{ item['KerberosIdentity']['keytab_file_mode'] }}"
-    loop: "{{ ki['items'] }}"
-    when: "item['KerberosIdentity']['host_name'].find(ansible_hostname) != -1 and item['KerberosIdentity']['description'] != 'ambari-server'"
-
-
-- import_playbook: start-services.yml

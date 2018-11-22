@@ -1,0 +1,35 @@
+---
+- name: Download Kerberos requirements CVS file
+  uri:
+    url: "{{ ambari_url }}/api/v1/clusters/{{ cluster_name }}/kerberos_identities?fields=*&format=CSV" 
+    dest: /tmp/kerberos.csv
+    headers:
+      X-Requested-By: ambari
+    method: GET
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202, 404
+
+- name: Generate service script
+  shell: awk -F"," '/SERVICE/ {print "ipa service-add --force "$3}' /tmp/kerberos.csv | sort -u > ipa-add-spn.sh
+
+- name: Generate principals script
+  shell: awk -F"," '/USER/ {print "ipa user-add "$5" --first="$5" --last=Hadoop --shell=/sbin/nologin"}' /tmp/kerberos.csv > ipa-add-upn.sh
+
+- name: Kinit admin
+  shell: echo {{ ipa_admin_password }} | kinit admin@{{ realm }}
+
+- name: Run service script
+  shell: echo "" | sh ipa-add-spn.sh
+  ignore_errors: yes
+
+- name: Run principals script
+  shell: echo "" | sh ipa-add-upn.sh
+  ignore_errors: yes
+
+- name: Remove csv
+  shell: rm -rf /tmp/kerberos.csv
