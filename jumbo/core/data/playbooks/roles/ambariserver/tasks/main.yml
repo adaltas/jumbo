@@ -34,3 +34,16 @@
   service:
     name: ambari-server
     state: started
+
+- name: open Ambari tcp ports
+  iptables:
+    chain: INPUT
+    jump: ACCEPT
+    action: insert
+    destination_port: "{{ item }}"
+    protocol: tcp 
+    ctstate: NEW,ESTABLISHED
+  with_items:
+    - 8080
+    - 8440
+    - 8441
