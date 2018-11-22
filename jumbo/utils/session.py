@@ -3,6 +3,8 @@ import json
 import yaml
 import os
 
+from distutils import dir_util
+
 from jumbo.utils import exceptions as ex, checks, versions as vs
 from jumbo.utils.settings import JUMBODIR, NOT_HADOOP_COMP, POOLNAME
 from jumbo.core import clusters
@@ -105,6 +107,16 @@ def load_config(cluster):
 
     vs.update_versions_file()
 
+    return True
+
+
+def update_files(cluster, services_components_hosts):
+    data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../core/data/'
+
+    dir_util.copy_tree(data_dir, JUMBODIR + cluster)
+    dir_util._path_created = {}
+
+    dump_config(services_components_hosts)
     return True
 
 
@@ -244,7 +256,7 @@ def generate_ansible_vars():
 
     ansible_vars = {
         'domain': svars['domain'],
-        'realm': svars['realm'] or svars['domain'].upper(),
+        'realm': svars.get('realm', None) or svars['domain'].upper(),
         'ipa_dm_password': 'dm_p4ssw0rd',
         'ipa_admin_password': 'adm1n_p4ssw0rd',
         'pgsqlserver': fqdn(pgsqlserver),

@@ -58,6 +58,7 @@ def jumbo(ctx, cluster):
     sh.add_command(status)
     sh.add_command(provision)
     sh.add_command(restart)
+    sh.add_command(update_files)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -242,6 +243,7 @@ def repair(name, domain, remote):
 ##################
 
 def validate_ip_cb(ctx, param, value):
+    return value
     if not value:
         return value
     try:
@@ -810,3 +812,21 @@ def print_colorized_table(table):
 
     for l in to_print:
         click.echo(l)
+
+
+@jumbo.command()
+@click.argument('cluster_name', required=False)
+@click.option('--cluster', '-c')
+def update_files(cluster_name, cluster):
+    cluster = cluster_name or cluster
+
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        ss.load_config(cluster=cluster)
+        ss.update_files(cluster, services.get_services_components_hosts())
+    except ex.LoadError as e:
+        print_with_color(e.message, 'red')
+        if e.type == 'NoConfFile':
+            click.echo('Use "repair" to regenerate `jumbo_config`.')
