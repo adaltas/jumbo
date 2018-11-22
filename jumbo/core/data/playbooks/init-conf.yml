@@ -10,7 +10,7 @@
     lineinfile:
       dest: "/etc/hosts"
       line: "{{ hostvars[item]['ansible_host'] }} {{ item }}.{{ domain }} {{ item }}"
-      insertafter: EOF
+      insertbefore: BOF
     with_items: "{{ groups['all'] }}"
 
   - name: Set Yum repositories
@@ -20,11 +20,9 @@
       force: yes
     with_dict: "{{ repositories }}"
 
-
   - name: Install common packages
     yum:
       name: [
-        htop,
         net-tools,
         ntp,
         vim,
