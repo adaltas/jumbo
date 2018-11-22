@@ -27,7 +27,7 @@
     --postgresschema=ambarischema \
     --databaseusername=ambari \
     --databasepassword=ambari \
-    {{ '--java-home ' ~ JAVA_HOME if JAVA_HOME is defined else omit }} \
+    {{ '--java-home ' ~ JAVA_HOME if JAVA_HOME is defined else '' }} \
     -s
 
 - name: Start ambari-server
