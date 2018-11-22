@@ -1,24 +1,8 @@
 ---
-- hosts: all
-  vars:
-    ambari:
-      ssl:
-        enabled: False
-        port: 8442
-      url: >
-        {{ 'https' if ambari.ssl.enabled else 'http' }}://
-        {{ hostvars[groups["ambariserver"][0]]["ansible_all_ipv4_addresses"][0] }}:
-        {{ ambari.ssl.port if ambari.ssl.enabled else '8080' }}
-
 - hosts: ambariserver
   roles:
     - role: kerberos
       action: "krb_install"
-      # vars:
-      #   ambari_url: "{{ 'https' if ambari.ssl.enabled else 'http' }}://\
-      #                   {{ hostvars[groups['ambariserver'][0]]['ansible_all_ipv4_addresses'][0] }}:\
-      #                   {{ ambari.ssl.port if ambari.ssl.enabled else '8080' }}"
-
 
 - hosts: ipaserver
   become: true
