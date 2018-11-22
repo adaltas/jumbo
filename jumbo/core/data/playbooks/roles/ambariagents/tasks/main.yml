@@ -3,7 +3,7 @@
   yum:
     name: ambari-agent
 
-- name: Edit ambari-agent.ini
+- name: Edit ambari-agent.ini server
   ini_file:
     path: /etc/ambari-agent/conf/ambari-agent.ini
     section: server
@@ -12,7 +12,16 @@
   with_items:
     - { option: "hostname", value: "{{ hostvars[groups['ambariserver'][0]]['inventory_hostname'] }}.{{ domain }}" }
     - { option: "url_port", value: "8440" }
-    - { option: "secured_url_port", value: "8441" }
+    - { option: "secured_url_port", value: "8442" }
+
+- name: Edit ambari-agent.ini security
+  ini_file:
+    path: /etc/ambari-agent/conf/ambari-agent.ini
+    section: security
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { option: "force_https_protocol", value: "PROTOCOL_TLSv1_2"}
 
 - name: Start ambari-agent
   command: ambari-agent start
