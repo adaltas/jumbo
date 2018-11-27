@@ -76,7 +76,7 @@ def dump_config(services_components_hosts=None):
 
         if 'KERBEROS' in svars['services']:
             with open(JUMBODIR + svars['cluster'] +
-                      '/playbooks/roles/kerberos-part1/files/krb5-conf.json',
+                      '/playbooks/roles/kerberos/files/krb5-conf.json',
                       'w') as krbf:
                 json.dump(generate_krb5_conf(), krbf)
 
@@ -891,7 +891,7 @@ def generate_krb5_conf():
                         'install_packages': 'true',
                         'encryption_types':
                             'aes des3-cbc-sha1 rc4 des-cbc-md5',
-                        'realm': svars['domain'].upper(),
+                        'realm': svars.get('realm', None) or svars['domain'].upper(),
                         'kdc_hosts': get_ipaserver_host(),
                         'admin_server_host': get_ipaserver_host(),
                         'executable_search_paths': '/usr/bin, '
