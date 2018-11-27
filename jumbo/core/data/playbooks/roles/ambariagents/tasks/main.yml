@@ -12,7 +12,6 @@
   with_items:
     - { option: "hostname", value: "{{ hostvars[groups['ambariserver'][0]]['inventory_hostname'] }}.{{ domain }}" }
     - { option: "url_port", value: "8440" }
-    - { option: "secured_url_port", value: "8442" }
 
 - name: Edit ambari-agent.ini security
   ini_file:
