@@ -51,7 +51,7 @@
     copy: src=krb5-conf.json dest=/tmp/krb5_conf_ambari_api.json
 
   - name: upload krb5.conf
-    command: "curl -u admin:admin -i -H 'X-Requested-By: ambari' -X PUT -d @/tmp/krb5_conf_ambari_api.json {{ ambari_uril }}/api/v1/clusters/{{ cluster_name }}"
+    command: "curl -u admin:admin -i -k -H 'X-Requested-By: ambari' -X PUT -d @/tmp/krb5_conf_ambari_api.json {{ ambari_uril }}/api/v1/clusters/{{ cluster_name }}"
     register: cmd_krb_conf
     failed_when:
       - "'409' not in cmd_krb_conf.stdout"
