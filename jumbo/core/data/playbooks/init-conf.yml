@@ -1,6 +1,7 @@
 ---
 - hosts: all
   become: true
+  become_flags: '-E'
   tasks:
   - name: Configure servers hostnames
     hostname:
