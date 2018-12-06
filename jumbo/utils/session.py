@@ -314,6 +314,16 @@ def generate_groupvars_yarn(yarn_comp):
             ret['YARN']['resourcemanagers_FQDN'].append(
                 fqdn(yarn_comp['RESOURCEMANAGER'][1]))
 
+        container_max_memory = 1536
+        node_max_containers = 100
+        for m in svars['nodes']:
+            if m['name'] in yarn_comp['NODEMANAGER']:
+                if node_max_containers > int(m['ram'] / 1536):
+                    node_max_containers = int(m['ram'] / 1536)
+        node_max_memory = node_max_containers * container_max_memory
+        ret['YARN']['nodemanager_resource_memory'] = node_max_memory
+        ret['YARN']['container_max_memory'] = container_max_memory
+
     return ret
 
 
