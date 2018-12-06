@@ -1,5 +1,0 @@
----
-- hosts: ambariserver
-  become: true
-  roles:
-    - { role: postblueprint, when: use_blueprint == true }

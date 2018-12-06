@@ -1,6 +1,0 @@
----
-- name: Install and init PostgreSQL
-  include_tasks: "postgres-{{ services.POSTGRESQL.version }}.yml"
-
-- name: Configure PostgreSQL
-  include_tasks: common.yml

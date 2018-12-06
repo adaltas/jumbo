@@ -1,5 +1,0 @@
----
-- hosts: ipaserver
-  become: true
-  roles:
-    - ipaserver
