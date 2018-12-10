@@ -1,4 +1,6 @@
 import os
+from os import listdir
+from os.path import isfile, join
 import json
 
 from jumbo.core import nodes
@@ -8,15 +10,35 @@ from jumbo.utils.checks import valid_cluster
 
 
 def load_services_conf():
-    """Load the global services configuration.
+    """Load each service configuration file of jumbo-services.
 
-    :return: The configuration JSON file
-    :rtype: json
+    :return: The global configuration dict
+    :rtype: dict
     """
+    ret = {}
+    services_path = os.path.dirname(
+        os.path.abspath(__file__)) + '/data/jumbo-services/services'
 
-    with open(os.path.dirname(os.path.abspath(__file__)) +
-              '/config/services.json') as cfg:
-        return json.load(cfg)
+    # Load basic node types
+    with open(os.path.join(services_path, 'basic-node-types.json')) as basic_file:
+        ret = json.load(basic_file)
+
+    # Load each service configuration
+    services_files = [os.path.join(services_path, f) for f in listdir(
+        services_path) if isfile(join(services_path, f))]
+
+    for service_file in services_files:
+        with open(service_file) as service_cfg:
+            tmp = json.load(service_cfg)
+            # Add services to global config
+            for serv in tmp['services']:
+                ret['services'].append(serv)
+            # Add additionnal node types
+            for type in tmp['node_types']:
+                if type not in ret['node_types']:
+                    ret['node_types'].append(type)
+
+    return ret
 
 
 config = load_services_conf()
