@@ -214,10 +214,10 @@ def generate_host_vars():
         with open(JUMBODIR + svars['cluster']
                   + '/jumbo-services/playbooks/inventory/host_vars/' + m['name'], 'w') as host_file:
             content = {}
-            content['compononents'] = []
+            content['components'] = []
             for c in m['components']:
                 if blueprint_component(c):
-                    content['compononents'].append(c)
+                    content['components'].append(c)
 
             yaml.dump(content, host_file, default_flow_style=False,
                       explicit_start=True)
@@ -249,7 +249,7 @@ def generate_group_vars(serv_comp_hosts):
             'user': 'admin',
             'pwd': 'admin',
             'ssl': {
-                'enabled': 'no',
+                'enabled': False,
                 'port': 8442
             }
         },
