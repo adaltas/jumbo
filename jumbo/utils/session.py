@@ -44,14 +44,16 @@ def dump_config(services_components_hosts=None):
                                              pool_name=POOLNAME))
 
         hosts_temp = jinja_env.get_template('hosts.j2')
-        with open(JUMBODIR + svars['cluster'] + '/playbooks/inventory/hosts',
+        with open(JUMBODIR + svars['cluster'] +
+                  '/jumbo-services/playbooks/inventory/hosts',
                   'w') as vf:
             vf.write(hosts_temp.render(hosts=svars['nodes']))
 
         if services_components_hosts:
             generate_ansible_vars(services_components_hosts)
 
-    except IOError:
+    except IOError as e:
+        print(str(e))
         return False
 
 
@@ -208,11 +210,9 @@ def generate_host_vars():
     """Complete the 'host_groups' section of the blueprint.
     """
 
-    print("Generating hostgroups")
     for m in svars['nodes']:
         with open(JUMBODIR + svars['cluster']
-                  + '/playbooks/inventory/host_vars/' + m['name'], 'w') as host_file:
-            print("Generating hostgroups variables for %s" % m['name'])
+                  + '/jumbo-services/playbooks/inventory/host_vars/' + m['name'], 'w') as host_file:
             content = {}
             content['compononents'] = []
             for c in m['components']:
@@ -267,9 +267,11 @@ def generate_group_vars(serv_comp_hosts):
         ansible_vars.update(generate_groupvars_hdfs(serv_comp_hosts['HDFS']))
     if 'YARN' in serv_comp_hosts:
         ansible_vars.update(generate_groupvars_yarn(serv_comp_hosts['YARN']))
+    if 'HIVE' in serv_comp_hosts:
+        ansible_vars.update(generate_groupvars_hive(serv_comp_hosts['HIVE']))
 
     with open(JUMBODIR + svars['cluster'] +
-              '/playbooks/inventory/group_vars/all', 'w') as gva:
+              '/jumbo-services/playbooks/inventory/group_vars/all', 'w') as gva:
         yaml.dump(ansible_vars, gva, default_flow_style=False,
                   explicit_start=True)
 
@@ -314,15 +316,29 @@ def generate_groupvars_yarn(yarn_comp):
             ret['YARN']['resourcemanagers_FQDN'].append(
                 fqdn(yarn_comp['RESOURCEMANAGER'][1]))
 
-        container_max_memory = 1536
-        node_max_containers = 100
-        for m in svars['nodes']:
-            if m['name'] in yarn_comp['NODEMANAGER']:
-                if node_max_containers > int(m['ram'] / 1536):
-                    node_max_containers = int(m['ram'] / 1536)
-        node_max_memory = node_max_containers * container_max_memory
-        ret['YARN']['nodemanager_resource_memory'] = node_max_memory
-        ret['YARN']['container_max_memory'] = container_max_memory
+        if 'NODEMANAGER' in yarn_comp:
+            container_max_memory = 1536
+            node_max_containers = 100
+            for m in svars['nodes']:
+                if m['name'] in yarn_comp['NODEMANAGER']:
+                    if node_max_containers > int(m['ram'] / 1536):
+                        node_max_containers = int(m['ram'] / 1536)
+            node_max_memory = node_max_containers * container_max_memory
+            ret['YARN']['nodemanager_resource_memory'] = node_max_memory
+            ret['YARN']['container_max_memory'] = container_max_memory
+
+    return ret
+
+
+def generate_groupvars_hive(hive_comp):
+    ret = {}
+    ret['HIVE'] = {}
+
+    if 'HIVE_METASTORE' in hive_comp:
+        ret['HIVE']['metastores_FQDN'] = []
+        ret['HIVE']['metastores_FQDN'].append(hive_comp['HIVE_METASTORE'][0])
+    if 'WEBHCAT_SERVER' in hive_comp:
+        ret['HIVE']['webhcat_FQDN'] = hive_comp['WEBHCAT_SERVER'][0]
 
     return ret
 
