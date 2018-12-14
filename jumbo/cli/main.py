@@ -7,6 +7,7 @@ from jumbo.core import clusters, nodes, services
 from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
 from jumbo.utils.settings import OS
+from jumbo.utils.prepare import init_jumbo
 
 
 def print_with_color(message, color):
@@ -25,6 +26,7 @@ def jumbo(ctx, cluster):
     If no command is passed, start the Jumbo shell interactive mode.
     """
 
+    init_jumbo()
     # Create the shell
     sh = Shell(prompt=click.style('jumbo > ', fg='green') if OS != 'Windows'
                else 'jumbo > ',
@@ -58,7 +60,6 @@ def jumbo(ctx, cluster):
     sh.add_command(status)
     sh.add_command(provision)
     sh.add_command(restart)
-    sh.add_command(update_files)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -102,10 +103,14 @@ def use(ctx, name):
     try:
         ss.load_config(cluster=name)
         ss.dump_config(services.get_services_components_hosts())
+        # Load services and node types according to active bundles
+        services.config = services.load_services_conf(cluster=name)
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':
             click.echo('Use "repair" to regenerate `jumbo_config`.')
+    except RuntimeError as e:
+        print_with_color(str(e), 'red')
     else:
         click.echo('Cluster "%s" loaded.' % name)
         set_context(ctx, name)
@@ -257,7 +262,6 @@ def validate_ip_cb(ctx, param, value):
 @jumbo.command()
 @click.argument('name')
 @click.option('--types', '-t', multiple=True,
-              type=click.Choice(services.get_available_types()),
               required=True, help='VM host type(s)')
 @click.option('--ip', '-i', callback=validate_ip_cb, prompt='IP',
               help='VM IP address')
@@ -274,6 +278,12 @@ def addnode(ctx, name, types, ip, ram, cpus, cluster):
 
     :param name: New VM name
     """
+    for type in types:
+        if type not in services.get_available_types():
+            print_with_color('Error: Invalid node type: `%s`. Available: %s' %
+                             (type, services.get_available_types()), 'red')
+            return
+
     switched = True if cluster else False
     if not cluster:
         cluster = ss.svars['cluster']
@@ -812,21 +822,3 @@ def print_colorized_table(table):
 
     for l in to_print:
         click.echo(l)
-
-
-@jumbo.command()
-@click.argument('cluster_name', required=False)
-@click.option('--cluster', '-c')
-def update_files(cluster_name, cluster):
-    cluster = cluster_name or cluster
-
-    if not cluster:
-        cluster = ss.svars['cluster']
-
-    try:
-        ss.load_config(cluster=cluster)
-        ss.update_files(cluster, services.get_services_components_hosts())
-    except ex.LoadError as e:
-        print_with_color(e.message, 'red')
-        if e.type == 'NoConfFile':
-            click.echo('Use "repair" to regenerate `jumbo_config`.')

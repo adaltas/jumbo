@@ -32,4 +32,4 @@ def check_cluster(name):
     :type name: str
     """
 
-    return os.path.isdir(JUMBODIR + name)
+    return os.path.isdir(JUMBODIR + 'clusters/' + name)

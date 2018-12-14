@@ -21,7 +21,7 @@ def check_config(name):
     :param name: Cluster name
     :type name: str
     """
-    return os.path.isfile(JUMBODIR + name + '/jumbo_config')
+    return os.path.isfile(JUMBODIR + 'clusters/' + name + '/jumbo_config')
 
 
 def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
@@ -45,7 +45,8 @@ def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
                                    'Allowed characters: ' + allowed_chars,
                                    'NameNotAllowed')
 
-    ss.clear()
+    ss.clear()  # clear current session
+
     data_dir = os.path.dirname(os.path.abspath(__file__)) + '/data/'
     config_dir = os.path.dirname(os.path.abspath(__file__)) + '/config/'
     if template:
@@ -56,18 +57,22 @@ def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
         except:
             raise ex.LoadError('template', template, 'NotExist')
 
-    pathlib.Path(JUMBODIR + cluster).mkdir(parents=True)
+    pathlib.Path(JUMBODIR + 'clusters/' + cluster +
+                 '/inventory/group_vars').mkdir(parents=True)
+    pathlib.Path(JUMBODIR + 'clusters/' + cluster +
+                 '/inventory/host_vars').mkdir(parents=True)
 
-    dir_util.copy_tree(data_dir, JUMBODIR + cluster)
-    dir_util._path_created = {}
     ss.svars['cluster'] = cluster
     ss.svars['domain'] = domain or '%s.local' % cluster
     ss.svars['realm'] = realm or ss.svars['domain'].upper()
     ss.svars['location'] = 'remote' if remote else 'local'
+    # Add basic bundle if no bundle is set via templates
+    if 'bundles' not in ss.svars:
+        ss.svars['bundles'] = []
+        ss.svars['bundles'].append('jumbo-services')
 
-    services_components_hosts = None
-    if template:
-        services_components_hosts = services.get_services_components_hosts()
+    services_components_hosts = services.get_services_components_hosts() \
+        if template else None
 
     ss.dump_config(services_components_hosts)
     return True
@@ -107,7 +112,7 @@ def delete_cluster(*, cluster):
         ss.load_config(cluster=cluster)
         if ss.svars['location'] == 'local':
             vagrant.delete(cluster=cluster)
-        rmtree(JUMBODIR + cluster)
+        rmtree(JUMBODIR + 'clusters/' + cluster)
     except IOError as e:
         raise ex.LoadError('cluster', cluster, e.strerror)
 
@@ -122,7 +127,7 @@ def list_clusters():
     :return: The list of clusters' configurations
     :rtype: dict
     """
-    path_list = [f.path for f in os.scandir(JUMBODIR) if f.is_dir()]
+    path_list = [f.path for f in os.scandir(JUMBODIR+'clusters') if f.is_dir()]
     clusters = []
 
     for p in path_list:
@@ -206,7 +211,7 @@ def provision(*, cluster):
            "-i", "playbooks/inventory"]
     try:
         res = subprocess.Popen(cmd,
-                               cwd=os.path.join(JUMBODIR, cluster),
+                               cwd=os.path.join(JUMBODIR+'clusters', cluster),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT)
 

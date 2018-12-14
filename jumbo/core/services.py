@@ -9,39 +9,51 @@ from jumbo.utils.settings import JUMBODIR
 from jumbo.utils.checks import valid_cluster
 
 
-def load_services_conf():
-    """Load each service configuration file of jumbo-services.
+# Contains services and node_types.
+# Should be set via `load_services_conf(cluster)`
+config = {
+    'services': [],
+    'node_types': []
+}
+
+
+@valid_cluster
+def load_services_conf(*, cluster):
+    """Register services and node types from active bundles
 
     :return: The global configuration dict
     :rtype: dict
     """
     ret = {}
-    services_path = os.path.dirname(
-        os.path.abspath(__file__)) + '/data/jumbo-services/services'
+    ret['services'] = []
+    ret['node_types'] = []
 
-    # Load basic node types
-    with open(os.path.join(services_path, 'basic-node-types.json')) as basic_file:
-        ret = json.load(basic_file)
+    for bundle in ss.svars['bundles']:
+        # Load each service configuration
+        services_path = JUMBODIR + 'bundles/' + bundle + '/services'
+        services_files = [os.path.join(services_path, f) for f in listdir(
+            services_path) if isfile(join(services_path, f))]
 
-    # Load each service configuration
-    services_files = [os.path.join(services_path, f) for f in listdir(
-        services_path) if isfile(join(services_path, f))]
-
-    for service_file in services_files:
-        with open(service_file) as service_cfg:
-            tmp = json.load(service_cfg)
-            # Add services to global config
-            for serv in tmp['services']:
-                ret['services'].append(serv)
-            # Add additionnal node types
-            for type in tmp['node_types']:
-                if type not in ret['node_types']:
-                    ret['node_types'].append(type)
+        for service_file in services_files:
+            with open(service_file) as service_cfg:
+                tmp = json.load(service_cfg)
+                # Add services to global config
+                if 'services' in tmp:
+                    for serv in tmp['services']:
+                        # # Check service names conflicts
+                        # if serv['name'] in tmp['services']:
+                        #     raise RuntimeError(
+                        #         "Service %s is declared multiple times."
+                        #         "You may have conflictual bundles." % serv)
+                        # else:
+                        ret['services'].append(serv)
+                # Add additionnal node types
+                if 'node_types' in tmp:
+                    for type in tmp['node_types']:
+                        if type not in ret['node_types']:
+                            ret['node_types'].append(type)
 
     return ret
-
-
-config = load_services_conf()
 
 
 def check_service(name):
@@ -526,7 +538,7 @@ def list_components(*, node, cluster):
 
     if cluster != ss.svars['cluster']:
         try:
-            with open(JUMBODIR + cluster + '/jumbo_config', 'r') as clf:
+            with open(JUMBODIR + 'clusters/' + cluster + '/jumbo_config', 'r') as clf:
                 cluster_conf = json.load(clf)
         except IOError as e:
             raise ex.LoadError('cluster', cluster, e.strerror)

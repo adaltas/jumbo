@@ -32,20 +32,22 @@ def dump_config(services_components_hosts=None):
     try:
         generate_ansible_groups()
 
-        with open(JUMBODIR + svars['cluster'] + '/jumbo_config', 'w') as cfg:
+        with open(JUMBODIR + 'clusters/' + svars['cluster']
+                  + '/jumbo_config', 'w') as cfg:
             json.dump(svars, cfg)
 
         if svars["location"] == "local":
             vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
-            with open(JUMBODIR + svars['cluster'] + '/Vagrantfile', 'w') as vf:
+            with open(JUMBODIR + 'clusters/' + svars['cluster']
+                      + '/Vagrantfile', 'w') as vf:
                 vf.write(vagrant_temp.render(hosts=get_ordered_nodes(),
                                              domain=svars['domain'],
                                              cluster=svars['cluster'],
                                              pool_name=POOLNAME))
 
         hosts_temp = jinja_env.get_template('hosts.j2')
-        with open(JUMBODIR + svars['cluster'] +
-                  '/jumbo-services/playbooks/inventory/hosts',
+        with open(JUMBODIR + 'clusters/' + svars['cluster'] +
+                  '/inventory/hosts',
                   'w') as vf:
             vf.write(hosts_temp.render(hosts=svars['nodes']))
 
@@ -73,23 +75,13 @@ def load_config(cluster):
         raise ex.LoadError('cluster', cluster, 'NoConfFile')
     else:
         try:
-            with open(JUMBODIR + cluster + '/jumbo_config', 'r') as jc:
+            with open(JUMBODIR + 'clusters/' + cluster + '/jumbo_config', 'r') as jc:
                 svars = json.load(jc)
         except IOError as e:
             raise ex.LoadError('cluster', cluster, e.strerror)
 
     vs.update_versions_file()
 
-    return True
-
-
-def update_files(cluster, services_components_hosts):
-    data_dir = os.path.dirname(os.path.abspath(__file__)) + '/../core/data/'
-
-    dir_util.copy_tree(data_dir, JUMBODIR + cluster)
-    dir_util._path_created = {}
-
-    dump_config(services_components_hosts)
     return True
 
 
@@ -211,8 +203,8 @@ def generate_host_vars():
     """
 
     for m in svars['nodes']:
-        with open(JUMBODIR + svars['cluster']
-                  + '/jumbo-services/playbooks/inventory/host_vars/' + m['name'], 'w') as host_file:
+        with open(JUMBODIR + 'clusters/' + svars['cluster']
+                  + '/inventory/host_vars/' + m['name'], 'w+') as host_file:
             content = {}
             content['components'] = []
             for c in m['components']:
@@ -270,8 +262,8 @@ def generate_group_vars(serv_comp_hosts):
     if 'HIVE' in serv_comp_hosts:
         ansible_vars.update(generate_groupvars_hive(serv_comp_hosts['HIVE']))
 
-    with open(JUMBODIR + svars['cluster'] +
-              '/jumbo-services/playbooks/inventory/group_vars/all', 'w') as gva:
+    with open(JUMBODIR + 'clusters/' + svars['cluster']
+              + '/inventory/group_vars/all', 'w+') as gva:
         yaml.dump(ansible_vars, gva, default_flow_style=False,
                   explicit_start=True)
 

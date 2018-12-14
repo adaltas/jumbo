@@ -8,13 +8,6 @@ from jumbo.utils.settings import JUMBODIR
 from jumbo.utils import exceptions as ex
 
 
-if not os.path.isfile(JUMBODIR + 'versions.json'):
-    if not os.path.isdir(JUMBODIR):
-        pathlib.Path(JUMBODIR).mkdir()
-    copyfile(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +
-             '/core/config/versions.json', JUMBODIR + 'versions.json')
-
-
 def get_yaml_config(cluster=None):
     """Get the versions to use for each service/platform/ressource
 
@@ -42,9 +35,9 @@ def get_yaml_config(cluster=None):
         return yaml_versions
 
     # Cluster versions settings
-    if os.path.isfile(JUMBODIR + cluster + '/versions.json'):
+    if os.path.isfile(JUMBODIR + 'clusters/' + cluster + '/versions.json'):
         with open(
-                JUMBODIR + cluster + '/versions.json', 'r') as vs:
+                JUMBODIR + 'clusters/' + cluster + '/versions.json', 'r') as vs:
             cluster_versions = json.load(vs)
 
         yaml_versions = update_yaml_versions(yaml_versions, cluster_versions)
