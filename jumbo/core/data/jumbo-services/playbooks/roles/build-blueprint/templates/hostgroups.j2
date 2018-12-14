@@ -1,0 +1,20 @@
+{
+  "host_groups": [
+    {% for host in groups['all'] %}
+      {% if hostvars[host]['components'] is defined and hostvars[host]['components']|length >  0  %}
+        {% if not loop.first %},{% endif %}{
+          "cardinality": "1",
+          "components": [
+            {% for comp in hostvars[host]['components'] %}
+              {
+                "name": "{{ comp }}"
+              }{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ],
+          "configurations": [],
+          "name": "{{ host }}_group"
+        }
+      {% endif %}
+    {% endfor %}
+  ]
+}

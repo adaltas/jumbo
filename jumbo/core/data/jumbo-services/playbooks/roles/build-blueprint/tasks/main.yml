@@ -1,0 +1,5 @@
+---
+- name: Copy clean blueprint
+  copy: src=blueprint.json dest=/tmp/blueprint.json
+
+- import_tasks: hostgroups.yml

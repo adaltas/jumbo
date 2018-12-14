@@ -1,0 +1,55 @@
+---
+#######
+## add service to blueprint
+#######
+- name: Blueprint - add service
+  debug:
+    msg: "Adding service from j2 file {{ blueprint_conf }}"
+  listen: "add service to blueprint"
+
+- name: Template blueprint part
+  template:
+    src: "{{ blueprint_conf }}"
+    dest: "/tmp/blueprint_conf.json"
+  listen: "add service to blueprint"
+
+- name: Load Blueprint file
+  slurp:
+    path: '/tmp/blueprint.json'
+  register: bp_var_file
+  listen: "add service to blueprint"
+
+- name: Load service configuration file
+  slurp:
+    path: '/tmp/blueprint_conf.json'
+  register: bpconf_var_file
+  listen: "add service to blueprint"
+
+- name: Register as JSON variables
+  set_fact: 
+    bp_var: "{{ bp_var_file.content|b64decode|from_json }}"
+    bpconf_var: "{{ bpconf_var_file.content|b64decode|from_json }}"
+  listen: "add service to blueprint"
+
+- name: Merge configurations
+  set_fact:
+    conf_merged: 
+      configurations: "{{ bp_var.configurations }} + {{ bpconf_var.configurations }}"
+  listen: "add service to blueprint"
+
+- name: Add merged configuration to blueprint
+  set_fact:
+    bp_var: "{{ bp_var | combine(conf_merged) }}"
+  listen: "add service to blueprint"
+  
+- name: View blueprint
+  debug:
+    msg: "{{ bp_var }}"
+  listen: "add service to blueprint"
+
+- name: Update blueprint
+  copy:
+    content: "{{ bp_var }}"
+    dest: /tmp/blueprint.json
+  listen: "add service to blueprint"
+

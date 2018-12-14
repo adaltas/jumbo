@@ -1,0 +1,10 @@
+{
+  "node_types": [
+    "master",
+    "sidemaster",
+    "worker",
+    "edge",
+    "ldap"
+  ],
+  "services": []
+}

@@ -1,0 +1,32 @@
+---
+- hosts: ambariserver
+  tasks:
+  - name: Wait for all services
+    uri: 
+      url: "{{ ambari_url }}/api/v1/clusters/{{ cluster_name }}/services?fields=ServiceInfo/state&minimal_response=true"
+      headers:
+        X-Requested-By: ambari
+      method: GET
+      force_basic_auth: yes
+      user: "{{ ambari.user }}"
+      password: "{{ ambari.pwd }}"
+      validate_certs: no
+    register: services_state
+    until: services_state.msg.find("UNKNOWN") == -1 and services_state.status == 200
+    retries: 20
+    delay: 5
+
+  - name: Start all services
+    uri:
+      url: "{{ ambari_url }}/api/v1/clusters/{{ cluster_name }}/services"
+      headers:
+        X-Requested-By: ambari
+      method: PUT
+      force_basic_auth: yes
+      user: "{{ ambari.user }}"
+      password: "{{ ambari.pwd }}"
+      body: " {\"RequestInfo\":{\"context\":\"Start all services\"},\"Body\":{\"ServiceInfo\":{\"state\":\"STARTED\"}}}"
+      status_code: 200, 201, 202, 409
+      validate_certs: no
+    register: cmd_start_services
+    changed_when: cmd_start_services.status == 202

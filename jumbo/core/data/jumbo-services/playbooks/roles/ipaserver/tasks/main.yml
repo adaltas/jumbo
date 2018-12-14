@@ -1,0 +1,66 @@
+---
+- name: Download ipa-server
+  yum:
+    name: [
+      ipa-server,
+      ipa-server-dns,
+      bind
+    ]
+    state: latest
+
+- name: Restart dbus
+  service:
+    name: dbus
+    state: restarted
+
+- name: Restart systemd-logind
+  service:
+    name: systemd-logind
+    state: restarted
+
+- name: Check FreeIPA server installation
+  ipaserver_test:
+    dm_password: "{{ ipa_dm_password }}"
+    password: "{{ ipa_admin_password }}"
+    setup_dns: yes
+    domain: "{{ domain }}"
+    realm: "{{ realm }}"
+    auto_reverse: yes
+    no_forwarders: yes
+  register: result_ipaserver_test
+
+- meta: end_play
+  when: not result_ipaserver_test.changed and (result_ipaserver_test.dns_zone_exists is defined or result_ipaserver_test.client_already_configured is defined or result_ipaserver_test.server_already_configured is defined)
+
+- name: Add self to /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ hostvars[item]['ansible_host'] }} {{ item }}.{{ domain }}"
+  with_inventory_hostnames:
+    - ipaserver
+
+- name: Add self as nameserver in resolf.conf (first line) and lock file (immutable attr)
+  lineinfile:
+    dest: /etc/resolv.conf
+    line: "nameserver {{ hostvars[item]['ansible_host'] }}"
+    insertbefore: BOF
+    attributes: "i"
+  with_inventory_hostnames:
+    - ipaserver
+
+- name: Unmask named service
+  systemd:
+    name: named
+    masked: no
+
+- name: Start named service
+  service:
+    name: named
+    state: started
+    enabled: yes
+
+
+- name: Install ipa-server
+  command: "ipa-server-install -U --setup-dns --no-forwarder --auto-reverse -p {{ ipa_dm_password }} -a {{ ipa_admin_password }} -n {{ domain }} -r {{ realm }} --hostname={{ item }}.{{ domain }}"
+  with_inventory_hostnames:
+    - ipaserver

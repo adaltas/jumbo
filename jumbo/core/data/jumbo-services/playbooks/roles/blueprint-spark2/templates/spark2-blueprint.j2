@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "spark2-defaults": {
+        "spark.history.ui.port": "18081",
+        "spark.eventLog.dir": "hdfs:///spark2-history/",
+        "spark.eventLog.enabled": "true",
+        "hbase.regionserver.info.port": "16030",
+        "spark.history.provider": "org.apache.spark.deploy.history.FsHistoryProvider",
+        "spark.yarn.historyServer.address": "{{ SPARK2.historyserver_FQDN }}:18081",
+        "spark.history.fs.logDirectory": "hdfs:///spark2-history/"
+      }
+    },
+    {
+      "spark2-env": {
+        "spark_user": "spark",
+        "spark_group": "spark",
+        "spark_pid_dir": "/var/run/spark2",
+        "spark_log_dir": "/var/log/spark2",
+        "spark_daemon_memory": "1024"
+      }
+    }
+  ]
+}

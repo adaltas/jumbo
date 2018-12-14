@@ -1,0 +1,36 @@
+
+{
+  "configurations": [
+    {
+      "core-site": {
+        "properties": {
+          "hadoop.proxyuser.hive.hosts": "{{ HIVE.metastores_FQDN[0] }}",
+          "hadoop.proxyuser.hcat.hosts": "{{ HIVE.webhcat_FQDN }}"
+        }
+      }
+    },
+    {
+      "hive-site": {
+        "properties": {
+          "hive.exec.compress.output": "false",
+          "hive.merge.mapfiles": "true",
+          "hive.server2.tez.initialize.default.sessions": "false",
+          "hive.server2.transport.mode": "binary",
+          "javax.jdo.option.ConnectionDriverName": "org.postgresql.Driver",
+          "javax.jdo.option.ConnectionURL": "jdbc:postgresql://{{ pgsqlserver }}:5432/hive",
+          "javax.jdo.option.ConnectionUserName": "hive",
+          "hive.metastore.uris": "thrift://{{ pgsqlserver }}:9083"
+        }
+      }
+    },
+    {
+      "hive-env": {
+        "properties": {
+          "hive_database": "Existing PostgreSQL Database",
+          "hive_database_name": "hive",
+          "hive_database_type": "postgres"
+        }
+      }
+    }
+  ]
+}

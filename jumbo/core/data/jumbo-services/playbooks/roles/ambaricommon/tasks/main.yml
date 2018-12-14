@@ -1,0 +1,36 @@
+---
+- name: Configure servers network
+  blockinfile:
+    dest: "/etc/sysconfig/network"
+    block: |
+      NETWORKING=yes
+      HOSTNAME={{ inventory_hostname }}.{{ domain }}
+      NISDOMAIN={{ domain }}
+
+- name: Configure iptables
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+  register: reg_disable_firewalld
+  failed_when: 'reg_disable_firewalld is failed and "Could not find the requested service firewalld" not in reg_disable_firewalld.msg'
+
+- name: Install libselinux-python
+  yum:
+    name: libselinux-python
+    state: latest
+
+- name: Permanently disable SELinux
+  selinux:
+    state: disabled
+
+- name: Set umask
+  lineinfile:
+    path: /etc/profile
+    line: "umask 0022"
+    insertafter: EOF
+
+- name: Add Ambari repo
+  get_url:
+    url: "{{ services.AMBARI.url }}"
+    dest: /etc/yum.repos.d/ambari.repo

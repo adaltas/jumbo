@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "core-site": {
+        "ha.zookeeper.quorum": "{{ ZOOKEEPER.quorum }}{{ ZOOKEEPER.quorum_port }}"
+      }
+    }
+    {% if HIVE is defined %}
+    ,{
+      "hive-site": {
+        "hive.zookeeper.quorum": "{{ ZOOKEEPER.quorum }}{{ ZOOKEEPER.quorum_port }}"
+      }
+    },
+    {
+      "webhcat-site": {
+        "templeton.zookeeper.hosts": "{{ ZOOKEEPER.quorum }}{{ ZOOKEEPER.quorum_port }}"
+      }
+    }
+    {% endif %}
+    {% if HBASE is defined %}
+    ,{
+      "hbase-site": {
+        "hbase.zookeeper.hosts" : "{{ ZOOKEEPER.quorum }}"
+      }
+    }
+    {% endif %}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "configurations": [],
+  "host_groups": [],
+  "settings": [],
+  "Blueprints": {
+    "stack_name": "HDP",
+    "stack_version": "2.6"
+  }
+}

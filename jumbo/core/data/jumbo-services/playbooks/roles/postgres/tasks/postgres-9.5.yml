@@ -1,0 +1,16 @@
+---
+- name: Download version 9.5
+  yum:
+    name: "{{ services.POSTGRESQL.url }}"
+
+- name: Install version 9.5
+  yum:
+    name: [
+      postgresql95,
+      postgresql95-server
+    ]
+
+- name: Initiate database
+  command: /usr/pgsql-9.5/bin/postgresql95-setup initdb
+           creates=/var/lib/pgsql/data/postgresql.conf
+  ignore_errors: yes

@@ -1,0 +1,15 @@
+---
+## Example blueprint playbook
+- hosts: ambariserver
+  roles:
+    # Copy clean blueprint to /tmp/blueprint.json 
+    # Generate hostgroups with components
+    # Register handlers
+    - build-blueprint 
+    # Complete blueprint configurations by calling required roles
+    - { role: blueprint-hdfs, when: HIVE is defined }
+    - { role: blueprint-yarn, when: YARN is defined }
+    - { role: blueprint-hive, when: HIVE is defined }
+    - { role: blueprint-zookeeper, when: ZOOKEEPER is defined }
+    # Post blueprint to Ambari API
+      - postblueprint

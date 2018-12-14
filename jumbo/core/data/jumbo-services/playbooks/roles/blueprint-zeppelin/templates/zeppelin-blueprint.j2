@@ -1,0 +1,31 @@
+{
+  "configurations": [
+    {
+      "zeppelin-config": {
+        "zeppelin.server.port": "9995",
+        "zeppelin.server.ssl.port": "9995",
+        "zeppelin.server.addr": "0.0.0.0",
+        "zeppelin.notebook.dir": "notebook",
+        "zeppelin.interpreters": "{{
+            "org.apache.zeppelin.spark.SparkInterpreter,"
+            "org.apache.zeppelin.spark.PySparkInterpreter,"
+            "org.apache.zeppelin.spark.SparkSqlInterpreter,"
+            "org.apache.zeppelin.spark.DepInterpreter,"
+            "org.apache.zeppelin.markdown.Markdown,"
+            "org.apache.zeppelin.angular.AngularInterpreter,"
+            "org.apache.zeppelin.shell.ShellInterpreter,"
+            "org.apache.zeppelin.jdbc.JDBCInterpreter,"
+            "org.apache.zeppelin.phoenix.PhoenixInterpreter,"
+            "org.apache.zeppelin.livy.LivySparkInterpreter,"
+            "org.apache.zeppelin.livy.LivyPySparkInterpreter,"
+            "org.apache.zeppelin.livy.LivySparkRInterpreter,"
+            "org.apache.zeppelin.livy.LivySparkSQLInterpreter"
+        }}",
+        "zeppelin.ssl": "false",
+        "zeppelin.notebook.storage": "org.apache.zeppelin.notebook.repo.FileSystemNotebookRepo",
+        "zeppelin.interpreter.dir": "interpreter",
+        "zeppelin.config.fs.dir": "conf"
+      }
+    }
+  ]
+}"

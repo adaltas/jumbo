@@ -1,0 +1,35 @@
+{
+  "blueprint": "{{ domain|replace('.', '-') }}-blueprint",
+  "repository_version_id": 1,
+  "host_groups": [
+    {% for host in groups['all'] %}
+      {% if hostvars[host]['components'] is defined and hostvars[host]['components']|length >  0  %}
+      {
+        "name": "{{ host }}_group",
+        "hosts": [
+          {
+            "fqdn": "{{ host }}.{{ domain }}"
+          }
+        ]
+      }{% if not loop.last %},{% endif %}
+      {% endif %}
+    {% endfor %}
+  ],
+  "config_recommendation_strategy": "ALWAYS_APPLY_DONT_OVERRIDE_CUSTOM_VALUES",
+  "configurations": [
+    {
+      "hive-site": {
+          "properties": {
+            "javax.jdo.option.ConnectionPassword": "hive"
+          }
+      }
+    },
+    {
+      "oozie-site": {
+          "properties": {
+              "oozie.service.JPAService.jdbc.password": "oozie"
+          }
+      }
+    }
+  ]
+}

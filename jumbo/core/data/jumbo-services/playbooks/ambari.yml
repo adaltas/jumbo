@@ -1,0 +1,10 @@
+---
+- hosts: ambariserver
+  become: true
+  roles:
+    - ambariserver
+  
+- hosts: ambariclients
+  become: true
+  roles:
+    - ambariagents

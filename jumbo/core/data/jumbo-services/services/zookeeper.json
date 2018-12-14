@@ -1,0 +1,60 @@
+{
+  "node_types": [],
+  "services": [
+    {
+      "name": "ZOOKEEPER",
+      "components": [
+        {
+          "name": "ZOOKEEPER_SERVER",
+          "hosts_types": [
+            "master",
+            "sidemaster"
+          ],
+          "abbr": "ZK_S",
+          "number": {
+            "default": 1,
+            "ha": 3
+          }
+        },
+        {
+          "name": "ZOOKEEPER_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "ZK_C",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "nodes": {
+          "default": {
+            "master": 1
+          },
+          "ha": {
+            "master": 2,
+            "sidemaster": 1
+          }
+        },
+        "services": {
+          "default": [
+            "AMBARI"
+          ],
+          "ha": [
+            "AMBARI"
+          ]
+        }
+      },
+      "auto_install": [
+        "ZOOKEEPER_CLIENT"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "node_types": [],
+  "services": [
+    {
+      "name": "HIVE",
+      "components": [
+        {
+          "name": "HIVE_METASTORE",
+          "hosts_types": [
+            "sidemaster",
+            "master"
+          ],
+          "abbr": "H_MSTORE",
+          "number": {
+            "default": 1,
+            "ha": 2
+          }
+        },
+        {
+          "name": "HIVE_SERVER",
+          "hosts_types": [
+            "edge",
+            "sidemaster"
+          ],
+          "abbr": "HIVE_S",
+          "number": {
+            "default": 1,
+            "ha": 2
+          }
+        },
+        {
+          "name": "WEBHCAT_SERVER",
+          "hosts_types": [
+            "edge"
+          ],
+          "abbr": "WEBHCAT_S",
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        },
+        {
+          "name": "HCAT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "worker",
+            "edge"
+          ],
+          "abbr": "HCAT",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "HIVE_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "HIVE_C",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "nodes": {
+          "default": {
+            "sidemaster": 1,
+            "edge": 1
+          },
+          "ha": {
+            "master": 1,
+            "sidemaster": 1,
+            "edge": 1
+          }
+        },
+        "services": {
+          "default": [
+            "AMBARI",
+            "HDFS",
+            "YARN"
+          ],
+          "ha": [
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "ZOOKEEPER"
+          ]
+        }
+      },
+      "auto_install": [
+        "HIVE_CLIENT",
+        "HCAT"
+      ]
+    }
+  ]
+}

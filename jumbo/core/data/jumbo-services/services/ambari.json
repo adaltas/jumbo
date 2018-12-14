@@ -1,0 +1,44 @@
+{
+  "node_types": [],
+  "services": [
+    {
+      "name": "AMBARI",
+      "components": [
+        {
+          "name": "AMBARI_SERVER",
+          "hosts_types": [
+            "sidemaster"
+          ],
+          "abbr": "AMBARI_S",
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "nodes": {
+          "default": {},
+          "ha": {}
+        },
+        "services": {
+          "default": [
+            "POSTGRESQL"
+          ],
+          "ha": [
+            "POSTGRESQL"
+          ],
+          "ssl": [
+            [
+              "IPA",
+              "IPA-DOCKER"
+            ]
+          ]
+        }
+      },
+      "auto_install": []
+    }
+  ]
+}

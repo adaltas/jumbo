@@ -1,0 +1,41 @@
+{
+  "configurations": [
+    {
+      "yarn-site": {
+        "yarn.resourcemanager.recovery.enabled": "true",
+        "yarn.resourcemanager.store.class": "org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore",
+        "yarn.resourcemanager.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8050",
+        "yarn.resourcemanager.admin.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8141",
+        "yarn.resourcemanager.scheduler.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8030",
+        "yarn.resourcemanager.hostname": "{{ YARN.resourcemanagers_FQDN[0] }}",
+        "yarn.resourcemanager.resource-tracker.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8025",
+        "yarn.resourcemanager.webapp.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8088",
+        "yarn.resourcemanager.webapp.https.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8090",
+        "yarn.resourcemanager.resource-tracker.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8025",
+        "yarn.resourcemanager.webapp.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8088",
+        "yarn.resourcemanager.webapp.https.address": "{{ YARN.resourcemanagers_FQDN[0] }}:8090",
+        "yarn.nodemanager.resource.memory-mb": "{{ YARN.nodemanager_resource_memory }}",
+        "yarn.scheduler.maximum-allocation-mb": "{{ YARN.container_max_memory }}",
+        "yarn.timeline-service.address": "{{ YARN.timeline_service_FQDN }}:10200",
+        "yarn.timeline-service.webapp.address": "{{ YARN.timeline_service_FQDN }}:8188",
+        "yarn.timeline-service.webapp.https.address": "{{ YARN.timeline_service_FQDN }}:8190",
+      {% if YARN.resourcemanagers_FQDN|length == 2 %} {# High-Availability #}
+        "yarn.resourcemanager.ha.enabled": "true",
+        "yarn.resourcemanager.ha.automatic-failover.zk-base-path": "/yarn-leader-election",
+        "yarn.resourcemanager.cluster-id": "yarn-cluster",
+        "yarn.resourcemanager.ha.rm-ids": "rm1,rm2",
+        "yarn.resourcemanager.hostname.rm1": "{{ YARN.resourcemanagers_FQDN[0] }}",
+        "yarn.resourcemanager.hostname.rm2": "{{ YARN.resourcemanagers_FQDN[1] }}",
+        "yarn.resourcemanager.webapp.address.rm1": "{{ YARN.resourcemanagers_FQDN[0] }}:8088",
+        "yarn.resourcemanager.webapp.address.rm2": "{{ YARN.resourcemanagers_FQDN[1] }}:8088",
+        "yarn.resourcemanager.webapp.https.address.rm1": "{{ YARN.resourcemanagers_FQDN[0] }}:8090",
+        "yarn.resourcemanager.webapp.https.address.rm2": "{{ YARN.resourcemanagers_FQDN[1] }}:8090",
+        "yarn.log.server.url": "http://{{ YARN.timeline_service_FQDN }}:19888/jobhistory/logs"
+      {% else %} {# no High-Availability #}
+        "yarn.resourcemanager.ha.enabled": "false",
+        "yarn.log.server.url": "http://{{ YARN.resourcemanagers_FQDN[0] }}:19888/jobhistory/logs" {# check why different with HA #}
+      {% endif %}
+      }
+    }
+  ]
+}

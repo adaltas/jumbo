@@ -1,0 +1,109 @@
+{
+  "node_types": [],
+  "services": [
+    {
+      "name": "HDFS",
+      "components": [
+        {
+          "name": "NAMENODE",
+          "hosts_types": [
+            "master"
+          ],
+          "abbr": "NN",
+          "ram": 500,
+          "number": {
+            "default": 1,
+            "ha": 2
+          }
+        },
+        {
+          "name": "SECONDARY_NAMENODE",
+          "hosts_types": [
+            "sidemaster"
+          ],
+          "abbr": "SNN",
+          "number": {
+            "default": 1,
+            "ha": 0
+          }
+        },
+        {
+          "name": "DATANODE",
+          "hosts_types": [
+            "worker"
+          ],
+          "abbr": "DN",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "JOURNALNODE",
+          "hosts_types": [
+            "master",
+            "sidemaster"
+          ],
+          "abbr": "JN",
+          "number": {
+            "default": 0,
+            "ha": 3
+          }
+        },
+        {
+          "name": "HDFS_CLIENT",
+          "hosts_types": [
+            "master",
+            "sidemaster",
+            "edge",
+            "worker"
+          ],
+          "abbr": "HDFS_C",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "ZKFC",
+          "hosts_types": [
+            "master"
+          ],
+          "abbr": "ZKFC",
+          "number": {
+            "default": 0,
+            "ha": 2
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "nodes": {
+          "default": {
+            "master": 1,
+            "sidemaster": 1,
+            "worker": 1
+          },
+          "ha": {
+            "master": 2,
+            "sidemaster": 1,
+            "worker": 1
+          }
+        },
+        "services": {
+          "default": [
+            "AMBARI"
+          ],
+          "ha": [
+            "AMBARI",
+            "ZOOKEEPER"
+          ]
+        }
+      },
+      "auto_install": [
+        "HDFS_CLIENT"
+      ]
+    }
+  ]
+}

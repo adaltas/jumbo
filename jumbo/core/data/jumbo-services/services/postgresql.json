@@ -1,0 +1,38 @@
+{
+  "node_types": [],
+  "services": [
+    {
+      "name": "POSTGRESQL",
+      "components": [
+        {
+          "name": "PSQL_SERVER",
+          "abbr": "PSQL_S",
+          "hosts_types": [
+            "sidemaster"
+          ],
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        }
+      ],
+      "requirements": {
+        "ram": 1000,
+        "disk": 10000,
+        "nodes": {
+          "default": {
+            "sidemaster": 1
+          },
+          "ha": {
+            "sidemaster": 1
+          }
+        },
+        "services": {
+          "default": [],
+          "ha": []
+        }
+      },
+      "auto_install": []
+    }
+  ]
+}

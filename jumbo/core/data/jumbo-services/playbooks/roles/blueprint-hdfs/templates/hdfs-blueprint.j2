@@ -1,0 +1,39 @@
+{
+  "configurations": [
+    {
+      "core-site": {
+      {% if HDFS.namenodes_FQDN|length == 2 %} {# High-Availability #}
+        "fs.defaultFS": "hdfs://{{ HDFS.nameservice }}"
+      {% else %}
+        "fs.defaultFS": "hdfs://{{ HDFS.namenodes_FQDN[0] }}"
+      {% endif %}
+      }
+    },
+    {
+      "hdfs-site": {
+        "dfs.namenode.http-address": "{{ HDFS.namenodes_FQDN[0] }}:50070", {# Unecessary ? #}
+      {% if HDFS.namenodes_FQDN|length == 2 %} {# High-Availability #}
+        "dfs.nameservices": "{{ HDFS.nameservice }},
+        "dfs.namenode.http-address.{{ HDFS.nameservice }}.nn1": "{{ HDFS.namenodes_FQDN[0] }}:50070",
+        "dfs.namenode.http-address.{{ HDFS.nameservice }}.nn2": "{{ HDFS.namenodes_FQDN[1] }}:50070",
+        "dfs.namenode.https-address": "{{ HDFS.namenodes_FQDN[0] }}:50470"
+        "dfs.namenode.https-address.{{ HDFS.nameservice }}.nn1": "{{ HDFS.namenodes_FQDN[0] }}:50470",
+        "dfs.namenode.https-address.{{ HDFS.nameservice }}.nn2": "{{ HDFS.namenodes_FQDN[1] }}:50470",
+        "dfs.namenode.rpc-address.{{ HDFS.nameservice }}.nn1": "{{ HDFS.namenodes_FQDN[0] }}:8020",
+        "dfs.namenode.rpc-address.{{ HDFS.nameservice }}.nn2": "{{ HDFS.namenodes_FQDN[1] }}:8020",
+        "dfs.ha.namenodes.{{ HDFS.nameservice }}": "nn1,nn2",
+        "dfs.ha.fencing.methods": "shell(/bin/true)",
+        "dfs.client.failover.proxy.provider.{{ HDFS.nameservice }}": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider",
+        "dfs.ha.automatic-failover.enabled": "true"
+        "dfs.namenode.shared.edits.dir": "qjournal://{% for jn in HDFS.journalnodes_FQDN %}{{ item }}:8485{% if not loop.last %};{% endif %}{% endfor %}
+      {% else %}
+        "dfs.namenode.https-address": "{{ HDFS.namenodes_FQDN[0] }}:50470",
+        "dfs.namenode.rpc-addres": "{{ HDFS.namenodes_FQDN[0] }}:8020"
+        {% if HDFS.snamenode_FQDN is defined  %}
+        ,"dfs.namenode.secondary.http-address": "{{ HDFS.snamenode_FQDN }}:50090"
+        {% endif %}
+      {% endif %}
+      }
+    }
+  ]
+}

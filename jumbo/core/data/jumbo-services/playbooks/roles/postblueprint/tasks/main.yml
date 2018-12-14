@@ -1,0 +1,146 @@
+---
+- name: Check that the cluster does not already exist
+  uri:
+    url: "{{ ambari_url }}/api/v1/clusters/{{ cluster_name }}"
+    headers:
+      X-Requested-By: ambari
+    method: GET
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    status_code: 200, 201, 202, 404
+    return_content: yes
+    validate_certs: no
+  register: cluster_existence
+
+- debug:
+    msg:
+      - The cluster '{{ cluster_name }}' already exists.
+      - Cancelling cluster deployment.
+  when: cluster_existence.status == 200
+
+- meta: end_play
+  when: cluster_existence.status == 200
+
+- name: Check that the blueprint does not already exist
+  uri:
+    url: "{{ ambari_url }}/api/v1/blueprints/{{ blueprint_name }}"
+    headers:
+      X-Requested-By: ambari
+    method: GET
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    status_code: 200, 201, 202, 404
+    body_format: json
+    return_content: yes
+    validate_certs: no
+  register: bp_existence
+
+- include_tasks: name-bp.yml
+  when: bp_existence.status == 200
+
+- name: Load blueprint
+  slurp:
+    path: /tmp/blueprint.json
+  register: blueprint_file
+
+- name: Post blueprint to ambariserver
+  uri:
+    url: "{{ ambari_url }}/api/v1/blueprints/{{ blueprint_name if bp_existence.status != 200 else bp_tmp }}"
+    headers:
+      X-Requested-By: ambari
+    method: POST
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    body: " {{ blueprint_file.content|b64decode }}"
+    body_format: raw
+    validate_certs: no
+    status_code: 200, 201, 202
+ 
+- name: Template VDF file
+  template:
+    src: "version-definitions-{{ platform.HDP.version }}.j2"
+    dest: "/tmp/version-definitions.xml"
+
+- name: Post version_definition to ambariserver
+  uri:
+    url: "{{ ambari_url }}/api/v1/version_definitions"
+    headers:
+      X-Requested-By: ambari
+    method: POST
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    body: " {{ lookup('file', 'version-definitions-url.json')}}"
+    body_format: raw
+    status_code: 200, 201, 202, 400
+    validate_certs: no
+  ignore_errors: yes
+
+- name: Tempalate cluster file
+  template:
+    src: "cluster.j2"
+    dest: "/tmp/cluster.json"
+
+- name: Load template file
+  slurp:
+    path: /tmp/cluster.json
+  register: cluster_file
+
+- name: debug azad
+  debug:
+    msg: "{{ cluster_file.content|b64decode|from_json }}"
+
+- name: Create cluster instance
+  uri:
+    url: "{{ ambari_url }}/api/v1/clusters/{{ cluster_name }}"
+    headers:
+      X-Requested-By: ambari
+    method: POST
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    body: " {{ cluster_file.content|b64decode }}"
+    body_format: raw
+    status_code: 200, 201, 202
+    validate_certs: no
+  register: cluster_resp
+
+- name: HDP install in progress
+  debug:
+    msg:
+      - "Installation of cluster '{{ cluster_name }}' in progress."
+      - "Ambari WebUI: {{ ambari_url }}"
+      - "Username: 'admin', Password: 'admin'"
+
+- name: Kerberos warning
+  debug:
+    msg: "Please wait until the installation is completed. Kerberos will then be set up"
+  when: kerberos_enabled
+
+- name: "Wait for HDP install"
+  uri:
+    url: "{{ ambari_url }}/api/v1/clusters/{{ cluster_name }}/requests/{{ cluster_resp.json.Requests.id }}"
+    headers:
+      X-Requested-By: ambari
+    method: GET
+    force_basic_auth: yes
+    user: "{{ ambari.user }}"
+    password: "{{ ambari.pwd }}"
+    status_code: 200, 201, 202
+    validate_certs: no
+  register: progress
+  until: "progress.json.Requests.progress_percent == 100.0"
+  retries: 720
+  delay: 10
+
+- name: Installed finished
+  debug:
+    msg: "Installed finished"
+
+- name: Installed finished
+  debug:
+    msg: "Starting kerberization"
+  when: kerberos_enabled

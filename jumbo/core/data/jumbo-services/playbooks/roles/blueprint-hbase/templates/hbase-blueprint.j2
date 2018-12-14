@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "hbase-site": {
+        "hbase.master.info.port": "16010",
+        "hbase.regionserver.handler.count": "30",
+        "hbase.regionserver.port": "16020",
+        "hbase.regionserver.info.port": "16030",
+        "hbase.rootdir": "/apps/hbase/data",
+        "hbase.rpc.protection": "authentication",
+        "hbase.security.authentication": "simple",
+        "hbase.security.authorization": "false",
+        "hbase.superuser": "hbase",
+        "hbase.tmp.dir": "/tmp/hbase",
+        "hbase.zookeeper.property.clientPort": "2181",
+        "zookeeper.znode.parent": "/hbase-unsecure",
+      }
+    },
+    {
+      "hbase-env": {
+        "hbase_user": "hbase"
+      }
+    }
+  ]
+}
