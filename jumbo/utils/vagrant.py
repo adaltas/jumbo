@@ -55,7 +55,7 @@ def vms_created(*, cluster):
 def handle_cmd(cmd, *, cluster):
     try:
         res = subprocess.Popen(cmd,
-                               cwd=os.path.join(JUMBODIR, cluster),
+                               cwd=os.path.join(JUMBODIR+'clusters/', cluster),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT
                                )
