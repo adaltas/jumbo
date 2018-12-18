@@ -45,7 +45,7 @@ class TestClusters(unittest.TestCase):
 
     def test_repair_cluster(self):
         print('Test "repair_cluster"')
-        os.remove(JUMBODIR + self.c_name + '/jumbo_config')
+        os.remove(JUMBODIR + 'clusters/' + self.c_name + '/jumbo_config')
         print('Repairing cluster...')
         clusters.repair_cluster(domain=None,
                                 cluster=self.c_name)
