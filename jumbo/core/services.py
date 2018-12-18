@@ -154,7 +154,7 @@ def add_component(name, node, cluster, ha=None):
                                'Installed')
 
     ss.svars['nodes'][m_index]['components'].append(name)
-    ss.dump_config(get_services_components_hosts())
+    ss.dump_config(get_services_components_hosts(), config)
 
 
 @valid_cluster
@@ -201,7 +201,7 @@ def add_service(name, ha=False, *, cluster):
 
     ss.svars['services'].append(name)
     auto_install_service(name, cluster, ha)
-    ss.dump_config(get_services_components_hosts())
+    ss.dump_config(get_services_components_hosts(), config)
 
 
 def check_service_req_service(name, ha=False):
@@ -482,7 +482,7 @@ def remove_service(service, *, cluster):
             m['components'].remove(c)
 
     ss.svars['services'].remove(service)
-    ss.dump_config(get_services_components_hosts())
+    ss.dump_config(get_services_components_hosts(), config)
 
 
 @valid_cluster
@@ -517,7 +517,7 @@ def remove_component(component, *, node, cluster):
                                'NotInstalled')
 
     ss.svars['nodes'][m_index]['components'].remove(component)
-    ss.dump_config(get_services_components_hosts())
+    ss.dump_config(get_services_components_hosts(), config)
 
 
 @valid_cluster

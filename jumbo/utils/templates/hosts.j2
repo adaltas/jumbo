@@ -2,37 +2,10 @@
 {{ host.name }} ansible_host={{ host.ip }} ansible_user=vagrant
 {% endfor %}
 
-[pgsqlserver]
-{% for host in hosts %}
-	{% if 'pgsqlserver' in host.groups %}
-{{ host.name }}
-	{% endif %}
-{% endfor %}
+{% for name, hosts in groups.items() %}
 
-[ipaserver]
-{% for host in hosts %}
-	{% if 'ipaserver' in host.groups %}
-{{ host.name }}
-	{% endif %}
-{% endfor %}
-
-[ipaclients]
-{% for host in hosts %}
-	{% if 'ipaclient' in host.groups %}
-{{ host.name }}
-	{% endif %}
-{% endfor %}
-
-[ambariserver]
-{% for host in hosts %}
-	{% if 'ambariserver' in host.groups %}
-{{ host.name }}
-	{% endif %}
-{% endfor %}
-
-[ambariclients]
-{% for host in hosts %}
-	{% if 'ambariclient' in host.groups %}
-{{ host.name }}
-	{% endif %}
+[{{ name }}]
+  {% for host in hosts %}
+{{ host }}
+  {% endfor %}
 {% endfor %}

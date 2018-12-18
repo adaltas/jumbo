@@ -102,9 +102,10 @@ def use(ctx, name):
 
     try:
         ss.load_config(cluster=name)
-        ss.dump_config(services.get_services_components_hosts())
         # Load services and node types according to active bundles
         services.config = services.load_services_conf(cluster=name)
+        ss.dump_config(services.get_services_components_hosts(),
+                       services.config)
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
         if e.type == 'NoConfFile':

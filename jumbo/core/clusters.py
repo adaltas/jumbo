@@ -74,7 +74,7 @@ def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
     services_components_hosts = services.get_services_components_hosts() \
         if template else None
 
-    ss.dump_config(services_components_hosts)
+    ss.dump_config(services_components_hosts, services.config)
     return True
 
 

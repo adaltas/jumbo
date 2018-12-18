@@ -9,6 +9,9 @@
           "hosts_types": [
             "sidemaster"
           ],
+          "ansible_groups": [
+            "ambariserver"
+          ],
           "abbr": "AMBARI_S",
           "number": {
             "default": 1,
@@ -16,6 +19,17 @@
           }
         }
       ],
+      "ansible_vars": {
+        "AMBARI": {
+          "user": "admin",
+          "pwd": "admin",
+          "ssl": {
+            "enabled": false,
+            "port": 8442
+          }
+        },
+        "ambari_url": "{{ \"https\" if ambari.ssl.enabled else \"http\" }}://{{ hostvars[groups[\"ambariserver\"][0]][\"ansible_all_ipv4_addresses\"][0] }}"
+      },
       "requirements": {
         "ram": 1000,
         "disk": 10000,
@@ -29,12 +43,6 @@
           ],
           "ha": [
             "POSTGRESQL"
-          ],
-          "ssl": [
-            [
-              "IPA",
-              "IPA-DOCKER"
-            ]
           ]
         }
       },

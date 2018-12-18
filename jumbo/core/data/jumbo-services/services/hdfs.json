@@ -76,6 +76,7 @@
           }
         }
       ],
+      "ansible_vars": {},
       "requirements": {
         "ram": 1000,
         "disk": 10000,

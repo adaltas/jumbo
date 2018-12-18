@@ -10,12 +10,16 @@
           "hosts_types": [
             "sidemaster"
           ],
+          "ansible_groups": [
+            "pgsqlserver"
+          ],
           "number": {
             "default": 1,
             "ha": 1
           }
         }
       ],
+      "ansible_vars": {},
       "requirements": {
         "ram": 1000,
         "disk": 10000,
