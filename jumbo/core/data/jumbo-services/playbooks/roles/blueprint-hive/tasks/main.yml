@@ -1,5 +1,5 @@
 --- 
-- name: set HDFS blueprint path
+- name: set Hive blueprint path
   set_fact:
     blueprint_conf: "{{ role_path }}/templates/hive-blueprint.j2"
     
@@ -10,6 +10,12 @@
 #   set_fact:
 #     metrics:
 #       foo: "bar"
+
+- name: Build variables for template
+  set_fact:
+    HIVE:
+      metastores_FQDN: "{{ serv_comp_host['HIVE']['HIVE_METASTORE'] | map('regex_replace', '^(.*)$', '\\1.' + domain) | list }} }}"
+      webhcat_FQDN: "{{ serv_comp_host['HIVE']['WEBHCAT_SERVER'][0] }}.{{ domain }}"
 
 - name: Registering service HIVE
   debug:
