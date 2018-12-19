@@ -4,3 +4,7 @@
 
 - name: Configure PostgreSQL
   include_tasks: common.yml
+
+- name: Register host as postgreSQL server
+  set_fact:
+    pgsqlserver: "{{ inventory_hostname }}.{{ domain }}"
