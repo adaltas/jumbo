@@ -5,11 +5,13 @@
         {% if not loop.first %},{% endif %}{
           "cardinality": "1",
           "components": [
-            {% for comp in hostvars[host]['components'] %}
+          {% for comp in hostvars[host]['components'] %}
+            {% if comp in HDP_components %}
               {
                 "name": "{{ comp }}"
               }{% if not loop.last %},{% endif %}
-            {% endfor %}
+            {% endif %}
+          {% endfor %}
           ],
           "configurations": [],
           "name": "{{ host }}_group"

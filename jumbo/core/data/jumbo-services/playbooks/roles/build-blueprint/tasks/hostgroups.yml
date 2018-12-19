@@ -1,4 +1,28 @@
 ---
+- name: Set HDP components list
+  set_fact:
+    HDP_components:
+    - NAMENODE
+    - SECONDARY_NAMENODE
+    - DATANODE
+    - JOURNALNODE
+    - HDFS_CLIENT
+    - ZKFC
+    - RESOURCEMANAGER
+    - NODEMANAGER
+    - HISTORYSERVER
+    - APP_TIMELINE_SERVER
+    - YARN_CLIENT
+    - MAPREDUCE2_CLIENT
+    - SLIDER
+    - PIG
+    - TEZ_CLIENT
+    - HIVE_METASTORE
+    - HIVE_SERVER
+    - WEBHCAT_SERVER
+    - HCAT
+    - HIVE_CLIENT
+
 - name: Template hostgroups
   template: 
     src: hostgroups.j2
