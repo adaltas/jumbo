@@ -152,8 +152,8 @@ def generate_ansible_vars(serv_comp_hosts, serv_conf):
 
 
 def generate_host_vars():
-    """Complete the 'host_groups' section of the blueprint.
-       TODO should be renamed - confusing ? `components` also ?
+    """Complete host related variables in inventory/host_vars/[hostname]
+    Builds `compononents` array containing all compononents on the host
     """
 
     for m in svars['nodes']:
@@ -162,8 +162,7 @@ def generate_host_vars():
             content = {}
             content['components'] = []
             for c in m['components']:
-                if blueprint_component(c):
-                    content['components'].append(c)
+                content['components'].append(c)
 
             yaml.dump(content, host_file, default_flow_style=False,
                       explicit_start=True)
@@ -194,12 +193,6 @@ def generate_group_vars(serv_comp_hosts, serv_conf):
               + '/inventory/group_vars/all', 'w+') as gva:
         yaml.dump(ansible_vars, gva, default_flow_style=False,
                   explicit_start=True)
-
-
-def blueprint_component(component):
-    if component in NOT_HADOOP_COMP:
-        return False
-    return True
 
 
 def add_node(m):
