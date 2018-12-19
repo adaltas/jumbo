@@ -28,7 +28,8 @@
             "port": 8442
           }
         },
-        "ambari_url": "{{ \"https\" if ambari.ssl.enabled else \"http\" }}://{{ hostvars[groups[\"ambariserver\"][0]][\"ansible_all_ipv4_addresses\"][0] }}"
+        "ambari_url": "{{ \"https\" if AMBARI.ssl.enabled else \"http\" }}://{{ hostvars[groups[\"ambariserver\"][0]][\"ansible_all_ipv4_addresses\"][0] }}:{{ AMBARI.ssl.port if AMBARI.ssl.enabled else \"8080\" }}",
+        "blueprint_name": "{{ domain | regex_replace(\"\\.\", \"-\") }}-blueprint"
       },
       "requirements": {
         "ram": 1000,

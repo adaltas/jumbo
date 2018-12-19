@@ -6,8 +6,8 @@
       X-Requested-By: ambari
     method: GET
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     status_code: 200, 201, 202, 404
     return_content: yes
     validate_certs: no
@@ -29,8 +29,8 @@
       X-Requested-By: ambari
     method: GET
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     status_code: 200, 201, 202, 404
     body_format: json
     return_content: yes
@@ -52,8 +52,8 @@
       X-Requested-By: ambari
     method: POST
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     body: " {{ blueprint_file.content|b64decode }}"
     body_format: raw
     validate_certs: no
@@ -71,8 +71,8 @@
       X-Requested-By: ambari
     method: POST
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     body: " {{ lookup('file', 'version-definitions-url.json')}}"
     body_format: raw
     status_code: 200, 201, 202, 400
@@ -100,8 +100,8 @@
       X-Requested-By: ambari
     method: POST
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     body: " {{ cluster_file.content|b64decode }}"
     body_format: raw
     status_code: 200, 201, 202
@@ -127,8 +127,8 @@
       X-Requested-By: ambari
     method: GET
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     status_code: 200, 201, 202
     validate_certs: no
   register: progress
