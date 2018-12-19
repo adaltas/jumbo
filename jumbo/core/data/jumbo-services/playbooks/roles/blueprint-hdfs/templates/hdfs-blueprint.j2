@@ -29,7 +29,7 @@
       {% else %}
         "dfs.namenode.https-address": "{{ HDFS.namenodes_FQDN[0] }}:50470",
         "dfs.namenode.rpc-addres": "{{ HDFS.namenodes_FQDN[0] }}:8020"
-        {% if HDFS.snamenode_FQDN is defined  %}
+        {% if HDFS.snamenode_FQDN is defined %}
         ,"dfs.namenode.secondary.http-address": "{{ HDFS.snamenode_FQDN }}:50090"
         {% endif %}
       {% endif %}
