@@ -187,7 +187,8 @@ def generate_group_vars(serv_comp_hosts, serv_conf):
 
     # Add variables defines in json service definitions
     for serv in serv_conf['services']:
-        ansible_vars.update(serv.get('ansible_vars', {}))
+        if serv['name'] in svars['services']:
+            ansible_vars.update(serv.get('ansible_vars', {}))
 
     with open(JUMBODIR + 'clusters/' + svars['cluster']
               + '/inventory/group_vars/all', 'w+') as gva:
