@@ -3,7 +3,7 @@ from click_shell.core import Shell
 import ipaddress as ipadd
 from prettytable import PrettyTable
 
-from jumbo.core import clusters, nodes, services
+from jumbo.core import clusters, nodes, services, bundles
 from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
 from jumbo.utils.settings import OS
@@ -51,8 +51,10 @@ def jumbo(ctx, cluster):
     sh.add_command(addservice)
     sh.add_command(addcomponent)
     sh.add_command(listcomponents)
+    sh.add_command(listbundles)
     sh.add_command(rmservice)
     sh.add_command(rmcomponent)
+    sh.add_command(rmbundle)
     sh.add_command(checkservice)
     sh.add_command(listservices)
     sh.add_command(start)
@@ -60,6 +62,7 @@ def jumbo(ctx, cluster):
     sh.add_command(status)
     sh.add_command(provision)
     sh.add_command(restart)
+    sh.add_command(addbundle)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -788,9 +791,82 @@ def provision(cluster_name, cluster):
     try:
         clusters.provision(cluster=cluster)
         print_with_color("Not implemented yet.", 'yellow')
-        pass
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
+
+
+###########
+# Bundles #
+###########
+
+@jumbo.command()
+@click.argument('bundle_name', required=False)
+@click.option('--name')
+@click.option('--git')
+@click.option('--position', '-p', default='last')
+@click.option('--cluster', '-c')
+def addbundle(bundle_name, name, git, position, cluster):
+    name = bundle_name if bundle_name else name
+
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        bundles.add_bundle(name=name,
+                           git=git,
+                           cluster=cluster,
+                           position=position)
+    except RuntimeError as e:
+        print_with_color('Error: %s' % str(e), 'red')
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
+    except Warning as w:
+        print_with_color('Warning: %s' % str(w), 'yellow')
+
+    print(name)
+    pass
+
+
+@jumbo.command()
+@click.argument('bundle_name', required=False)
+@click.option('--name')
+@click.option('--cluster', '-c')
+def rmbundle(bundle_name, name, cluster):
+    name = bundle_name if bundle_name else name
+    if name is None:
+        raise click.UsageError('Missing argument "BUNDLE_NAME"')
+
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        bundles.rm_bundle(name=name, cluster=cluster)
+    except RuntimeError as e:
+        print_with_color('Error: %s' % str(e), 'red')
+    except Warning as w:
+        print_with_color('Warning: %s' % str(w), 'yellow')
+
+
+@jumbo.command()
+@click.option('--cluster', '-c')
+def listbundles(cluster):
+
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        (active, available) = bundles.list_bundles()
+        # TODO output nice tables
+        print("Active bundles: ")
+        print(active)
+        print("Available bundles: ")
+        print(available)
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
+    except RuntimeError as e:
+        print_with_color('Error: %s' % str(e), 'red')
+    except Warning as w:
+        print_with_color('Warning: %s' % str(w), 'yellow')
 
 
 #########
