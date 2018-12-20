@@ -6,7 +6,7 @@ import os
 from distutils import dir_util
 
 from jumbo.utils import exceptions as ex, checks, versions as vs
-from jumbo.utils.settings import JUMBODIR, NOT_HADOOP_COMP, POOLNAME
+from jumbo.utils.settings import JUMBODIR, POOLNAME
 from jumbo.core import clusters
 
 svars = {
