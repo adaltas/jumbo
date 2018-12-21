@@ -38,7 +38,7 @@ def dump_config(services_components_hosts=None, services_config=None):
             vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
             with open(JUMBODIR + 'clusters/' + svars['cluster']
                       + '/Vagrantfile', 'w') as vf:
-                vf.write(vagrant_temp.render(hosts=get_ordered_nodes(),
+                vf.write(vagrant_temp.render(hosts=svars['nodes'],
                                              domain=svars['domain'],
                                              cluster=svars['cluster'],
                                              pool_name=POOLNAME))
@@ -132,19 +132,6 @@ def generate_ansible_groups(serv_conf):
               'w+') as vf:
         vf.write(hosts_temp.render(hosts=svars['nodes'], groups=groups))
 
-    # TODO via Ansible + service ambari.json & freeipa.json
-    # syntax example: ansible_groups: ["all!ldap"]
-    # if ambariserver:
-    #     for node in svars['nodes']:
-    #         if 'ldap' not in node['types'] \
-    #                 and 'ambariclient' not in node['groups']:
-    #             node['groups'].append('ambariclient')
-    # if ipaserver:
-    #     for node in svars['nodes']:
-    #         if 'ldap' not in node['types'] \
-    #                 and 'ipaclient' not in node['groups']:
-    #             node['groups'].append('ipaclient')
-
 
 def generate_ansible_vars(serv_comp_hosts, serv_conf):
     generate_group_vars(serv_comp_hosts, serv_conf)
@@ -210,10 +197,3 @@ def add_node(m):
             added = True
     if not added:
         svars['nodes'].append(m)
-
-
-def get_ordered_nodes():
-    ordered = [n for n in svars['nodes'] if 'ansiblehost' not in n['groups']]
-    ordered.extend(n for n in svars['nodes'] if 'ansiblehost' in n['groups'])
-
-    return ordered
