@@ -6,7 +6,7 @@
       "components": [
         {
           "name": "NAMENODE",
-          "hosts_types": [
+          "node_types": [
             [
               "master"
             ]
@@ -20,7 +20,7 @@
         },
         {
           "name": "SECONDARY_NAMENODE",
-          "hosts_types": [
+          "node_types": [
             [
               "sidemaster"
             ]
@@ -33,7 +33,7 @@
         },
         {
           "name": "DATANODE",
-          "hosts_types": [
+          "node_types": [
             [
               "worker"
             ]
@@ -46,7 +46,7 @@
         },
         {
           "name": "JOURNALNODE",
-          "hosts_types": [
+          "node_types": [
             [
               "master"
             ],
@@ -62,7 +62,7 @@
         },
         {
           "name": "HDFS_CLIENT",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap"
             ]
@@ -75,7 +75,7 @@
         },
         {
           "name": "ZKFC",
-          "hosts_types": [
+          "node_types": [
             [
               "master"
             ]

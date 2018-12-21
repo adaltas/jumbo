@@ -6,7 +6,7 @@
       "components": [
         {
           "name": "RESOURCEMANAGER",
-          "hosts_types": [
+          "node_types": [
             [
               "master"
             ]
@@ -19,7 +19,7 @@
         },
         {
           "name": "NODEMANAGER",
-          "hosts_types": [
+          "node_types": [
             [
               "worker"
             ]
@@ -32,7 +32,7 @@
         },
         {
           "name": "HISTORYSERVER",
-          "hosts_types": [
+          "node_types": [
             [
               "edge"
             ]
@@ -45,7 +45,7 @@
         },
         {
           "name": "APP_TIMELINE_SERVER",
-          "hosts_types": [
+          "node_types": [
             [
               "edge"
             ]
@@ -58,7 +58,7 @@
         },
         {
           "name": "YARN_CLIENT",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap"
             ]
@@ -71,7 +71,7 @@
         },
         {
           "name": "MAPREDUCE2_CLIENT",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap "
             ]
@@ -84,7 +84,7 @@
         },
         {
           "name": "SLIDER",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap "
             ]
@@ -97,7 +97,7 @@
         },
         {
           "name": "PIG",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap "
             ]
@@ -110,7 +110,7 @@
         },
         {
           "name": "TEZ_CLIENT",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap "
             ]

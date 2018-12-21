@@ -6,7 +6,7 @@
       "components": [
         {
           "name": "HIVE_METASTORE",
-          "hosts_types": [
+          "node_types": [
             [
               "sidemaster"
             ],
@@ -22,7 +22,7 @@
         },
         {
           "name": "HIVE_SERVER",
-          "hosts_types": [
+          "node_types": [
             [
               "edge"
             ],
@@ -38,7 +38,7 @@
         },
         {
           "name": "WEBHCAT_SERVER",
-          "hosts_types": [
+          "node_types": [
             [
               "edge"
             ]
@@ -51,7 +51,7 @@
         },
         {
           "name": "HCAT",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap "
             ]
@@ -64,7 +64,7 @@
         },
         {
           "name": "HIVE_CLIENT",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap "
             ]

@@ -6,7 +6,7 @@
       "components": [
         {
           "name": "ZOOKEEPER_SERVER",
-          "hosts_types": [
+          "node_types": [
             [
               "master"
             ],
@@ -22,7 +22,7 @@
         },
         {
           "name": "ZOOKEEPER_CLIENT",
-          "hosts_types": [
+          "node_types": [
             [
               "!ldap"
             ]
