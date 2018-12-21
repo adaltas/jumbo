@@ -9,11 +9,11 @@ from jumbo.utils.settings import JUMBODIR
 from jumbo.utils.checks import valid_cluster
 
 
-# Contains services and node_types.
+# Contains services and available_node_types.
 # Should be set via `load_services_conf(cluster)`
 config = {
     'services': [],
-    'node_types': []
+    'available_node_types': []
 }
 
 
@@ -26,7 +26,7 @@ def load_services_conf(*, cluster):
     """
     ret = {}
     ret['services'] = []
-    ret['node_types'] = []
+    ret['available_node_types'] = []
 
     for bundle in ss.svars['bundles']:
         # Load each service configuration
@@ -48,10 +48,10 @@ def load_services_conf(*, cluster):
                         # else:
                         ret['services'].append(serv)
                 # Add additionnal node types
-                if 'node_types' in tmp:
-                    for type in tmp['node_types']:
-                        if type not in ret['node_types']:
-                            ret['node_types'].append(type)
+                if 'available_node_types' in tmp:
+                    for type in tmp['available_node_types']:
+                        if type not in ret['available_node_types']:
+                            ret['available_node_types'].append(type)
 
     return ret
 
@@ -220,7 +220,7 @@ def check_service_req_service(name, ha=False):
     missing_comp = {}
     for s in config['services']:
         if s['name'] == name:
-            for req_s in s['requirements']['services'][req]:
+            for req_s in s['requirements']['services'].get(req, []):
                 if req_s not in ss.svars['services']:
                     missing_serv.append(req_s)
                 missing_comp.update(check_service_req_comp(req_s))
@@ -309,7 +309,7 @@ def count_components():
 
 
 def get_available_types():
-    return config['node_types']
+    return config['available_node_types']
 
 
 def get_available_services():
@@ -369,7 +369,7 @@ def check_dependent_services(service, ha=False):
     dependent = []
     for s in config['services']:
         if s['name'] in ss.svars['services']:
-            if service in s['requirements']['services'][req]:
+            if service in s['requirements']['services'].get(req, []):
                 dependent.append(s['name'])
     return dependent
 
@@ -620,14 +620,14 @@ def auto_assign(service, ha, *, cluster):
             raise ex.CreationError('component', component['name'],
                                    'hosts type (need at least 1 of them)',
                                    (' - %s'
-                                    % c for c in component['hosts_types']),
+                                    % c for c in component['node_types']),
                                    'ReqNotMet')
         elif left > 0:
             raise ex.CreationError('component', component['name'],
                                    'hosts type (need ' + str(left) +
                                    ' of them)',
                                    (' - %s'
-                                    % c for c in component['hosts_types']),
+                                    % c for c in component['node_types']),
                                    'ReqNotMet')
 
     count = 0
@@ -636,6 +636,21 @@ def auto_assign(service, ha, *, cluster):
         count += 1
 
     return count
+
+
+def node_is_compatible(node, required_types):
+    """Check wether a node has the required node types
+
+    If node_type starts with `!`, the type should be excluded
+    """
+
+    for node_type in required_types:
+        if node_type[0] != '!' and node_type not in node['types']:
+            return False
+        elif node_type[0] == '!' and node_type[1:] in node['types']:
+            return False
+
+    return True
 
 
 def auto_assign_service_comp(component, dist, cluster, check):
@@ -650,9 +665,9 @@ def auto_assign_service_comp(component, dist, cluster, check):
     count = component['number'][dist]  # -1 = everywhere
     if count == 0:
         return 0
-    for host_type in component['hosts_types']:
+    for node_types in component['node_types']:
         for m in ss.svars['nodes']:
-            if host_type in m['types']:
+            if node_is_compatible(m, node_types):
                 try:
                     if not check:
                         add_component(component['name'],
@@ -710,11 +725,10 @@ def auto_install_node(node, cluster):
             for c in s['auto_install']:
                 for comp in s['components']:
                     if comp['name'] == c:
-                        for t in m_conf['types']:
-                            if t in comp['hosts_types']:
-                                add_component(c, node=node,
-                                              cluster=cluster)
-                                count += 1
+                        if node_is_compatible(m_conf, comp['node_types']):
+                            add_component(c, node=node,
+                                          cluster=cluster)
+                            count += 1
 
     return count
 
