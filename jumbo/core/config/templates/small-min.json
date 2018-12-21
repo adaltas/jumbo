@@ -10,6 +10,7 @@
       ],
       "cpus": 1,
       "components": [
+        "AMBARI_AGENT",
         "HDFS_CLIENT",
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
@@ -29,6 +30,7 @@
       ],
       "cpus": 1,
       "components": [
+        "AMBARI_AGENT",
         "PSQL_SERVER",
         "AMBARI_SERVER",
         "HDFS_CLIENT",
@@ -50,6 +52,7 @@
       ],
       "cpus": 2,
       "components": [
+        "AMBARI_AGENT",
         "HDFS_CLIENT",
         "DATANODE",
         "YARN_CLIENT",

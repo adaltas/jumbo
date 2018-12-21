@@ -22,6 +22,7 @@
       ],
       "cpus": 1,
       "components": [
+        "AMBARI_AGENT",
         "ZOOKEEPER_CLIENT",
         "HDFS_CLIENT",
         "YARN_CLIENT",
@@ -39,6 +40,7 @@
       ],
       "cpus": 1,
       "components": [
+        "AMBARI_AGENT",
         "ZOOKEEPER_CLIENT",
         "ZOOKEEPER_SERVER",
         "HDFS_CLIENT",
@@ -60,6 +62,7 @@
       ],
       "cpus": 1,
       "components": [
+        "AMBARI_AGENT",
         "ZOOKEEPER_CLIENT",
         "ZOOKEEPER_SERVER",
         "HDFS_CLIENT",
@@ -81,6 +84,7 @@
       ],
       "cpus": 1,
       "components": [
+        "AMBARI_AGENT",
         "PSQL_SERVER",
         "AMBARI_SERVER",
         "ZOOKEEPER_CLIENT",
@@ -102,6 +106,7 @@
       ],
       "cpus": 2,
       "components": [
+        "AMBARI_AGENT",
         "ZOOKEEPER_CLIENT",
         "HDFS_CLIENT",
         "DATANODE",
@@ -122,6 +127,7 @@
       ],
       "cpus": 2,
       "components": [
+        "AMBARI_AGENT",
         "ZOOKEEPER_CLIENT",
         "HDFS_CLIENT",
         "DATANODE",
