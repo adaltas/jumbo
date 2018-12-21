@@ -80,17 +80,6 @@
       "requirements": {
         "ram": 1000,
         "disk": 10000,
-        "nodes": {
-          "default": {
-            "sidemaster": 1,
-            "edge": 1
-          },
-          "ha": {
-            "master": 1,
-            "sidemaster": 1,
-            "edge": 1
-          }
-        },
         "services": {
           "default": [
             "AMBARI",

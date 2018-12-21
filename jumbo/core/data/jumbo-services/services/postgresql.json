@@ -25,14 +25,6 @@
       "requirements": {
         "ram": 1000,
         "disk": 10000,
-        "nodes": {
-          "default": {
-            "sidemaster": 1
-          },
-          "ha": {
-            "sidemaster": 1
-          }
-        },
         "services": {
           "default": [],
           "ha": []

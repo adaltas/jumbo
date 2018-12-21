@@ -126,15 +126,6 @@
       "requirements": {
         "ram": 1000,
         "disk": 10000,
-        "nodes": {
-          "default": {
-            "master": 1
-          },
-          "ha": {
-            "master": 2,
-            "sidemaster": 1
-          }
-        },
         "services": {
           "default": [
             "AMBARI",

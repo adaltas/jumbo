@@ -57,10 +57,6 @@
       "requirements": {
         "ram": 1000,
         "disk": 10000,
-        "nodes": {
-          "default": {},
-          "ha": {}
-        },
         "services": {
           "default": [
             "POSTGRESQL"
