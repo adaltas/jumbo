@@ -22,9 +22,6 @@
         "HIVE_CLIENT",
         "HIVE_SERVER",
         "WEBHCAT_SERVER"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     },
     {
@@ -51,11 +48,6 @@
         "HCAT",
         "HIVE_CLIENT",
         "HIVE_METASTORE"
-      ],
-      "groups": [
-        "pgsqlserver",
-        "ambariserver",
-        "ambariclient"
       ]
     },
     {
@@ -77,9 +69,6 @@
         "NODEMANAGER",
         "HCAT",
         "HIVE_CLIENT"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     }
   ],

@@ -16,9 +16,6 @@
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     },
     {
@@ -40,9 +37,6 @@
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     },
     {
@@ -64,9 +58,6 @@
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     },
     {
@@ -88,11 +79,6 @@
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG"
-      ],
-      "groups": [
-        "pgsqlserver",
-        "ambariserver",
-        "ambariclient"
       ]
     },
     {
@@ -113,9 +99,6 @@
         "PIG",
         "TEZ_CLIENT",
         "NODEMANAGER"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     },
     {
@@ -136,9 +119,6 @@
         "PIG",
         "TEZ_CLIENT",
         "NODEMANAGER"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     }
   ],

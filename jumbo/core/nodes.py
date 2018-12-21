@@ -45,7 +45,6 @@ def add_node(name, ip, ram, types, cpus=1, *,
         'types': types,
         'cpus': cpus,
         'components': [],
-        'groups': []
     }
 
     ss.load_config(cluster=cluster)

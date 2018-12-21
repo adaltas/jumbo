@@ -17,9 +17,6 @@
         "PIG",
         "HISTORYSERVER",
         "APP_TIMELINE_SERVER"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     },
     {
@@ -42,11 +39,6 @@
         "SLIDER",
         "PIG",
         "RESOURCEMANAGER"
-      ],
-      "groups": [
-        "pgsqlserver",
-        "ambariserver",
-        "ambariclient"
       ]
     },
     {
@@ -65,9 +57,6 @@
         "SLIDER",
         "PIG",
         "NODEMANAGER"
-      ],
-      "groups": [
-        "ambariclient"
       ]
     }
   ],

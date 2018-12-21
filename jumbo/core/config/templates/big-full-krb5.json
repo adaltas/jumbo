@@ -11,9 +11,6 @@
       "cpus": 1,
       "components": [
         "IPA_SERVER"
-      ],
-      "groups": [
-        "ipaserver"
       ]
     },
     {
@@ -38,10 +35,6 @@
         "HIVE_CLIENT",
         "HIVE_SERVER",
         "WEBHCAT_SERVER"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -67,10 +60,6 @@
         "RESOURCEMANAGER",
         "HCAT",
         "HIVE_CLIENT"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -96,10 +85,6 @@
         "RESOURCEMANAGER",
         "HCAT",
         "HIVE_CLIENT"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -125,12 +110,6 @@
         "HCAT",
         "HIVE_CLIENT",
         "HIVE_METASTORE"
-      ],
-      "groups": [
-        "pgsqlserver",
-        "ambariserver",
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -153,10 +132,6 @@
         "NODEMANAGER",
         "HCAT",
         "HIVE_CLIENT"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -179,10 +154,6 @@
         "NODEMANAGER",
         "HCAT",
         "HIVE_CLIENT"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     }
   ],

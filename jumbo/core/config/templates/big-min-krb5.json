@@ -11,9 +11,6 @@
       "cpus": 1,
       "components": [
         "IPA_SERVER"
-      ],
-      "groups": [
-        "ipaserver"
       ]
     },
     {
@@ -31,10 +28,6 @@
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -56,10 +49,6 @@
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -81,10 +70,6 @@
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -106,12 +91,6 @@
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG"
-      ],
-      "groups": [
-        "pgsqlserver",
-        "ambariserver",
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -132,10 +111,6 @@
         "PIG",
         "TEZ_CLIENT",
         "NODEMANAGER"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     },
     {
@@ -156,10 +131,6 @@
         "PIG",
         "TEZ_CLIENT",
         "NODEMANAGER"
-      ],
-      "groups": [
-        "ambariclient",
-        "ipaclient"
       ]
     }
   ],
