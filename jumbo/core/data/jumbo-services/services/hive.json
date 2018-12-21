@@ -1,5 +1,5 @@
 {
-  "node_types": [],
+  "available_node_types": [],
   "services": [
     {
       "name": "HIVE",
@@ -7,8 +7,12 @@
         {
           "name": "HIVE_METASTORE",
           "hosts_types": [
-            "sidemaster",
-            "master"
+            [
+              "sidemaster"
+            ],
+            [
+              "master"
+            ]
           ],
           "abbr": "H_MSTORE",
           "number": {
@@ -19,8 +23,12 @@
         {
           "name": "HIVE_SERVER",
           "hosts_types": [
-            "edge",
-            "sidemaster"
+            [
+              "edge"
+            ],
+            [
+              "sidemaster"
+            ]
           ],
           "abbr": "HIVE_S",
           "number": {
@@ -31,7 +39,9 @@
         {
           "name": "WEBHCAT_SERVER",
           "hosts_types": [
-            "edge"
+            [
+              "edge"
+            ]
           ],
           "abbr": "WEBHCAT_S",
           "number": {
@@ -42,10 +52,9 @@
         {
           "name": "HCAT",
           "hosts_types": [
-            "master",
-            "sidemaster",
-            "worker",
-            "edge"
+            [
+              "!ldap "
+            ]
           ],
           "abbr": "HCAT",
           "number": {
@@ -56,10 +65,9 @@
         {
           "name": "HIVE_CLIENT",
           "hosts_types": [
-            "master",
-            "sidemaster",
-            "edge",
-            "worker"
+            [
+              "!ldap "
+            ]
           ],
           "abbr": "HIVE_C",
           "number": {

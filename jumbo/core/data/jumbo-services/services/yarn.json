@@ -1,5 +1,5 @@
 {
-  "node_types": [],
+  "available_node_types": [],
   "services": [
     {
       "name": "YARN",
@@ -7,7 +7,9 @@
         {
           "name": "RESOURCEMANAGER",
           "hosts_types": [
-            "master"
+            [
+              "master"
+            ]
           ],
           "abbr": "RM",
           "number": {
@@ -18,7 +20,9 @@
         {
           "name": "NODEMANAGER",
           "hosts_types": [
-            "worker"
+            [
+              "worker"
+            ]
           ],
           "abbr": "NM",
           "number": {
@@ -29,7 +33,9 @@
         {
           "name": "HISTORYSERVER",
           "hosts_types": [
-            "edge"
+            [
+              "edge"
+            ]
           ],
           "abbr": "MAPR_HS",
           "number": {
@@ -40,7 +46,9 @@
         {
           "name": "APP_TIMELINE_SERVER",
           "hosts_types": [
-            "edge"
+            [
+              "edge"
+            ]
           ],
           "abbr": "TLS",
           "number": {
@@ -51,10 +59,9 @@
         {
           "name": "YARN_CLIENT",
           "hosts_types": [
-            "master",
-            "sidemaster",
-            "edge",
-            "worker"
+            [
+              "!ldap"
+            ]
           ],
           "abbr": "YARN_C",
           "number": {
@@ -65,10 +72,9 @@
         {
           "name": "MAPREDUCE2_CLIENT",
           "hosts_types": [
-            "master",
-            "sidemaster",
-            "edge",
-            "worker"
+            [
+              "!ldap "
+            ]
           ],
           "abbr": "MAPR_C",
           "number": {
@@ -79,10 +85,9 @@
         {
           "name": "SLIDER",
           "hosts_types": [
-            "master",
-            "sidemaster",
-            "edge",
-            "worker"
+            [
+              "!ldap "
+            ]
           ],
           "abbr": "SLIDER",
           "number": {
@@ -93,10 +98,9 @@
         {
           "name": "PIG",
           "hosts_types": [
-            "master",
-            "sidemaster",
-            "edge",
-            "worker"
+            [
+              "!ldap "
+            ]
           ],
           "abbr": "PIG",
           "number": {
@@ -107,10 +111,9 @@
         {
           "name": "TEZ_CLIENT",
           "hosts_types": [
-            "master",
-            "sidemaster",
-            "edge",
-            "worker"
+            [
+              "!ldap "
+            ]
           ],
           "abbr": "TEZ_C",
           "number": {

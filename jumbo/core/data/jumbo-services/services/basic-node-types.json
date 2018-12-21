@@ -1,5 +1,5 @@
 {
-  "node_types": [
+  "available_node_types": [
     "master",
     "sidemaster",
     "worker",

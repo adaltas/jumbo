@@ -1,5 +1,5 @@
 {
-  "node_types": [],
+  "available_node_types": [],
   "services": [
     {
       "name": "POSTGRESQL",
@@ -7,8 +7,10 @@
         {
           "name": "PSQL_SERVER",
           "abbr": "PSQL_S",
-          "hosts_types": [
-            "sidemaster"
+          "node_types": [
+            [
+              "sidemaster"
+            ]
           ],
           "ansible_groups": [
             "pgsqlserver"

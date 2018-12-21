@@ -1,13 +1,20 @@
 {
-  "node_types": [],
+  "available_node_types": [],
   "services": [
     {
       "name": "AMBARI",
       "components": [
         {
           "name": "AMBARI_SERVER",
-          "hosts_types": [
-            "sidemaster"
+          "node_types": [
+            [
+              "sidemaster",
+              "!ldap"
+            ],
+            [
+              "master",
+              "!ldap"
+            ]
           ],
           "ansible_groups": [
             "ambariserver"
@@ -16,6 +23,22 @@
           "number": {
             "default": 1,
             "ha": 1
+          }
+        },
+        {
+          "name": "AMBARI_AGENT",
+          "node_types": [
+            [
+              "!ldap"
+            ]
+          ],
+          "ansible_groups": [
+            "ambariclients"
+          ],
+          "abbr": "AMBARI_S",
+          "number": {
+            "default": -1,
+            "ha": -1
           }
         }
       ],

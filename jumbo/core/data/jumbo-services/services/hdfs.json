@@ -1,5 +1,5 @@
 {
-  "node_types": [],
+  "available_node_types": [],
   "services": [
     {
       "name": "HDFS",
@@ -7,7 +7,9 @@
         {
           "name": "NAMENODE",
           "hosts_types": [
-            "master"
+            [
+              "master"
+            ]
           ],
           "abbr": "NN",
           "ram": 500,
@@ -19,7 +21,9 @@
         {
           "name": "SECONDARY_NAMENODE",
           "hosts_types": [
-            "sidemaster"
+            [
+              "sidemaster"
+            ]
           ],
           "abbr": "SNN",
           "number": {
@@ -30,7 +34,9 @@
         {
           "name": "DATANODE",
           "hosts_types": [
-            "worker"
+            [
+              "worker"
+            ]
           ],
           "abbr": "DN",
           "number": {
@@ -41,8 +47,12 @@
         {
           "name": "JOURNALNODE",
           "hosts_types": [
-            "master",
-            "sidemaster"
+            [
+              "master"
+            ],
+            [
+              "sidemaster"
+            ]
           ],
           "abbr": "JN",
           "number": {
@@ -53,10 +63,9 @@
         {
           "name": "HDFS_CLIENT",
           "hosts_types": [
-            "master",
-            "sidemaster",
-            "edge",
-            "worker"
+            [
+              "!ldap"
+            ]
           ],
           "abbr": "HDFS_C",
           "number": {
@@ -67,7 +76,9 @@
         {
           "name": "ZKFC",
           "hosts_types": [
-            "master"
+            [
+              "master"
+            ]
           ],
           "abbr": "ZKFC",
           "number": {
