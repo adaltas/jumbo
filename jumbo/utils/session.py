@@ -12,8 +12,11 @@ from jumbo.core import clusters
 svars = {
     'cluster': None,
     'domain': None,
+    'realm': None,
     'nodes': [],
+    'bundles': [],
     'services': [],
+    'configurations': []
 }
 
 jinja_env = Environment(
@@ -88,8 +91,13 @@ def clear():
     global svars
     svars = {
         'cluster': None,
+        'domain': None,
+        'realm': None,
+        'location': None,
         'nodes': [],
-        'services': []
+        'bundles': [],
+        'services': [],
+        'configurations': [],
     }
 
 
@@ -172,10 +180,9 @@ def generate_group_vars(serv_comp_hosts, serv_conf):
     # Add versions variables (repository urls...)
     ansible_vars.update(vs.get_yaml_config(svars['cluster']))
 
-    # Add variables defines in json service definitions
-    for serv in serv_conf['services']:
-        if serv['name'] in svars['services']:
-            ansible_vars.update(serv.get('ansible_vars', {}))
+    # Add variables defines in json service definitions and config files
+    for conf in svars['configurations']:
+        ansible_vars.update(conf['config'])
 
     with open(JUMBODIR + 'clusters/' + svars['cluster']
               + '/inventory/group_vars/all', 'w+') as gva:

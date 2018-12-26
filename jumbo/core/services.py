@@ -5,7 +5,7 @@ import json
 
 from jumbo.core import nodes
 from jumbo.utils import exceptions as ex, session as ss
-from jumbo.utils.settings import JUMBODIR
+from jumbo.utils.settings import JUMBODIR, dict_merge
 from jumbo.utils.checks import valid_cluster
 
 
@@ -158,7 +158,7 @@ def add_component(name, node, cluster, ha=None):
 
 
 @valid_cluster
-def add_service(name, ha=False, *, cluster):
+def add_service(name, ha=False, serv_vars={}, *, cluster):
     """Add a service to a specified cluster.
 
     :param name: Service name
@@ -200,6 +200,14 @@ def add_service(name, ha=False, *, cluster):
                                'ReqNotMet')
 
     ss.svars['services'].append(name)
+    merged_vars = {}
+    for serv in config['services']:
+        if serv['name'] == name:
+            merged_vars.update(serv['ansible_vars'])
+
+    dict_merge(merged_vars, serv_vars)
+    ss.svars['configurations'].append({'service': name, 'config': merged_vars})
+
     auto_install_service(name, cluster, ha)
     ss.dump_config(get_services_components_hosts(), config)
 
@@ -482,6 +490,14 @@ def remove_service(service, *, cluster):
             m['components'].remove(c)
 
     ss.svars['services'].remove(service)
+
+    # Remove configurations associated with the service
+    new_conf = []
+    for conf_section in ss.svars['configurations']:
+        if conf_section['service'] != service:
+            new_conf.append(conf_section)
+    ss.svars['configurations'] = new_conf
+
     ss.dump_config(get_services_components_hosts(), config)
 
 

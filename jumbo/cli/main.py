@@ -2,6 +2,7 @@ import click
 from click_shell.core import Shell
 import ipaddress as ipadd
 from prettytable import PrettyTable
+import json
 
 from jumbo.core import clusters, nodes, services, bundles
 from jumbo.utils import session as ss, exceptions as ex, checks
@@ -424,8 +425,10 @@ def listnodes(cluster):
 @click.option('--recursive', '-r', is_flag=True,
               help='Also auto-install all other services needed')
 @click.option('--force', '-f', is_flag=True, help='Accept all prompts')
+@click.option('--config', '-K', type=click.File('r'),
+              help='Read config from a file')
 @click.pass_context
-def addservice(ctx, name, cluster, no_auto, ha, recursive, force):
+def addservice(ctx, name, cluster, no_auto, ha, recursive, force, config):
     """
     Add a service to a cluster and auto-install its components
     on the best fitting hosts.
@@ -471,7 +474,8 @@ def addservice(ctx, name, cluster, no_auto, ha, recursive, force):
                     click.echo('Installation canceled.')
                     return
 
-        services.add_service(name=name, ha=ha, cluster=cluster)
+        conf = json.load(config) if config else {}
+        services.add_service(name=name, ha=ha, cluster=cluster, serv_vars=conf)
         if no_auto:
             msg += ('No component has been auto-installed (except clients). '
                     'Use "addcomp" manually.')

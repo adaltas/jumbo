@@ -67,8 +67,7 @@ def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
     ss.svars['realm'] = realm or ss.svars['domain'].upper()
     ss.svars['location'] = 'remote' if remote else 'local'
     # Add basic bundle if no bundle is set via templates
-    if 'bundles' not in ss.svars:
-        ss.svars['bundles'] = []
+    if not ss.svars['bundles']:
         ss.svars['bundles'].append('jumbo-services')
 
     services_components_hosts = services.get_services_components_hosts() \
