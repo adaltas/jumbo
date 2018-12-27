@@ -37,8 +37,7 @@ class TestMachines(unittest.TestCase):
                 'master'
             ],
             'cpus': 1,
-            'components': [],
-            'groups': []
+            'components': []
         }
         all_nodes = ss.svars['nodes']
         node = [m for m in all_nodes if m['name'] == self.m_name][0]
