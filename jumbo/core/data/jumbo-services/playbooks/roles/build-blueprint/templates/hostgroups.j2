@@ -5,11 +5,14 @@
         {% if not loop.first %},{% endif %}{
           "cardinality": "1",
           "components": [
+          {% set ns = namespace(first_comp=true) %}
           {% for comp in hostvars[host]['components'] %}
             {% if comp in HDP_components %}
+              {% if ns.first_comp == false %},{% endif %}
+              {% set ns.first_comp = false %}
               {
                 "name": "{{ comp }}"
-              }{% if not loop.last %},{% endif %}
+              }
             {% endif %}
           {% endfor %}
           ],
