@@ -28,7 +28,7 @@
         "dfs.namenode.shared.edits.dir": "qjournal://{% for jn in HDFS.journalnodes_FQDN %}{{ item }}:8485{% if not loop.last %};{% endif %}{% endfor %}
       {% else %}
         "dfs.namenode.https-address": "{{ HDFS.namenodes_FQDN[0] }}:50470",
-        "dfs.namenode.rpc-addres": "{{ HDFS.namenodes_FQDN[0] }}:8020"
+        "dfs.namenode.rpc-address": "{{ HDFS.namenodes_FQDN[0] }}:8020"
         {% if HDFS.snamenode_FQDN is defined %}
         ,"dfs.namenode.secondary.http-address": "{{ HDFS.snamenode_FQDN }}:50090"
         {% endif %}
