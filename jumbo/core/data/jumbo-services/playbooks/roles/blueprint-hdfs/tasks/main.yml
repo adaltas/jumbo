@@ -16,7 +16,7 @@
       namenodes_FQDN: "{{ serv_comp_host['HDFS']['NAMENODE'] | map('regex_replace', '^(.*)$', '\\1.' + domain) | list }}"
       snamenode_FQDN: "{{ serv_comp_host['HDFS']['SECONDARY_NAMENODE'][0]+'.'+domain if 'SECONDARY_NAMENODE' in serv_comp_host['HDFS'] else omit }}"
       nameservice: "{{ 'nn'+domain|regex_replace('\\.') if serv_comp_host['HDFS']['NAMENODE']|length > 1 else omit }}"
-
+      journalnodes_FQDN: "{{ (serv_comp_host['HDFS']['JOURNALNODE'] | map('regex_replace', '^(.*)$', '\\1.' + domain) | list) if serv_comp_host['HDFS']['NAMENODE']|length > 1 else omit }}"
 
 
 - name: Registering service HDFS
