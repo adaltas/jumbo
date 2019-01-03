@@ -2,16 +2,27 @@
   "blueprint": "{{ domain|replace('.', '-') }}-blueprint",
   "repository_version_id": 1,
   "host_groups": [
+    {% set comma_hostgroup = joiner(',') %}
     {% for host in groups['all'] %}
-      {% if hostvars[host]['components'] is defined and hostvars[host]['components']|length >  0  %}
-      {
+      {% if hostvars[host]['components'] is defined %}
+        {# Check if host has HDP components #}
+        {% set ns = namespace(bp=false) %}
+        {% for comp in hostvars[host]['components'] %}
+          {% if comp in HDP_components %}
+            {% set ns.bp = true %}
+          {% endif %}
+        {% endfor %}
+        {# Add host if it has some HDP components #}
+        {%if ns.bp == true %}
+      {{ comma_hostgroup() }}{
         "name": "{{ host }}_group",
         "hosts": [
           {
             "fqdn": "{{ host }}.{{ domain }}"
           }
         ]
-      }{% if not loop.last %},{% endif %}
+      }
+        {% endif %}
       {% endif %}
     {% endfor %}
   ],

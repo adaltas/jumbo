@@ -1,24 +1,33 @@
 {
   "host_groups": [
+    {% set comma_hosts = joiner(',') %}
     {% for host in groups['all'] %}
-      {% if hostvars[host]['components'] is defined and hostvars[host]['components']|length >  0  %}
-        {% if not loop.first %},{% endif %}{
-          "cardinality": "1",
-          "components": [
-          {% set ns = namespace(first_comp=true) %}
-          {% for comp in hostvars[host]['components'] %}
-            {% if comp in HDP_components %}
-              {% if ns.first_comp == false %},{% endif %}
-              {% set ns.first_comp = false %}
-              {
-                "name": "{{ comp }}"
-              }
-            {% endif %}
-          {% endfor %}
-          ],
-          "configurations": [],
-          "name": "{{ host }}_group"
-        }
+      {% if hostvars[host]['components'] is defined %}
+        {# Check if host has HDP components #}
+        {% set ns = namespace(bp=false) %}
+        {% for comp in hostvars[host]['components'] %}
+          {% if comp in HDP_components %}
+            {% set ns.bp = true %}
+          {% endif %}
+        {% endfor %}
+        {# Add host if it has some HDP components #}
+        {% if ns.bp == true %}
+          {{ comma_hosts() }}{
+            "cardinality": "1",
+            "components": [
+            {% set comma_comps = joiner(',') %}
+            {% for comp in hostvars[host]['components'] %}
+              {% if comp in HDP_components %}
+                {{ comma_comps() }}{
+                  "name": "{{ comp }}"
+                }
+              {% endif %}
+            {% endfor %}
+            ],
+            "configurations": [],
+            "name": "{{ host }}_group"
+          }
+        {% endif %}
       {% endif %}
     {% endfor %}
   ]
