@@ -2,19 +2,16 @@
   "available_node_types": [],
   "services": [
     {
-      "name": "POSTGRESQL",
+      "name": "ZEPPELIN",
       "components": [
         {
-          "name": "PSQL_SERVER",
-          "abbr": "PSQL_S",
+          "name": "ZEPPELIN_MASTER",
           "node_types": [
             [
-              "sidemaster"
+              "edge"
             ]
           ],
-          "ansible_groups": [
-            "pgsqlserver"
-          ],
+          "abbr": "Z_MASTER",
           "number": {
             "default": 1,
             "ha": 1
@@ -22,14 +19,24 @@
         }
       ],
       "ansible_vars": {
-        "POSTGRESQL": {}
+        "ZEPPELIN": {}
       },
       "requirements": {
         "ram": 1000,
         "disk": 10000,
         "services": {
-          "default": [],
-          "ha": []
+          "default": [
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "SPARK2"
+          ],
+          "ha": [
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "SPARK2"
+          ]
         }
       },
       "auto_install": []

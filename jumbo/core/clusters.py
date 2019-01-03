@@ -45,11 +45,13 @@ def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
                                    'Allowed characters: ' + allowed_chars,
                                    'NameNotAllowed')
 
-    ss.clear()  # clear current session
+    # clear current session
+    ss.clear()
 
-    data_dir = os.path.dirname(os.path.abspath(__file__)) + '/data/'
     config_dir = os.path.dirname(os.path.abspath(__file__)) + '/config/'
+
     if template:
+        # Load template is session var
         try:
             with open(config_dir + 'templates/' + template + '.json') \
                     as template_file:
@@ -73,8 +75,11 @@ def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
     services_components_hosts = services.get_services_components_hosts() \
         if template else None
 
+    # Save session in jumbo_config
     ss.dump_config(services_components_hosts, services.config)
+    # Load services configurations from [bundles]/services/*.json
     services.config = services.load_services_conf(cluster=cluster)
+
     return True
 
 
@@ -93,7 +98,11 @@ def repair_cluster(domain, remote=None, *, cluster):
         ss.svars['cluster'] = cluster
         ss.svars['domain'] = domain if domain else '%s.local' % cluster
         ss.svars['location'] = 'remote' if remote else 'local'
+        if not ss.svars['bundles']:
+            ss.svars['bundles'].append('jumbo-services')
+
         ss.dump_config()
+        services.config = services.load_services_conf(cluster=cluster)
         return True
 
     return False
@@ -106,7 +115,6 @@ def delete_cluster(*, cluster):
     :param name: Cluster name
     :type name: str
     :raises ex.LoadError: If the cluster doesn't exist
-    :return: True if the deletion was successfull
     """
     try:
         ss.load_config(cluster=cluster)
@@ -117,7 +125,6 @@ def delete_cluster(*, cluster):
         raise ex.LoadError('cluster', cluster, e.strerror)
 
     ss.clear()
-    return True
 
 
 def list_clusters():
@@ -205,6 +212,7 @@ def restart(*, cluster):
 
 @checks.valid_cluster
 def provision(*, cluster):
+    """TODO"""
     ss.load_config(cluster)
 
     cmd = ["ansible-playbook", "playbooks/full-deploy.yml",

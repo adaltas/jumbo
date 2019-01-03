@@ -18,18 +18,28 @@
     name: ipa-client
     state: present
 
-- name: IPA discovery
-  ipadiscovery:
-  register: ipadiscovery
+- name: Install ipa-clients and join
+  command: ipa-client-install -U --mkhomedir -p admin -w {{ FREEIPA.admin_password }} --server {{ hostvars[groups['ipaserver'][0]]['inventory_hostname'] }}.{{ domain }} --domain {{ domain }} --realm {{ realm }} --force-join
+  register: ipa_client_install_reg
+  changed_when: '"Client configuration complete." in ipa_client_install_reg.stderr'
+  failed_when: '"PA client is already configured on this system." not in ipa_client_install_reg.stderr and "Client configuration complete." not in ipa_client_install_reg.stderr'
 
-- name: Join IPA
-  ipajoin:
-    servers: "{{ ipadiscovery.servers }}"
-    domain: "{{ ipadiscovery.domain }}"
-    realm: "{{ ipadiscovery.realm }}"
-    kdc: "{{ ipadiscovery.kdc }}"
-    basedn: "{{ ipadiscovery.basedn }}"
-    hostname: "{{ ipadiscovery.hostname }}"
-    principal: admin
-    password: "{{ ipa_admin_password }}"
-    force_join: yes
+- name: debug
+  debug:
+    msg: "{{ ipa_client_install_reg }}"
+
+# - name: IPA discovery
+#   ipadiscovery:
+#   register: ipadiscovery
+
+# - name: Join IPA
+#   ipajoin:
+#     servers: "{{ ipadiscovery.servers }}"
+#     domain: "{{ ipadiscovery.domain }}"
+#     realm: "{{ ipadiscovery.realm }}"
+#     kdc: "{{ ipadiscovery.kdc }}"
+#     basedn: "{{ ipadiscovery.basedn }}"
+#     hostname: "{{ ipadiscovery.hostname }}"
+#     principal: admin
+#     password: "{{ FREEIPA.admin_password }}"
+#     force_join: yes

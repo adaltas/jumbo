@@ -2,32 +2,35 @@
   "available_node_types": [],
   "services": [
     {
-      "name": "ZOOKEEPER",
+      "name": "FREEIPA",
       "components": [
         {
-          "name": "ZOOKEEPER_SERVER",
+          "name": "IPA_SERVER",
           "node_types": [
             [
-              "master"
-            ],
-            [
-              "sidemaster"
+              "ldap"
             ]
           ],
-          "abbr": "ZK_S",
+          "ansible_groups": [
+            "ipaserver"
+          ],
+          "abbr": "IPA_S",
           "number": {
             "default": 1,
-            "ha": 3
+            "ha": 1
           }
         },
         {
-          "name": "ZOOKEEPER_CLIENT",
+          "name": "IPA_CLIENT",
           "node_types": [
             [
               "!ldap"
             ]
           ],
-          "abbr": "ZK_C",
+          "ansible_groups": [
+            "ipaclients"
+          ],
+          "abbr": "IPA_S",
           "number": {
             "default": -1,
             "ha": -1
@@ -35,23 +38,20 @@
         }
       ],
       "ansible_vars": {
-        "ZOOKEEPER": {}
+        "FREEIPA": {
+          "dm_password": "dm_p4ssw0rd",
+          "admin_password": "adm1n_p4ssw0rd"
+        }
       },
       "requirements": {
         "ram": 1000,
         "disk": 10000,
         "services": {
-          "default": [
-            "AMBARI"
-          ],
-          "ha": [
-            "AMBARI"
-          ]
+          "default": [],
+          "ha": []
         }
       },
-      "auto_install": [
-        "ZOOKEEPER_CLIENT"
-      ]
+      "auto_install": []
     }
   ]
 }

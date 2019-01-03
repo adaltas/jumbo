@@ -94,8 +94,9 @@ def clone_bundle(*, name=None, git):
              Use `updatebundle` to update it.')
 
     # TODO
+    raise RuntimeError('GIT not implemented yet')
 
 
 def update_bundle(name):
     """Update the given bundle (git pull)"""
-    pass
+    raise RuntimeError('GIT not implemented yet')

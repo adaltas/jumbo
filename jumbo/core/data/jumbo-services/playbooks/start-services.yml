@@ -8,8 +8,8 @@
         X-Requested-By: ambari
       method: GET
       force_basic_auth: yes
-      user: "{{ ambari.user }}"
-      password: "{{ ambari.pwd }}"
+      user: "{{ AMBARI.user }}"
+      password: "{{ AMBARI.pwd }}"
       validate_certs: no
     register: services_state
     until: services_state.msg.find("UNKNOWN") == -1 and services_state.status == 200
@@ -23,8 +23,8 @@
         X-Requested-By: ambari
       method: PUT
       force_basic_auth: yes
-      user: "{{ ambari.user }}"
-      password: "{{ ambari.pwd }}"
+      user: "{{ AMBARI.user }}"
+      password: "{{ AMBARI.pwd }}"
       body: " {\"RequestInfo\":{\"context\":\"Start all services\"},\"Body\":{\"ServiceInfo\":{\"state\":\"STARTED\"}}}"
       status_code: 200, 201, 202, 409
       validate_certs: no

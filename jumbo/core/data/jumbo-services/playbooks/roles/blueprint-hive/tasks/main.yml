@@ -14,7 +14,7 @@
 - name: Build variables for template
   set_fact:
     HIVE:
-      metastores_FQDN: "{{ serv_comp_host['HIVE']['HIVE_METASTORE'] | map('regex_replace', '^(.*)$', '\\1.' + domain) | list }} }}"
+      metastores_FQDN: "{{ serv_comp_host['HIVE']['HIVE_METASTORE'] | map('regex_replace', '^(.*)$', '\\1.' + domain) | list }}"
       webhcat_FQDN: "{{ serv_comp_host['HIVE']['WEBHCAT_SERVER'][0] }}.{{ domain }}"
 
 - name: Registering service HIVE

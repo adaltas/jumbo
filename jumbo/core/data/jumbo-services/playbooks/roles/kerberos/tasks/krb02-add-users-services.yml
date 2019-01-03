@@ -7,8 +7,8 @@
       X-Requested-By: ambari
     method: GET
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     body_format: json
     return_content: yes
     validate_certs: no
@@ -21,7 +21,7 @@
   shell: awk -F"," '/USER/ {print "ipa user-add "$5" --first="$5" --last=Hadoop --shell=/sbin/nologin"}' /tmp/kerberos.csv > ipa-add-upn.sh
 
 - name: Kinit admin
-  shell: echo {{ ipa_admin_password }} | kinit admin@{{ realm }}
+  shell: echo {{ FREEIPA.admin_password }} | kinit admin@{{ realm }}
 
 - name: Run service script
   shell: echo "" | sh ipa-add-spn.sh

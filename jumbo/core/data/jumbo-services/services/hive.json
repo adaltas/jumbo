@@ -76,7 +76,9 @@
           }
         }
       ],
-      "ansible_vars": {},
+      "ansible_vars": {
+        "HIVE": {}
+      },
       "requirements": {
         "ram": 1000,
         "disk": 10000,

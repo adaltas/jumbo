@@ -2,26 +2,40 @@
 - name: Set HDP components list
   set_fact:
     HDP_components:
+    # HDFS
     - NAMENODE
     - SECONDARY_NAMENODE
     - DATANODE
     - JOURNALNODE
     - HDFS_CLIENT
+    # ZOOKEEPER 
     - ZKFC
+    # YARN
     - RESOURCEMANAGER
     - NODEMANAGER
     - HISTORYSERVER
     - APP_TIMELINE_SERVER
     - YARN_CLIENT
-    - MAPREDUCE2_CLIENT
-    - SLIDER
-    - PIG
-    - TEZ_CLIENT
+    # HIVE
     - HIVE_METASTORE
     - HIVE_SERVER
     - WEBHCAT_SERVER
     - HCAT
     - HIVE_CLIENT
+    # HBASE
+    - HBASE_CLIENT
+    - HBASE_MASTER
+    - HBASE_REGIONSERVER
+    # SPARK2
+    - SPARK2_CLIENT
+    - SPARK2_JOBHISTORYSERVER
+    # ZEPPELIN
+    - ZEPPELIN_MASTER
+    # CLIENTS
+    - MAPREDUCE2_CLIENT
+    - SLIDER
+    - PIG
+    - TEZ_CLIENT
 
 - name: Template hostgroups
   template: 

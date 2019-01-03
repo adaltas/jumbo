@@ -2,32 +2,42 @@
   "available_node_types": [],
   "services": [
     {
-      "name": "ZOOKEEPER",
+      "name": "HBASE",
       "components": [
         {
-          "name": "ZOOKEEPER_SERVER",
+          "name": "HBASE_MASTER",
           "node_types": [
             [
               "master"
-            ],
-            [
-              "sidemaster"
             ]
           ],
-          "abbr": "ZK_S",
+          "abbr": "HMASTER",
           "number": {
             "default": 1,
-            "ha": 3
+            "ha": 2
           }
         },
         {
-          "name": "ZOOKEEPER_CLIENT",
+          "name": "HBASE_REGIONSERVER",
+          "node_types": [
+            [
+              "worker"
+            ]
+          ],
+          "abbr": "REGIONS",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        },
+        {
+          "name": "HBASE_CLIENT",
           "node_types": [
             [
               "!ldap"
             ]
           ],
-          "abbr": "ZK_C",
+          "abbr": "HBASE_C",
           "number": {
             "default": -1,
             "ha": -1
@@ -35,22 +45,28 @@
         }
       ],
       "ansible_vars": {
-        "ZOOKEEPER": {}
+        "HBASE": {}
       },
       "requirements": {
         "ram": 1000,
         "disk": 10000,
         "services": {
           "default": [
-            "AMBARI"
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "ZOOKEEPER"
           ],
           "ha": [
-            "AMBARI"
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "ZOOKEEPER"
           ]
         }
       },
       "auto_install": [
-        "ZOOKEEPER_CLIENT"
+        "HBASE_CLIENT"
       ]
     }
   ]

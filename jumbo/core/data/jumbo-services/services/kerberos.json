@@ -1,0 +1,25 @@
+{
+  "available_node_types": [],
+  "services": [
+    {
+      "name": "KERBEROS",
+      "components": [],
+      "ansible_vars": {
+        "kerberos_enabled": true
+      },
+      "requirements": {
+        "services": {
+          "default": [
+            "AMBARI",
+            "FREEIPA"
+          ],
+          "ha": [
+            "AMBARI",
+            "FREEIPA"
+          ]
+        }
+      },
+      "auto_install": []
+    }
+  ]
+}

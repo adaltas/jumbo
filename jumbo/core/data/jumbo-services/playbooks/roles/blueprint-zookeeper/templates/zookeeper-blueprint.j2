@@ -2,25 +2,25 @@
   "configurations": [
     {
       "core-site": {
-        "ha.zookeeper.quorum": "{{ ZOOKEEPER.quorum }}{{ ZOOKEEPER.quorum_port }}"
+        "ha.zookeeper.quorum": "{{ ZOOKEEPER.quorum | join(',') }}"
       }
     }
     {% if HIVE is defined %}
     ,{
       "hive-site": {
-        "hive.zookeeper.quorum": "{{ ZOOKEEPER.quorum }}{{ ZOOKEEPER.quorum_port }}"
+        "hive.zookeeper.quorum": "{{ ZOOKEEPER.quorum | join(',') }}"
       }
     },
     {
       "webhcat-site": {
-        "templeton.zookeeper.hosts": "{{ ZOOKEEPER.quorum }}{{ ZOOKEEPER.quorum_port }}"
+        "templeton.zookeeper.hosts": "{{ ZOOKEEPER.quorum | join(',') }}"
       }
     }
     {% endif %}
     {% if HBASE is defined %}
     ,{
       "hbase-site": {
-        "hbase.zookeeper.hosts" : "{{ ZOOKEEPER.quorum }}"
+        "hbase.zookeeper.hosts" : "{{ ZOOKEEPER.quorum_no_port | join(',') }}"
       }
     }
     {% endif %}

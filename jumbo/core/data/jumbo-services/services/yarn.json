@@ -122,7 +122,9 @@
           }
         }
       ],
-      "ansible_vars": {},
+      "ansible_vars": {
+        "YARN": {}
+      },
       "requirements": {
         "ram": 1000,
         "disk": 10000,

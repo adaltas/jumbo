@@ -11,6 +11,13 @@
 #     metrics:
 #       foo: "bar"
 
+- name: Build variables for template
+  set_fact:
+    ZOOKEEPER:
+      quorum: "{{ serv_comp_host['ZOOKEEPER']['ZOOKEEPER_SERVER'] | map('regex_replace', '^(.*)$', '\\1.' + domain + ':2181') | list }}"
+      quorum_no_port: "{{ serv_comp_host['ZOOKEEPER']['ZOOKEEPER_SERVER'] | map('regex_replace', '^(.*)$', '\\1.' + domain) | list }}"
+
+
 - name: Registering service ZOOKEEPER
   debug:
     msg: "Added {{ blueprint_conf }}"

@@ -6,8 +6,8 @@
       X-Requested-By: ambari
     method: POST
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     body_format: json
     return_content: yes
     validate_certs: no
@@ -21,8 +21,8 @@
       X-Requested-By: ambari
     method: POST
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     body_format: json
     return_content: yes
     validate_certs: no
@@ -37,8 +37,8 @@
 #       X-Requested-By: ambari
 #     method: PUT
 #     force_basic_auth: yes
-#     user: "{{ ambari.user }}"
-#     password: "{{ ambari.pwd }}"
+#     user: "{{ AMBARI.user }}"
+#     password: "{{ AMBARI.pwd }}"
 #     body: " {{ lookup('file', 'krb5-conf.json') }}"
 #     validate_certs: no
 #     status_code: 200, 201, 202, 409
@@ -46,19 +46,20 @@
 #   changed_when: cmd_krb_conf.status != 409
 #
 # TODO Fix with URI module (not working)
+- name: Template krb5.conf
+  template:
+    src: krb5-conf.j2
+    dest: /tmp/krb5_conf_ambari_api.json
 
-  - name: Copy krb5.conf
-    copy: src=krb5-conf.json dest=/tmp/krb5_conf_ambari_api.json
-
-  - name: upload krb5.conf
-    command: "curl -u admin:admin -i -k -H 'X-Requested-By: ambari' -X PUT -d @/tmp/krb5_conf_ambari_api.json {{ ambari_uril }}/api/v1/clusters/{{ cluster_name }}"
-    register: cmd_krb_conf
-    failed_when:
-      - "'409' not in cmd_krb_conf.stdout"
-      - "'200' not in cmd_krb_conf.stdout"
-      - "'201' not in cmd_krb_conf.stdout"
-      - "'202' not in cmd_krb_conf.stdout"
-    changed_when: "'409' not in cmd_krb_conf.stdout"
+- name: upload krb5.conf
+  command: "curl -u admin:admin -i -k -H 'X-Requested-By: ambari' -X PUT -d @/tmp/krb5_conf_ambari_api.json {{ ambari_url }}/api/v1/clusters/{{ cluster_name }}"
+  register: cmd_krb_conf
+  failed_when:
+    - "'409' not in cmd_krb_conf.stdout"
+    - "'200' not in cmd_krb_conf.stdout"
+    - "'201' not in cmd_krb_conf.stdout"
+    - "'202' not in cmd_krb_conf.stdout"
+  changed_when: "'409' not in cmd_krb_conf.stdout"
 
 
 - name: Add the KERBEROS_CLIENT componant to each host
@@ -69,8 +70,8 @@
     method: POST
     body: ' {"host_components" : [{"HostRoles" : {"component_name":"KERBEROS_CLIENT"}}]}' 
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     return_content: yes
     validate_certs: no
     status_code: 200, 201, 202, 409
@@ -87,8 +88,8 @@
     method: PUT
     body: ' {"RequestInfo":{"context":"Install Kerberos"},"Body":{"ServiceInfo": {"state" : "INSTALLED"}}}' 
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     return_content: yes
     validate_certs: no
     status_code: 200, 201, 202, 409
@@ -102,8 +103,8 @@
       X-Requested-By: ambari
     method: PUT
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     body: ' {"RequestInfo":{"context":"Stop all services"},"Body":{"ServiceInfo":{"state":"INSTALLED"}}}'
     status_code: 200, 201, 202, 409
   register: cmd_stop_services
@@ -116,8 +117,8 @@
       X-Requested-By: ambari
     method: GET
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     status_code: 200, 201, 202
   register: progress
   until: "progress.json.Requests.progress_percent == 100.0"
@@ -132,8 +133,8 @@
       X-Requested-By: ambari
     method: DELETE
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     body_format: json
     return_content: yes
     validate_certs: no
@@ -159,8 +160,8 @@
     method: POST
     body: " {{ lookup('file', '/tmp/credentials.json') }}"
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     return_content: yes
     validate_certs: no
     status_code: 200, 201, 202, 409
@@ -175,8 +176,8 @@
     method: POST
     body: " {{ lookup('file', 'kerberos_descriptor.json') }}"
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     return_content: yes
     validate_certs: no
     status_code: 200, 201, 202, 409
@@ -190,8 +191,8 @@
     method: PUT
     body: " {{ lookup('file', 'enable-krb.json') }}"
     force_basic_auth: yes
-    user: "{{ ambari.user }}"
-    password: "{{ ambari.pwd }}"
+    user: "{{ AMBARI.user }}"
+    password: "{{ AMBARI.pwd }}"
     status_code: 200, 201, 202, 409
   register: cmd_enable_krb
   changed_when: cmd_enable_krb.status != 409

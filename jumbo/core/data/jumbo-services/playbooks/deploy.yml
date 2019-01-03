@@ -5,4 +5,5 @@
 - import_playbook: ipa-clients.yml
 - import_playbook: ambari.yml
 - import_playbook: blueprint.yml
+- import_playbook: kerberos.yml
   

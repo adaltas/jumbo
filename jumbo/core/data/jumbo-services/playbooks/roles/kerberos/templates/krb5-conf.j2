@@ -1,0 +1,102 @@
+{% raw %}
+[
+{
+  "Clusters": {
+      "desired_configs": {
+          "type": "krb5-conf",
+          "tag": "version1",
+          "properties": {
+              "type": "krb5-conf",
+              "tag": "version1",
+              "properties": {
+                  "domains": "",
+                  "manage_krb5_conf": "true",
+                  "conf_dir": "/etc",
+{% endraw %}
+                  "content": "{{'
+    [libdefaults]
+      renew_lifetime = 7d
+      forwardable = true
+      default_realm = {{realm}}
+      ticket_lifetime = 24h
+      dns_lookup_realm = false
+      dns_lookup_kdc = false
+      default_ccache_name = /tmp/krb5cc_%{uid}
+      # default_tgs_enctypes = {{encryption_types}}
+      # default_tkt_enctypes = {{encryption_types}}
+    {% if domains %}
+    [domain_realm]
+    {%- for domain in domains.split(\',\') %}
+      {{domain|trim()}} = {{realm}}
+    {%- endfor %}
+    {% endif %}
+    [logging]
+      default = FILE:/var/log/krb5kdc.log
+      admin_server = FILE:/var/log/kadmind.log
+      kdc = FILE:/var/log/krb5kdc.log
+    [realms]
+      {{realm}} = {
+    {%- if master_kdc %}
+        master_kdc = {{master_kdc|trim()}}
+    {%- endif -%}
+    {%- if kdc_hosts > 0 -%}
+    {%- set kdc_host_list = kdc_hosts.split(\',\')  -%}
+    {%- if kdc_host_list and kdc_host_list|length > 0 %}
+        admin_server = {{admin_server_host|default(kdc_host_list[0]|trim(), True)}}
+    {%- if kdc_host_list -%}
+    {%- if master_kdc and (master_kdc not in kdc_host_list) %}
+        kdc = {{master_kdc|trim()}}
+    {%- endif -%}
+    {% for kdc_host in kdc_host_list %}
+        kdc = {{kdc_host|trim()}}
+    {%- endfor -%}
+    {% endif %}
+    {%- endif %}
+    {%- endif %}
+      }
+    {# Append additional realm declarations below #}
+    ' | replace('\n', '\\n')
+                  }}"
+{% raw %}
+              }
+          }
+      }
+  }
+},
+{
+  "Clusters": {
+      "desired_config": {
+          "type": "kerberos-env",
+          "tag": "version1",
+          "properties": {
+              "kdc_type": "ipa",
+              "manage_identities": "false",
+              "create_ambari_principal": "false",
+              "manage_auth_to_local": "true",
+              "install_packages": "true",
+              "encryption_types":
+                  "aes des3-cbc-sha1 rc4 des-cbc-md5",
+{% endraw %}
+              "realm": "{{ realm }}",
+              "kdc_hosts": "{{ serv_comp_host["FREEIPA"]["IPA_SERVER"][0] }}.{{ domain }}",
+              "admin_server_host": "{{ serv_comp_host["FREEIPA"]["IPA_SERVER"][0] }}.{{ domain }}",
+{% raw %}
+              "executable_search_paths": "/usr/bin, /usr/kerberos/bin, /usr/sbin, /usr/lib/mit/bin, /usr/lib/mit/sbin",
+              "password_length": "20",
+              "password_min_lowercase_letters": "1",
+              "password_min_uppercase_letters": "1",
+              "password_min_digits": "1",
+              "password_min_punctuation": "1",
+              "password_min_whitespace": "0",
+              "service_check_principal_name":
+                  "${cluster_name}-${short_date}",
+              "case_insensitive_username_rules": "false",
+              "preconfigure_services": "DEFAULT",
+              "set_password_expiracy": "false",
+              "group": "ambari-managed-principals"
+          }
+      }
+  }
+}
+]
+{% endraw %}

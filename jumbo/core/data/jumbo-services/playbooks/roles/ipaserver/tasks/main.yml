@@ -20,8 +20,8 @@
 
 - name: Check FreeIPA server installation
   ipaserver_test:
-    dm_password: "{{ ipa_dm_password }}"
-    password: "{{ ipa_admin_password }}"
+    dm_password: "{{ FREEIPA.dm_password }}"
+    password: "{{ FREEIPA.admin_password }}"
     setup_dns: yes
     domain: "{{ domain }}"
     realm: "{{ realm }}"
@@ -61,6 +61,6 @@
 
 
 - name: Install ipa-server
-  command: "ipa-server-install -U --setup-dns --no-forwarder --auto-reverse -p {{ ipa_dm_password }} -a {{ ipa_admin_password }} -n {{ domain }} -r {{ realm }} --hostname={{ item }}.{{ domain }}"
+  command: "ipa-server-install -U --setup-dns --no-forwarder --auto-reverse -p {{ FREEIPA.dm_password }} -a {{ FREEIPA.admin_password }} -n {{ domain }} -r {{ realm }} --hostname={{ item }}.{{ domain }}"
   with_inventory_hostnames:
     - ipaserver

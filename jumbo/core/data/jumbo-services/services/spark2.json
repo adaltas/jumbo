@@ -2,32 +2,29 @@
   "available_node_types": [],
   "services": [
     {
-      "name": "ZOOKEEPER",
+      "name": "SPARK2",
       "components": [
         {
-          "name": "ZOOKEEPER_SERVER",
+          "name": "SPARK2_JOBHISTORYSERVER",
           "node_types": [
             [
-              "master"
-            ],
-            [
-              "sidemaster"
+              "edge"
             ]
           ],
-          "abbr": "ZK_S",
+          "abbr": "SPARK_HS",
           "number": {
             "default": 1,
-            "ha": 3
+            "ha": 1
           }
         },
         {
-          "name": "ZOOKEEPER_CLIENT",
+          "name": "SPARK2_CLIENT",
           "node_types": [
             [
               "!ldap"
             ]
           ],
-          "abbr": "ZK_C",
+          "abbr": "SPARK_C",
           "number": {
             "default": -1,
             "ha": -1
@@ -35,22 +32,27 @@
         }
       ],
       "ansible_vars": {
-        "ZOOKEEPER": {}
+        "SPARK2": {}
       },
       "requirements": {
         "ram": 1000,
         "disk": 10000,
         "services": {
           "default": [
-            "AMBARI"
+            "AMBARI",
+            "HDFS",
+            "YARN"
           ],
           "ha": [
-            "AMBARI"
+            "AMBARI",
+            "HDFS",
+            "YARN",
+            "ZOOKEEPER"
           ]
         }
       },
       "auto_install": [
-        "ZOOKEEPER_CLIENT"
+        "SPARK2_CLIENT"
       ]
     }
   ]
