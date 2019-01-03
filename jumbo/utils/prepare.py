@@ -23,3 +23,10 @@ def init_jumbo():
             os.path.abspath(__file__))) +
             '/core/data/jumbo-services',
             JUMBODIR + 'bundles/jumbo-services')
+
+    if not os.path.isdir(JUMBODIR + 'templates/'):
+        pathlib.Path(JUMBODIR + 'templates').mkdir()
+        dir_util.copy_tree(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))) +
+            '/core/config/templates',
+            JUMBODIR + 'templates/')

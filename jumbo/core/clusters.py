@@ -24,7 +24,8 @@ def check_config(name):
     return os.path.isfile(JUMBODIR + 'clusters/' + name + '/jumbo_config')
 
 
-def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
+def create_cluster(domain, template=None,
+                   remote=None, realm=None, *, cluster):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -48,12 +49,10 @@ def create_cluster(domain, template=None, remote=None, realm=None, *, cluster):
     # clear current session
     ss.clear()
 
-    config_dir = os.path.dirname(os.path.abspath(__file__)) + '/config/'
-
     if template:
         # Load template is session var
         try:
-            with open(config_dir + 'templates/' + template + '.json') \
+            with open(JUMBODIR + 'templates/' + template + '.json') \
                     as template_file:
                 ss.svars = json.load(template_file)
         except:
