@@ -27,19 +27,3 @@
 - name: debug
   debug:
     msg: "{{ ipa_client_install_reg }}"
-
-# - name: IPA discovery
-#   ipadiscovery:
-#   register: ipadiscovery
-
-# - name: Join IPA
-#   ipajoin:
-#     servers: "{{ ipadiscovery.servers }}"
-#     domain: "{{ ipadiscovery.domain }}"
-#     realm: "{{ ipadiscovery.realm }}"
-#     kdc: "{{ ipadiscovery.kdc }}"
-#     basedn: "{{ ipadiscovery.basedn }}"
-#     hostname: "{{ ipadiscovery.hostname }}"
-#     principal: admin
-#     password: "{{ FREEIPA.admin_password }}"
-#     force_join: yes
