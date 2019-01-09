@@ -40,7 +40,7 @@ def delete(*, cluster):
 @valid_cluster
 def vms_created(*, cluster):
     res = subprocess.Popen(["vagrant", "status"],
-                           cwd=os.path.join(JUMBODIR, cluster),
+                           cwd=os.path.join(JUMBODIR, 'clusters/'+cluster),
                            stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT)
 

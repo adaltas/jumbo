@@ -211,22 +211,29 @@ def restart(*, cluster):
 
 @checks.valid_cluster
 def provision(*, cluster):
-    """TODO"""
+    """Provision the cluster.
+
+    Calls `deploy.yml` master plabyooks of each bundle
+    """
+
     ss.load_config(cluster)
 
-    cmd = ["ansible-playbook", "playbooks/full-deploy.yml",
-           "-i", "playbooks/inventory"]
-    try:
-        res = subprocess.Popen(cmd,
-                               cwd=os.path.join(JUMBODIR+'clusters', cluster),
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
+    for bundle in ss.svars['bundles']:
+        cmd = ["ansible-playbook",
+               JUMBODIR+"bundles/"+bundle+"/playbooks/deploy.yml",
+               "-i", "inventory/"]
+        try:
+            res = subprocess.Popen(cmd,
+                                   cwd=os.path.join(
+                                       JUMBODIR+'clusters', cluster),
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
 
-        for line in res.stdout:
-            print(line.decode('utf-8').rstrip())
+            for line in res.stdout:
+                print(line.decode('utf-8').rstrip())
 
-    except KeyboardInterrupt:
-        res.kill()
+        except KeyboardInterrupt:
+            res.kill()
 
 
 def start_services(cluster):
