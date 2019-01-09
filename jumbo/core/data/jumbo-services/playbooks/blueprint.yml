@@ -14,5 +14,6 @@
     - { role: blueprint-spark2 , when: SPARK2 is defined }
     - { role: blueprint-zeppelin , when: ZEPPELIN is defined }
     - { role: blueprint-zookeeper , when: ZOOKEEPER is defined }
+    - { role: blueprint-ranger , when: RANGER is defined }
     # Post blueprint to Ambari API
     - postblueprint

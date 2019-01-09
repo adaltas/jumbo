@@ -38,6 +38,7 @@
     - druid
     - superset
     - ambari
+    - ranger
 
 - name: Create users
   postgresql_user:
@@ -52,6 +53,7 @@
     - druid
     - superset
     - ambari
+    - ranger
 
 - name: Create pgsql schema for ambari db
   command: psql -d ambari -c "CREATE SCHEMA ambarischema AUTHORIZATION ambari;"

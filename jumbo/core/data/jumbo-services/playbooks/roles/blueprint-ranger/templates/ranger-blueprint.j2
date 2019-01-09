@@ -1,0 +1,181 @@
+{
+  "configurations": [
+    {
+      "ranger-admin-site": {
+        "properties": {
+          "ranger.jpa.jdbc.driver": "org.postgresql.Driver",
+          "ranger.jpa.jdbc.url": "jdbc:postgresql://{{ pgsqlserver }}:5432/ranger"
+        }
+      }
+    },
+    {
+      "admin-properties" : {
+        "properties" : {
+          "db_root_user" : "postgres",
+          "DB_FLAVOR" : "POSTGRES",
+          "db_name" : "ranger",
+          "db_user" : "ranger",
+          "db_password": "ranger",
+          "db_host" : "{{ pgsqlserver }}",
+          "SQL_CONNECTOR_JAR": "{{ ambari_url }}/resources/postgresql-jdbc-42.2.1"
+        }
+      }
+    },
+    {
+      "ranger-env": {
+        "properties": {
+          {% if HDFS is defined %}"ranger-hdfs-plugin-enabled": "Yes", {% endif %}
+          {% if YARN is defined %}"ranger-yarn-plugin-enabled": "Yes", {% endif %}
+          {% if HIVE is defined %}"ranger-hive-plugin-enabled": "Yes", {% endif %}
+          {% if HBASE is defined %}"ranger-hbase-plugin-enabled": "Yes", {% endif %}
+          "ranger_privelege_user_jdbc_url": "jdbc:postgresql://{{ pgsqlserver }}:5432/postgres",
+          "xasecure.audit.destination.solr" : "false",
+          "xasecure.audit.destination.hdfs" : "true",
+          "create_db_dbuser" : "false"
+        }
+      }
+    }
+    {% if HDFS is defined %}
+    ,{
+      "ranger-hdfs-security": {
+        "properties": {
+          "ranger.plugin.hdfs.policy.rest.url": "http://{{ RANGER.rangeradm_FQDN }}:6080"
+        }
+      }
+    },
+    {
+      "ranger-hdfs-audit": {
+        "properties": {
+          "xasecure.audit.destination.hdfs.dir": "hdfs://{{ HDFS.namenodes_FQDN[0] }}/ranger/audit"
+        }
+      }
+    },
+    {
+      "ranger-hdfs-plugin-properties": {
+        "properties": {
+          "ranger-hdfs-plugin-enabled": "Yes",
+          "REPOSITORY_CONFIG_USERNAME" : "hdfs",
+          "REPOSITORY_CONFIG_PASSWORD": "hdfs"
+        }
+      }
+    },
+    {
+      "hdfs-site": {
+        "properties": {
+          "dfs.namenode.inode.attributes.provider.class": "org.apache.ranger.authorization.hadoop.RangerHdfsAuthorizer"
+        }
+      }
+    }
+    {% endif %}
+    {% if YARN is defined %}
+    ,{
+      "ranger-yarn-security": {
+        "properties": {
+          "ranger.plugin.yarn.policy.rest.url": "http://{{ RANGER.rangeradm_FQDN }}:6080"
+        }
+      }
+    },
+    {
+      "ranger-yarn-audit": {
+        "properties": {
+          "xasecure.audit.destination.hdfs.dir": "hdfs://{{ HDFS.namenodes_FQDN[0] }}/ranger/audit"
+        }
+      }
+    },
+    {
+      "ranger-yarn-plugin-properties": {
+        "properties": {
+          "ranger-yarn-plugin-enabled": "Yes",
+          "REPOSITORY_CONFIG_USERNAME" : "yarn",
+          "REPOSITORY_CONFIG_PASSWORD": "yarn"
+        }
+      }
+    },
+    {
+      "yarn-site": {
+        "properties": {
+          "yarn.acl.enable": "true",
+          "yarn.authorization-provider": "org.apache.ranger.authorization.yarn.authorizer.RangerYarnAuthorizer"
+        }
+      }
+    }
+    {% endif %}
+    {% if HIVE is defined %}
+    ,{
+      "ranger-hive-security": {
+        "properties": {
+          "ranger.plugin.hive.policy.rest.url": "http://{{ RANGER.rangeradm_FQDN }}:6080"
+        }
+      }
+    },
+    {
+      "ranger-hive-audit": {
+        "properties": {
+          "xasecure.audit.destination.hdfs.dir": "hdfs://{{ HDFS.namenodes_FQDN[0] }}/ranger/audit"
+        }
+      }
+    },
+    {
+      "ranger-hive-plugin-properties": {
+        "properties": {
+          "ranger-hive-plugin-enabled": "Yes",
+          "REPOSITORY_CONFIG_USERNAME" : "hive",
+          "REPOSITORY_CONFIG_PASSWORD": "hive"
+          {# "jdbc.driverClassName" : "org.apache.hive.jdbc.HiveDriver" #}
+        }
+      }
+    },
+    {
+      "hiveserver2-site": {
+        "properties": {
+          "hive.security.authorization.enabled": "true",
+          "hive.security.authorization.manager": "org.apache.ranger.authorization.hive.authorizer.RangerHiveAuthorizerFactory",
+          "hive.security.authenticator.manager": "org.apache.hadoop.hive.ql.security.SessionStateUserAuthenticator",
+          "hive.conf.restricted.list": "hive.security.authenticator.manager,hive.security.authorization.manager,hive.security.metastore.authorization.manager,hive.security.metastore.authenticator.manager,hive.users.in.admin.role,hive.server2.xsrf.filter.enabled,hive.security.authorization.enabled"
+        }
+      }
+    },
+    {
+      "hive-site": {
+        "hive.security.authorization.enabled": "true",
+        "hive.server2.enable.doAs": "false"
+      }
+    }
+    {% endif %}
+    {% if HBASE is defined %}
+    ,{
+      "ranger-hbase-security": {
+        "properties": {
+          "ranger.plugin.hbase.policy.rest.url": "http://{{ RANGER.rangeradm_FQDN }}:6080"
+        }
+      }
+    },
+    {
+      "ranger-hbase-audit": {
+        "properties": {
+          "xasecure.audit.destination.hdfs.dir": "hdfs://{{ HDFS.namenodes_FQDN[0] }}/ranger/audit"
+        }
+      }
+    },
+    {
+      "ranger-hbase-plugin-properties": {
+        "properties": {
+          "ranger-hbase-plugin-enabled": "Yes",
+          "REPOSITORY_CONFIG_USERNAME" : "hbase",
+          "REPOSITORY_CONFIG_PASSWORD": "hbase"
+        }
+      }
+    },
+    {
+      "hbase-site": {
+        "properties": {
+          "hbase.coprocessor.master.classes": "org.apache.ranger.authorization.hbase.RangerAuthorizationCoprocessor",
+          "hbase.coprocessor.region.classes": "org.apache.hadoop.hbase.security.access.SecureBulkLoadEndpoint,org.apache.ranger.authorization.hbase.RangerAuthorizationCoprocessor",
+          "hbase.security.authorization": "true",
+          "hbase.coprocessor.regionserver.classes": "org.apache.ranger.authorization.hbase.RangerAuthorizationCoprocessor"
+        }
+      }
+    }
+    {% endif %}
+  ]
+}

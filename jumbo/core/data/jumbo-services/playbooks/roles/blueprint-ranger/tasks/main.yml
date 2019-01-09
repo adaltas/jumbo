@@ -1,0 +1,17 @@
+--- 
+- name: set Ranger blueprint path
+  set_fact:
+    blueprint_conf: "{{ role_path }}/templates/ranger-blueprint.j2"
+    
+- name: Build variables for template
+  set_fact:
+    RANGER:
+      rangeradm_FQDN: "{{ serv_comp_host['RANGER']['RANGER_ADMIN'][0] }}.{{ domain }}"
+
+- name: Registering service RANGER
+  debug:
+    msg: "Added {{ blueprint_conf }}"
+  changed_when: true
+  notify: "add service to blueprint"
+
+- meta: flush_handlers
