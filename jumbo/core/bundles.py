@@ -15,22 +15,21 @@ def list_bundles():
 
 
 @valid_cluster
-def add_bundle(*, name=None, git=None, cluster, position='last'):
+def add_bundle(*, name=None, cluster, position='last'):
     """Add a bundle to the current cluster"""
 
-    if name is None and git is None:
+    if name is None:
         raise RuntimeError(
-            'addbundle: invalid arguments. name or git required')
+            'addbundle: invalid arguments. Name required.')
 
     (active, available) = list_bundles()
 
-    if name is None:
-        name = git.split('/')[-1].split('.git')[0]
-
     if name in active:
-        raise Warning('addbundle: bundle `%s` already active.' % name)
+        raise Warning('addbundle: bundle `% s` already active. '
+                      'Nothing to be done.' % name)
+        # IDEA: --force option (case of bundle called multiple time)
     if name not in available:
-        clone_bundle(name=name, git=git)
+        raise RuntimeError('addbundle: bundle `%s` does not exist.' % name)
 
     if position == 'last':
         ss.svars['bundles'].append(name)
@@ -92,6 +91,7 @@ def clone_bundle(*, name=None, git):
         raise Warning(
             'registerbundle: a bundle with the name `%s` already exists. \
              Use `updatebundle` to update it.')
+        # TODO prompt for update ?
 
     # TODO
     raise RuntimeError('GIT not implemented yet')
@@ -99,4 +99,5 @@ def clone_bundle(*, name=None, git):
 
 def update_bundle(name):
     """Update the given bundle (git pull)"""
+    # TODO
     raise RuntimeError('GIT not implemented yet')

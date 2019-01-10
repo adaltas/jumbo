@@ -794,7 +794,6 @@ def provision(cluster_name, cluster):
 
     try:
         clusters.provision(cluster=cluster)
-        print_with_color("Not implemented yet.", 'yellow')
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
@@ -806,10 +805,9 @@ def provision(cluster_name, cluster):
 @jumbo.command()
 @click.argument('bundle_name', required=False)
 @click.option('--name')
-@click.option('--git')
 @click.option('--position', '-p', default='last')
 @click.option('--cluster', '-c')
-def addbundle(bundle_name, name, git, position, cluster):
+def addbundle(bundle_name, name, position, cluster):
     name = bundle_name if bundle_name else name
 
     if not cluster:
@@ -817,7 +815,6 @@ def addbundle(bundle_name, name, git, position, cluster):
 
     try:
         bundles.add_bundle(name=name,
-                           git=git,
                            cluster=cluster,
                            position=position)
     except RuntimeError as e:
@@ -826,9 +823,6 @@ def addbundle(bundle_name, name, git, position, cluster):
         print_with_color(e.message, 'red')
     except Warning as w:
         print_with_color('Warning: %s' % str(w), 'yellow')
-
-    print(name)
-    pass
 
 
 @jumbo.command()
