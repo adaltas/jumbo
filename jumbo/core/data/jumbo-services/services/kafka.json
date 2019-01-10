@@ -1,0 +1,39 @@
+{
+  "available_node_types": [],
+  "services": [
+    {
+      "name": "KAFKA",
+      "components": [
+        {
+          "name": "KAFKA_BROKER",
+          "node_types": [
+            [
+              "worker"
+            ]
+          ],
+          "abbr": "KAFKA_B",
+          "number": {
+            "default": 1,
+            "ha": -1
+          }
+        }
+      ],
+      "ansible_vars": {
+        "KAFKA": {}
+      },
+      "requirements": {
+        "services": {
+          "default": [
+            "AMBARI",
+            "ZOOKEEPER"
+          ],
+          "ha": [
+            "AMBARI",
+            "ZOOKEEPER"
+          ]
+        }
+      },
+      "auto_install": []
+    }
+  ]
+}

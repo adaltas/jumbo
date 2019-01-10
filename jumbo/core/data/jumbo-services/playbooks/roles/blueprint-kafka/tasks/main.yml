@@ -1,0 +1,16 @@
+--- 
+- name: set Kafka blueprint path
+  set_fact:
+    blueprint_conf: "{{ role_path }}/templates/kafka-blueprint.j2"
+    
+# - name: Build variables for template
+#   set_fact:
+#     KAFKA:
+
+- name: Registering service KAFKA
+  debug:
+    msg: "Added {{ blueprint_conf }}"
+  changed_when: true
+  notify: "add service to blueprint"
+
+- meta: flush_handlers
