@@ -55,8 +55,6 @@
         "blueprint_name": "{{ domain | regex_replace(\"\\.\", \"-\") }}-blueprint"
       },
       "requirements": {
-        "ram": 1000,
-        "disk": 10000,
         "services": {
           "default": [
             "POSTGRESQL"
