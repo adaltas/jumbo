@@ -129,7 +129,8 @@
         "services": {
           "default": [
             "AMBARI",
-            "HDFS"
+            "HDFS",
+            "ZOOKEEPER"
           ],
           "ha": [
             "AMBARI",
