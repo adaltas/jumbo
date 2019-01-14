@@ -1,0 +1,17 @@
+--- 
+- name: set Oozie blueprint path
+  set_fact:
+    blueprint_conf: "{{ role_path }}/templates/oozie-blueprint.j2"
+
+- name: Build variables for template
+  set_fact:
+    OOZIE:
+      oozieserver_FQDN: "{{ serv_comp_host['OOZIE']['OOZIE_SERVER'][0] }}.{{ domain }}"
+
+- name: Registering service OOZIE
+  debug:
+    msg: "Added {{ blueprint_conf }}"
+  changed_when: true
+  notify: "add service to blueprint"
+
+- meta: flush_handlers

@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "core-site": {
+        "properties": {
+          "hadoop.proxyuser.oozie.hosts": "{{ OOZIE.oozieserver_FQDN }}",
+          "hadoop.proxyuser.oozie.groups": "*"
+        }
+      }
+    },
+    {
+      "oozie-site": {
+        "properties": {
+          "oozie.service.JPAService.jdbc.driver": "org.postgresql.Driver",
+          "oozie.service.JPAService.jdbc.url": "jdbc:postgresql://{{ pgsqlserver }}:5432/oozie"
+        }
+      }
+    },
+    {
+      "oozie-env" : {
+        "properties": {
+          {# "oozie_heapsize" : "2048m", #}
+          "oozie_database" : "Existing PostgreSQL Database"
+        }
+      }
+    }
+  ]
+}

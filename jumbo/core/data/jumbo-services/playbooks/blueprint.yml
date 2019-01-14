@@ -13,6 +13,7 @@
     - { role: blueprint-yarn , when: YARN is defined }
     - { role: blueprint-hive , when: HIVE is defined }
     - { role: blueprint-hbase , when: HBASE is defined }
+    - { role: blueprint-oozie, when: OOZIE is defined }
     - { role: blueprint-spark2 , when: SPARK2 is defined }
     - { role: blueprint-zeppelin , when: ZEPPELIN is defined }
     - { role: blueprint-ranger , when: RANGER is defined }

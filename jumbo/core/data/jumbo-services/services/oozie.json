@@ -1,0 +1,54 @@
+{
+  "available_node_types": [],
+  "services": [
+    {
+      "name": "OOZIE",
+      "components": [
+        {
+          "name": "OOZIE_SERVER",
+          "node_types": [
+            [
+              "sidemaster"
+            ]
+          ],
+          "abbr": "OOZIE_S",
+          "number": {
+            "default": 1,
+            "ha": 1
+          }
+        },
+        {
+          "name": "OOZIE_CLIENT",
+          "node_types": [
+            [
+              "!ldap"
+            ]
+          ],
+          "abbr": "OOZIE_C",
+          "number": {
+            "default": -1,
+            "ha": -1
+          }
+        }
+      ],
+      "ansible_vars": {
+        "OOZIE": {}
+      },
+      "requirements": {
+        "services": {
+          "default": [
+            "AMBARI",
+            "HDFS",
+            "YARN"
+          ],
+          "ha": [
+            "AMBARI",
+            "HDFS",
+            "YARN"
+          ]
+        }
+      },
+      "auto_install": []
+    }
+  ]
+}
