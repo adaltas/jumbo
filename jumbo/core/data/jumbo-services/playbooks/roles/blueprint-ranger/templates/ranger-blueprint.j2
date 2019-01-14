@@ -24,6 +24,7 @@
     {
       "ranger-env": {
         "properties": {
+          "ranger_admin_password": "{{ RANGER.ranger_admin_password }}",
           {% if HDFS is defined %}"ranger-hdfs-plugin-enabled": "Yes", {% endif %}
           {% if YARN is defined %}"ranger-yarn-plugin-enabled": "Yes", {% endif %}
           {% if HIVE is defined %}"ranger-hive-plugin-enabled": "Yes", {% endif %}

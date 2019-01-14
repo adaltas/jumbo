@@ -38,7 +38,9 @@
         }
       ],
       "ansible_vars": {
-        "RANGER": {}
+        "RANGER": {
+          "ranger_admin_password": "rangerpassword123"
+        }
       },
       "requirements": {
         "services": {
