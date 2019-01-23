@@ -5,7 +5,7 @@
   ignore_errors: yes
 
 - name: 2 Create keytab
-  command: "kadmin.local -q \"xst -k /tmp/ambari.server.keytab ambari-server@{{ realm }}\""
+  command: "ipa-getkeytab -k /tmp/ambari.server.keytab -p ambari-server@{{ realm }}"
 
 - name: Fetch ambari keytab
   fetch:
