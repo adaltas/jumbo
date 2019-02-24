@@ -33,14 +33,14 @@ def dump_config(services_components_hosts=None, services_config=None):
     """
 
     try:
-        with open(JUMBODIR + 'clusters/' + svars['cluster']
-                  + '/jumbo_config', 'w') as cfg:
+        with open(JUMBODIR + 'clusters/' + svars['cluster'] +
+                  '/jumbo_config', 'w') as cfg:
             json.dump(svars, cfg)
 
         if svars["location"] == "local":
             vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
-            with open(JUMBODIR + 'clusters/' + svars['cluster']
-                      + '/Vagrantfile', 'w') as vf:
+            with open(JUMBODIR + 'clusters/' + svars['cluster'] +
+                      '/Vagrantfile', 'w') as vf:
                 vf.write(vagrant_temp.render(hosts=svars['nodes'],
                                              domain=svars['domain'],
                                              cluster=svars['cluster'],
@@ -143,6 +143,7 @@ def generate_ansible_groups(serv_conf):
 
 def generate_ansible_vars(serv_comp_hosts, serv_conf):
     generate_group_vars(serv_comp_hosts, serv_conf)
+    print('ok')
     generate_host_vars()
 
 
@@ -184,8 +185,8 @@ def generate_group_vars(serv_comp_hosts, serv_conf):
     for conf in svars['configurations']:
         ansible_vars.update(conf['config'])
 
-    with open(JUMBODIR + 'clusters/' + svars['cluster']
-              + '/inventory/group_vars/all', 'w+') as gva:
+    with open(JUMBODIR + 'clusters/' + svars['cluster'] +
+              '/inventory/group_vars/all', 'w+') as gva:
         yaml.dump(ansible_vars, gva, default_flow_style=False,
                   explicit_start=True)
 
