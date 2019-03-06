@@ -143,7 +143,6 @@ def generate_ansible_groups(serv_conf):
 
 def generate_ansible_vars(serv_comp_hosts, serv_conf):
     generate_group_vars(serv_comp_hosts, serv_conf)
-    print('ok')
     generate_host_vars()
 
 
