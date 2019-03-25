@@ -219,13 +219,13 @@ def provision(*, cluster):
     ss.load_config(cluster)
 
     for bundle in ss.svars['bundles']:
-        cmd = ["ansible-playbook",
-               JUMBODIR+"bundles/"+bundle+"/playbooks/deploy.yml",
-               "-i", "inventory/"]
+        cmd = ['ansible-playbook', 'playbooks/deploy.yml',
+               '-i', os.path.join(JUMBODIR, 'clusters',
+                                  cluster, 'inventory/')]
         try:
             res = subprocess.Popen(cmd,
                                    cwd=os.path.join(
-                                       JUMBODIR+'clusters', cluster),
+                                       JUMBODIR, 'bundles', bundle),
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT)
 

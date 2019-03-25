@@ -33,14 +33,14 @@ def dump_config(services_components_hosts=None, services_config=None):
     """
 
     try:
-        with open(JUMBODIR + 'clusters/' + svars['cluster']
-                  + '/jumbo_config', 'w') as cfg:
+        with open(JUMBODIR + 'clusters/' + svars['cluster'] +
+                  '/jumbo_config', 'w') as cfg:
             json.dump(svars, cfg)
 
         if svars["location"] == "local":
             vagrant_temp = jinja_env.get_template('Vagrantfile.j2')
-            with open(JUMBODIR + 'clusters/' + svars['cluster']
-                      + '/Vagrantfile', 'w') as vf:
+            with open(JUMBODIR + 'clusters/' + svars['cluster'] +
+                      '/Vagrantfile', 'w') as vf:
                 vf.write(vagrant_temp.render(hosts=svars['nodes'],
                                              domain=svars['domain'],
                                              cluster=svars['cluster'],
