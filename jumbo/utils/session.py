@@ -176,7 +176,8 @@ def generate_group_vars(serv_comp_hosts, serv_conf):
     ansible_vars = {
         'domain': svars['domain'],
         'realm': svars.get('realm', None) or svars['domain'].upper(),
-        'cluster_name': svars['domain'].replace('.', ''),
+        'cluster_name': svars['domain'].replace('.', ''),  # real cluster name
+        'jumbo_cluster': svars['cluster'],  # cluster name in Jumbo
         'serv_comp_host': serv_comp_hosts
     }
 
