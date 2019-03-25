@@ -138,7 +138,10 @@ def generate_ansible_groups(serv_conf):
     with open(JUMBODIR + 'clusters/' + svars['cluster'] +
               '/inventory/hosts',
               'w+') as vf:
-        vf.write(hosts_temp.render(hosts=svars['nodes'], groups=groups))
+        vf.write(hosts_temp.render(hosts=svars['nodes'],
+                                   groups=groups,
+                                   ansible_user="vagrant" if svars['location'] == 'local'
+                                   else svars.get('ansible_user', 'root')))
 
 
 def generate_ansible_vars(serv_comp_hosts, serv_conf):
