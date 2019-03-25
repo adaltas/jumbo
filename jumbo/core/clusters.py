@@ -59,7 +59,7 @@ def create_cluster(domain, template=None,
             raise ex.LoadError('template', template, 'NotExist')
 
     pathlib.Path(JUMBODIR + 'clusters/' + cluster +
-                 '/inventory/group_vars').mkdir(parents=True)
+                 '/inventory/group_vars/all').mkdir(parents=True)
     pathlib.Path(JUMBODIR + 'clusters/' + cluster +
                  '/inventory/host_vars').mkdir(parents=True)
 

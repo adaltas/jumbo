@@ -178,7 +178,7 @@ def generate_group_vars(serv_comp_hosts, serv_conf):
         'realm': svars.get('realm', None) or svars['domain'].upper(),
         'cluster_name': svars['domain'].replace('.', ''),  # real cluster name
         'jumbo_cluster': svars['cluster'],  # cluster name in Jumbo
-        'serv_comp_host': serv_comp_hosts
+        'serv_comp_host': serv_comp_hosts,
     }
 
     # Add versions variables (repository urls...)
@@ -189,7 +189,7 @@ def generate_group_vars(serv_comp_hosts, serv_conf):
         ansible_vars.update(conf['config'])
 
     with open(JUMBODIR + 'clusters/' + svars['cluster']
-              + '/inventory/group_vars/all', 'w+') as gva:
+              + '/inventory/group_vars/all/vars', 'w+') as gva:
         yaml.dump(ansible_vars, gva, default_flow_style=False,
                   explicit_start=True)
 

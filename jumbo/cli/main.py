@@ -4,7 +4,7 @@ import ipaddress as ipadd
 from prettytable import PrettyTable
 import json
 
-from jumbo.core import clusters, nodes, services, bundles
+from jumbo.core import clusters, nodes, services, bundles, vault
 from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
 from jumbo.utils.settings import OS
@@ -64,6 +64,7 @@ def jumbo(ctx, cluster):
     sh.add_command(provision)
     sh.add_command(restart)
     sh.add_command(addbundle)
+    sh.add_command(addpass)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -865,6 +866,27 @@ def listbundles(cluster):
         print_with_color('Error: %s' % str(e), 'red')
     except Warning as w:
         print_with_color('Warning: %s' % str(w), 'yellow')
+
+
+#########
+# Vault #
+#########
+
+@jumbo.command()
+@click.argument('vault_key')
+@click.argument('vault_value', required=False)
+@click.option('--cluster', '-c')
+@click.option('--length', '-l', type=int)
+@click.option('--password', '-p', default='changeit')
+def addpass(vault_key, vault_value, cluster, length, password):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vault.add_pass(vault_key, vault_value, length,
+                       password, cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
 
 
 #########

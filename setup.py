@@ -90,7 +90,8 @@ setup(
         'prettytable',
         'pyyaml',
         'ipaddress',
-        'ansible'
+        'ansible',
+        'ansible-vault'
     ],
     packages=[
         'jumbo.cli',
