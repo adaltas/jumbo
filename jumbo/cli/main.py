@@ -879,7 +879,7 @@ def listbundles(cluster):
 @click.argument('vault_key')
 @click.argument('vault_value', required=False)
 @click.option('--cluster', '-c')
-@click.option('--length', '-l', type=int)
+@click.option('--length', '-l', type=int, default=10)
 @click.option('--password', '-p', default='changeit')
 def addpass(vault_key, vault_value, cluster, length, password):
     if not cluster:
