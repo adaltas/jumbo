@@ -3,6 +3,7 @@ from click_shell.core import Shell
 import ipaddress as ipadd
 from prettytable import PrettyTable
 import json
+import ansible
 
 from jumbo.core import clusters, nodes, services, bundles, vault
 from jumbo.utils import session as ss, exceptions as ex, checks
@@ -887,11 +888,45 @@ def addpass(vault_key, vault_value, cluster, length, password):
                        password, cluster=cluster)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
+    except (ansible.parsing.vault.AnsibleVaultError) as e:
+        print_with_color(e.message + '. Wrong vault password ?', 'red')
 
+
+@jumbo.command()
+@click.argument('vault_key')
+@click.option('--cluster', '-c')
+@click.option('--password', '-p', default='changeit')
+def rmpass(vault_key, cluster, password):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vault.rm_pass(vault_key, password, cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
+    except (ansible.parsing.vault.AnsibleVaultError) as e:
+        print_with_color(e.message + '. Wrong vault password ?', 'red')
+
+
+@jumbo.command()
+@click.argument('vault_key', required=False, default='*')
+@click.option('--cluster', '-c')
+@click.option('--password', '-p', default='changeit')
+def getpass(vault_key, cluster, password):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vault.get_pass(vault_key, password, cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
+    except (ansible.parsing.vault.AnsibleVaultError) as e:
+        print_with_color(e.message + '. Wrong vault password ?', 'red')
 
 #########
 # Bonus #
 #########
+
 
 @jumbo.command()
 def logo():
