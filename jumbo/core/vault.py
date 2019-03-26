@@ -104,3 +104,18 @@ def get_pass(vault_key, password, *, cluster):
             print(get_key(data, vault_key))
         except KeyError:
             raise ex.LoadError('key', vault_key, 'NotExist')
+
+
+@valid_cluster
+def change_vault_pass(password, new_password, *, cluster):
+    """Change vault master password"""
+    vault_file = JUMBODIR + 'clusters/' + cluster + '/inventory/group_vars/all/vault'
+    vault = Vault(password)
+    new_vault = Vault(new_password)
+    data = {}
+
+    if os.path.isfile(vault_file):
+        data = vault.load(open(vault_file).read())
+
+    print(yaml.dump(data, default_flow_style=False))
+    new_vault.dump(data, open(vault_file, 'wb'))

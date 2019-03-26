@@ -923,6 +923,23 @@ def getpass(vault_key, cluster, password):
     except (ansible.parsing.vault.AnsibleVaultError) as e:
         print_with_color(e.message + '. Wrong vault password ?', 'red')
 
+
+@jumbo.command()
+@click.argument('vault_pass')
+@click.argument('new_vault_pass')
+@click.option('--cluster', '-c')
+def changevaultpass(vault_pass, new_vault_pass, cluster):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    try:
+        vault.change_vault_pass(vault_pass, new_vault_pass, cluster=cluster)
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
+    except (ansible.parsing.vault.AnsibleVaultError) as e:
+        print_with_color(e.message + '. Wrong vault password ?', 'red')
+
+
 #########
 # Bonus #
 #########
