@@ -66,6 +66,8 @@ def jumbo(ctx, cluster):
     sh.add_command(restart)
     sh.add_command(addbundle)
     sh.add_command(addpass)
+    sh.add_command(rmpass)
+    sh.add_command(getpass)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
