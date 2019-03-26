@@ -53,7 +53,7 @@ def add_node(name, ip, ram, types, cpus=1, *,
 
 
 @valid_cluster
-def edit_node(name, ip=None, ram=None, cpus=None, *, cluster):
+def edit_node(name, ip=None, ram=None, cpus=None, new_name=None, *, cluster):
     """Modify an existing node in a cluster.
 
     """
@@ -78,6 +78,10 @@ def edit_node(name, ip=None, ram=None, cpus=None, *, cluster):
             if cpus:
                 changed.append(["CPUs", ss.svars['nodes'][i]['cpus'], cpus])
                 ss.svars['nodes'][i]['cpus'] = cpus
+            if new_name:
+                changed.append(
+                    ["name", ss.svars['nodes'][i]['name'], new_name])
+                ss.svars['nodes'][i]['name'] = new_name
 
     ss.dump_config()
 

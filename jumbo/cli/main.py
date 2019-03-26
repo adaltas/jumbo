@@ -356,9 +356,11 @@ def rmnode(ctx, name, cluster, force):
               help='RAM allocated to the VM in MB')
 @click.option('--cpus', '-p',
               help='Number of CPUs allocated to the VM')
+@click.option('--newname', '-n',
+              help='New name of the node')
 @click.option('--cluster', '-c')
 @click.pass_context
-def editnode(ctx, name, ip, ram, cpus, cluster):
+def editnode(ctx, name, ip, ram, cpus, newname, cluster):
     """
     Modifies an already existing VM in the cluster being managed.
 
@@ -368,14 +370,14 @@ def editnode(ctx, name, ip, ram, cpus, cluster):
     if not cluster:
         cluster = ss.svars['cluster']
 
-    if ip:
-        if not click.confirm('Changing IP adress after cluster provisionning '
-                             'will break things. Do you want to continue?'):
-            return
-
-    if ip or ram or cpus:
+    if ip or ram or cpus or newname:
         try:
-            changed = nodes.edit_node(name, ip, ram, cpus, cluster=cluster)
+            changed = nodes.edit_node(name,
+                                      ip,
+                                      ram,
+                                      cpus,
+                                      newname,
+                                      cluster=cluster)
             if changed:
                 click.echo('\n"{}" configurations changed:\n - {}'.format(
                     name,

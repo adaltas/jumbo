@@ -52,4 +52,5 @@ Change the configuration of a node.
 - `--ip` or `-i` - The new node IP address.
 - `--ram` or `-r` - The new memory allocated to the node in MB.
 - `--cpus` or `-p` - The new number of CPUs allocated to the node.
+- `--newname` or `-n` - The new name of the node.
 - `--cluster` or `-c` - The cluster in which the node should be edited.
