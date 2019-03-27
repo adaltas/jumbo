@@ -155,13 +155,19 @@ def validate_cluster_name_cb(ctx, param, value):
 @click.option('--domain', '-d', help='Domain name of the cluster')
 @click.option('--realm', '-R', help='Realm of the cluster')
 @click.option('--template', '-t', help='Preconfigured cluster name')
+@click.option('--template-file', '-t', type=click.Path(),
+              help='Preconfigured cluster path')
 @click.option('--remote', '-r', is_flag=True, help='Use existing machines')
 @click.pass_context
-def create(ctx, name, domain, realm, template, remote):
+def create(ctx, name, domain, realm, template, template_file, remote):
     """Create a new cluster.
 
     :param name: New cluster name
     """
+    if template and template_file:
+        print_with_color(
+            '--template or --template-file required, not both.', 'red')
+        sys.exit(1)
 
     click.echo('Creating "%s"...' % name)
     try:
@@ -169,6 +175,7 @@ def create(ctx, name, domain, realm, template, remote):
                                 domain=domain,
                                 realm=realm,
                                 template=template,
+                                template_path=template_file,
                                 remote=remote)
     except ex.CreationError as e:
         print_with_color(e.message, 'red')
