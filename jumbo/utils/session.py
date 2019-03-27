@@ -84,6 +84,15 @@ def load_config(cluster):
     return True
 
 
+def dump_template(template_name, services_components_hosts=None, services_config=None):
+    template_path = JUMBODIR + 'templates/' + template_name + '.json'
+    try:
+        with open(template_path, 'w') as cfg:
+            json.dump(svars, cfg)
+    except IOError as e:
+        raise ex.LoadError('template', template_name, e.strerror)
+
+
 def clear():
     """Reset the sessions variables.
     """

@@ -1,14 +1,16 @@
 import click
 from click_shell.core import Shell
+import sys
 import ipaddress as ipadd
 from prettytable import PrettyTable
 import json
 import ansible
+import os
 
 from jumbo.core import clusters, nodes, services, bundles, vault
 from jumbo.utils import session as ss, exceptions as ex, checks
 from jumbo.cli import printlogo
-from jumbo.utils.settings import OS
+from jumbo.utils.settings import OS, JUMBODIR
 from jumbo.utils.prepare import init_jumbo
 
 
@@ -68,6 +70,7 @@ def jumbo(ctx, cluster):
     sh.add_command(addpass)
     sh.add_command(rmpass)
     sh.add_command(getpass)
+    sh.add_command(savetemplate)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -873,9 +876,42 @@ def listbundles(cluster):
         print_with_color('Warning: %s' % str(w), 'yellow')
 
 
+############
+# Template #
+############
+
+
+@jumbo.command()
+@click.argument('template_name')
+@click.option('--cluster', '-c')
+@click.option('--force', '-f', is_flag=True)
+def savetemplate(template_name, cluster, force):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    template_path = JUMBODIR + 'templates/' + template_name + '.json'
+    if os.path.isfile(template_path):
+        if not force:
+            if not click.confirm(
+                    'Are you sure you want to delete the cluster %s' % cluster):
+                return
+
+    try:
+        ss.load_config(cluster=cluster)
+        # Load services and node types according to active bundles
+        services.config = services.load_services_conf(cluster=cluster)
+        ss.dump_template(template_name, services.get_services_components_hosts(),
+                         services.config)
+    except ex.LoadError as e:
+        print_with_color(e.message, 'red')
+    else:
+        print_with_color('Template `%s` saved.' % template_name, 'green')
+
+
 #########
 # Vault #
 #########
+
 
 @jumbo.command()
 @click.argument('vault_key')
