@@ -882,14 +882,22 @@ def listbundles(cluster):
 
 
 @jumbo.command()
-@click.argument('template_name')
+@click.option('--name', help='Save by name in Jumbo default location.')
+@click.option('--path', help='Custom location for template JSON file.')
 @click.option('--cluster', '-c')
 @click.option('--force', '-f', is_flag=True)
-def savetemplate(template_name, cluster, force):
+def savetemplate(name, path, cluster, force):
     if not cluster:
         cluster = ss.svars['cluster']
 
-    template_path = JUMBODIR + 'templates/' + template_name + '.json'
+    if not name and not path:
+        print_with_color('--name or --path required.', 'red')
+        sys.exit(1)
+    if name and path:
+        print_with_color('--name or --path required, not both.', 'red')
+        sys.exit(1)
+
+    template_path = path if path else JUMBODIR + 'templates/' + name + '.json'
     if os.path.isfile(template_path):
         if not force:
             if not click.confirm(
@@ -900,12 +908,13 @@ def savetemplate(template_name, cluster, force):
         ss.load_config(cluster=cluster)
         # Load services and node types according to active bundles
         services.config = services.load_services_conf(cluster=cluster)
-        ss.dump_template(template_name, services.get_services_components_hosts(),
+        ss.dump_template(template_path, services.get_services_components_hosts(),
                          services.config)
     except ex.LoadError as e:
         print_with_color(e.message, 'red')
     else:
-        print_with_color('Template `%s` saved.' % template_name, 'green')
+        print_with_color('Template `%s` saved.' %
+                         template_path.split('/')[-1].split('.')[0], 'green')
 
 
 #########
