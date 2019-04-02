@@ -1,22 +1,25 @@
 {
   "cluster": "big-min",
+  "domain": "",
+  "realm": "",
+  "location": "local",
+  "ansible_user": "vagrant",
   "nodes": [
     {
-      "name": "edge01",
-      "ip": "10.10.10.10",
-      "ram": 1024,
+      "name": "ldap01",
+      "ip": "10.10.10.2",
+      "ram": 2048,
       "types": [
-        "edge"
+        "ldap"
       ],
       "cpus": 1,
       "components": [
-        "AMBARI_AGENT",
-        "ZOOKEEPER_CLIENT",
-        "HDFS_CLIENT",
-        "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
-        "PIG"
+        "PIG",
+        "TEZ_CLIENT",
+        "HCAT",
+        "HIVE_CLIENT"
       ]
     },
     {
@@ -38,7 +41,12 @@
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
-        "PIG"
+        "PIG",
+        "TEZ_CLIENT",
+        "RESOURCEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_METASTORE"
       ]
     },
     {
@@ -60,7 +68,11 @@
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
-        "PIG"
+        "PIG",
+        "TEZ_CLIENT",
+        "RESOURCEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT"
       ]
     },
     {
@@ -68,13 +80,14 @@
       "ip": "10.10.10.13",
       "ram": 2048,
       "types": [
+        "master",
         "sidemaster"
       ],
       "cpus": 1,
       "components": [
-        "AMBARI_AGENT",
         "PSQL_SERVER",
         "AMBARI_SERVER",
+        "AMBARI_AGENT",
         "ZOOKEEPER_CLIENT",
         "ZOOKEEPER_SERVER",
         "HDFS_CLIENT",
@@ -82,7 +95,12 @@
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
-        "PIG"
+        "PIG",
+        "TEZ_CLIENT",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_METASTORE",
+        "HIVE_SERVER"
       ]
     },
     {
@@ -103,7 +121,9 @@
         "SLIDER",
         "PIG",
         "TEZ_CLIENT",
-        "NODEMANAGER"
+        "NODEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT"
       ]
     },
     {
@@ -124,16 +144,93 @@
         "SLIDER",
         "PIG",
         "TEZ_CLIENT",
-        "NODEMANAGER"
+        "NODEMANAGER",
+        "HCAT",
+        "HIVE_CLIENT"
+      ]
+    },
+    {
+      "name": "edge01",
+      "ip": "10.10.10.10",
+      "ram": 2048,
+      "types": [
+        "edge"
+      ],
+      "cpus": 1,
+      "components": [
+        "AMBARI_AGENT",
+        "ZOOKEEPER_CLIENT",
+        "HDFS_CLIENT",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "HISTORYSERVER",
+        "APP_TIMELINE_SERVER",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_SERVER",
+        "WEBHCAT_SERVER"
       ]
     }
+  ],
+  "bundles": [
+    "jumbo-services"
   ],
   "services": [
     "POSTGRESQL",
     "AMBARI",
     "ZOOKEEPER",
     "HDFS",
-    "YARN"
+    "YARN",
+    "HIVE"
   ],
-  "domain": ""
+  "configurations": [
+    {
+      "service": "POSTGRESQL",
+      "config": {
+        "POSTGRESQL": {}
+      }
+    },
+    {
+      "service": "AMBARI",
+      "config": {
+        "AMBARI": {
+          "user": "admin",
+          "pwd": "admin",
+          "ssl": {
+            "enabled": false,
+            "port": 8442
+          }
+        },
+        "ambari_url": "{{ \"https\" if AMBARI.ssl.enabled else \"http\" }}://{{ hostvars[groups[\"ambariserver\"][0]][\"ansible_all_ipv4_addresses\"][0] }}:{{ AMBARI.ssl.port if AMBARI.ssl.enabled else \"8080\" }}",
+        "blueprint_name": "{{ domain | regex_replace(\"\\.\", \"-\") }}-blueprint"
+      }
+    },
+    {
+      "service": "ZOOKEEPER",
+      "config": {
+        "ZOOKEEPER": {}
+      }
+    },
+    {
+      "service": "HDFS",
+      "config": {
+        "HDFS": {}
+      }
+    },
+    {
+      "service": "YARN",
+      "config": {
+        "YARN": {}
+      }
+    },
+    {
+      "service": "HIVE",
+      "config": {
+        "HIVE": {}
+      }
+    }
+  ]
 }

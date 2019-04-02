@@ -1,29 +1,25 @@
 {
   "cluster": "big-full",
+  "domain": "",
+  "realm": "",
+  "location": "local",
+  "ansible_user": "vagrant",
   "nodes": [
     {
-      "name": "edge01",
-      "ip": "10.10.10.10",
-      "ram": 1024,
+      "name": "ldap01",
+      "ip": "10.10.10.2",
+      "ram": 2048,
       "types": [
-        "edge"
+        "ldap"
       ],
       "cpus": 1,
       "components": [
-        "AMBARI_AGENT",
-        "ZOOKEEPER_CLIENT",
-        "HDFS_CLIENT",
-        "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG",
         "TEZ_CLIENT",
-        "HISTORYSERVER",
-        "APP_TIMELINE_SERVER",
         "HCAT",
-        "HIVE_CLIENT",
-        "HIVE_SERVER",
-        "WEBHCAT_SERVER"
+        "HIVE_CLIENT"
       ]
     },
     {
@@ -48,8 +44,13 @@
         "PIG",
         "TEZ_CLIENT",
         "RESOURCEMANAGER",
+        "HBASE_CLIENT",
+        "HBASE_MASTER",
         "HCAT",
-        "HIVE_CLIENT"
+        "HIVE_CLIENT",
+        "HIVE_METASTORE",
+        "SPARK2_CLIENT",
+        "OOZIE_CLIENT"
       ]
     },
     {
@@ -74,8 +75,12 @@
         "PIG",
         "TEZ_CLIENT",
         "RESOURCEMANAGER",
+        "HBASE_CLIENT",
+        "HBASE_MASTER",
         "HCAT",
-        "HIVE_CLIENT"
+        "HIVE_CLIENT",
+        "SPARK2_CLIENT",
+        "OOZIE_CLIENT"
       ]
     },
     {
@@ -83,13 +88,14 @@
       "ip": "10.10.10.13",
       "ram": 2048,
       "types": [
+        "master",
         "sidemaster"
       ],
       "cpus": 1,
       "components": [
-        "AMBARI_AGENT",
         "PSQL_SERVER",
         "AMBARI_SERVER",
+        "AMBARI_AGENT",
         "ZOOKEEPER_CLIENT",
         "ZOOKEEPER_SERVER",
         "HDFS_CLIENT",
@@ -99,9 +105,14 @@
         "SLIDER",
         "PIG",
         "TEZ_CLIENT",
+        "HBASE_CLIENT",
         "HCAT",
         "HIVE_CLIENT",
-        "HIVE_METASTORE"
+        "HIVE_METASTORE",
+        "HIVE_SERVER",
+        "SPARK2_CLIENT",
+        "OOZIE_SERVER",
+        "OOZIE_CLIENT"
       ]
     },
     {
@@ -123,8 +134,12 @@
         "PIG",
         "TEZ_CLIENT",
         "NODEMANAGER",
+        "HBASE_CLIENT",
+        "HBASE_REGIONSERVER",
         "HCAT",
-        "HIVE_CLIENT"
+        "HIVE_CLIENT",
+        "SPARK2_CLIENT",
+        "OOZIE_CLIENT"
       ]
     },
     {
@@ -146,10 +161,47 @@
         "PIG",
         "TEZ_CLIENT",
         "NODEMANAGER",
+        "HBASE_CLIENT",
+        "HBASE_REGIONSERVER",
         "HCAT",
-        "HIVE_CLIENT"
+        "HIVE_CLIENT",
+        "SPARK2_CLIENT",
+        "OOZIE_CLIENT"
+      ]
+    },
+    {
+      "name": "edge01",
+      "ip": "10.10.10.10",
+      "ram": 2048,
+      "types": [
+        "edge"
+      ],
+      "cpus": 1,
+      "components": [
+        "AMBARI_AGENT",
+        "ZOOKEEPER_CLIENT",
+        "HDFS_CLIENT",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "HISTORYSERVER",
+        "APP_TIMELINE_SERVER",
+        "HBASE_CLIENT",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_SERVER",
+        "WEBHCAT_SERVER",
+        "SPARK2_CLIENT",
+        "SPARK2_JOBHISTORYSERVER",
+        "ZEPPELIN_MASTER",
+        "OOZIE_CLIENT"
       ]
     }
+  ],
+  "bundles": [
+    "jumbo-services"
   ],
   "services": [
     "POSTGRESQL",
@@ -157,7 +209,81 @@
     "ZOOKEEPER",
     "HDFS",
     "YARN",
-    "HIVE"
+    "HBASE",
+    "HIVE",
+    "SPARK2",
+    "ZEPPELIN",
+    "OOZIE"
   ],
-  "domain": ""
+  "configurations": [
+    {
+      "service": "POSTGRESQL",
+      "config": {
+        "POSTGRESQL": {}
+      }
+    },
+    {
+      "service": "AMBARI",
+      "config": {
+        "AMBARI": {
+          "user": "admin",
+          "pwd": "admin",
+          "ssl": {
+            "enabled": false,
+            "port": 8442
+          }
+        },
+        "ambari_url": "{{ \"https\" if AMBARI.ssl.enabled else \"http\" }}://{{ hostvars[groups[\"ambariserver\"][0]][\"ansible_all_ipv4_addresses\"][0] }}:{{ AMBARI.ssl.port if AMBARI.ssl.enabled else \"8080\" }}",
+        "blueprint_name": "{{ domain | regex_replace(\"\\.\", \"-\") }}-blueprint"
+      }
+    },
+    {
+      "service": "ZOOKEEPER",
+      "config": {
+        "ZOOKEEPER": {}
+      }
+    },
+    {
+      "service": "HDFS",
+      "config": {
+        "HDFS": {}
+      }
+    },
+    {
+      "service": "YARN",
+      "config": {
+        "YARN": {}
+      }
+    },
+    {
+      "service": "HBASE",
+      "config": {
+        "HBASE": {}
+      }
+    },
+    {
+      "service": "HIVE",
+      "config": {
+        "HIVE": {}
+      }
+    },
+    {
+      "service": "SPARK2",
+      "config": {
+        "SPARK2": {}
+      }
+    },
+    {
+      "service": "ZEPPELIN",
+      "config": {
+        "ZEPPELIN": {}
+      }
+    },
+    {
+      "service": "OOZIE",
+      "config": {
+        "OOZIE": {}
+      }
+    }
+  ]
 }

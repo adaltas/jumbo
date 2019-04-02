@@ -1,22 +1,49 @@
 {
   "cluster": "small-full-krb5",
+  "domain": "",
+  "realm": "",
+  "location": "local",
+  "ansible_user": "vagrant",
   "nodes": [
     {
-      "name": "ldap01",
-      "ip": "10.10.10.2",
+      "name": "master01",
+      "ip": "10.10.10.11",
       "ram": 2048,
       "types": [
-        "ldap"
+        "master",
+        "sidemaster"
       ],
       "cpus": 1,
       "components": [
-        "IPA_SERVER"
+        "PSQL_SERVER",
+        "AMBARI_SERVER",
+        "AMBARI_AGENT",
+        "HDFS_CLIENT",
+        "NAMENODE",
+        "SECONDARY_NAMENODE",
+        "ZOOKEEPER_CLIENT",
+        "ZOOKEEPER_SERVER",
+        "YARN_CLIENT",
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "RESOURCEMANAGER",
+        "SPARK2_CLIENT",
+        "HBASE_CLIENT",
+        "HBASE_MASTER",
+        "HCAT",
+        "HIVE_CLIENT",
+        "HIVE_METASTORE",
+        "IPA_CLIENT",
+        "OOZIE_SERVER",
+        "OOZIE_CLIENT"
       ]
     },
     {
       "name": "edge01",
       "ip": "10.10.10.10",
-      "ram": 1024,
+      "ram": 2048,
       "types": [
         "edge"
       ],
@@ -24,6 +51,7 @@
       "components": [
         "AMBARI_AGENT",
         "HDFS_CLIENT",
+        "ZOOKEEPER_CLIENT",
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
@@ -31,37 +59,16 @@
         "TEZ_CLIENT",
         "HISTORYSERVER",
         "APP_TIMELINE_SERVER",
+        "SPARK2_CLIENT",
+        "SPARK2_JOBHISTORYSERVER",
+        "HBASE_CLIENT",
         "HCAT",
         "HIVE_CLIENT",
         "HIVE_SERVER",
-        "WEBHCAT_SERVER"
-      ]
-    },
-    {
-      "name": "master01",
-      "ip": "10.10.10.11",
-      "ram": 3072,
-      "types": [
-        "master",
-        "sidemaster"
-      ],
-      "cpus": 1,
-      "components": [
-        "AMBARI_AGENT",
-        "PSQL_SERVER",
-        "AMBARI_SERVER",
-        "HDFS_CLIENT",
-        "NAMENODE",
-        "SECONDARY_NAMENODE",
-        "YARN_CLIENT",
-        "MAPREDUCE2_CLIENT",
-        "SLIDER",
-        "PIG",
-        "TEZ_CLIENT",
-        "RESOURCEMANAGER",
-        "HCAT",
-        "HIVE_CLIENT",
-        "HIVE_METASTORE"
+        "WEBHCAT_SERVER",
+        "IPA_CLIENT",
+        "OOZIE_CLIENT",
+        "ZEPPELIN_MASTER"
       ]
     },
     {
@@ -76,25 +83,142 @@
         "AMBARI_AGENT",
         "HDFS_CLIENT",
         "DATANODE",
+        "ZOOKEEPER_CLIENT",
         "YARN_CLIENT",
         "MAPREDUCE2_CLIENT",
         "SLIDER",
         "PIG",
         "TEZ_CLIENT",
         "NODEMANAGER",
+        "SPARK2_CLIENT",
+        "HBASE_CLIENT",
+        "HBASE_REGIONSERVER",
         "HCAT",
-        "HIVE_CLIENT"
+        "HIVE_CLIENT",
+        "IPA_CLIENT",
+        "OOZIE_CLIENT"
+      ]
+    },
+    {
+      "name": "ldap01",
+      "ip": "10.10.10.2",
+      "ram": 2048,
+      "types": [
+        "ldap"
+      ],
+      "cpus": 1,
+      "components": [
+        "MAPREDUCE2_CLIENT",
+        "SLIDER",
+        "PIG",
+        "TEZ_CLIENT",
+        "HCAT",
+        "HIVE_CLIENT",
+        "IPA_SERVER"
       ]
     }
+  ],
+  "bundles": [
+    "jumbo-services"
   ],
   "services": [
     "POSTGRESQL",
     "AMBARI",
     "HDFS",
+    "ZOOKEEPER",
     "YARN",
+    "SPARK2",
+    "HBASE",
     "HIVE",
     "FREEIPA",
-    "KERBEROS"
+    "KERBEROS",
+    "OOZIE",
+    "ZEPPELIN"
   ],
-  "domain": ""
+  "configurations": [
+    {
+      "service": "POSTGRESQL",
+      "config": {
+        "POSTGRESQL": {}
+      }
+    },
+    {
+      "service": "AMBARI",
+      "config": {
+        "AMBARI": {
+          "user": "admin",
+          "pwd": "admin",
+          "ssl": {
+            "enabled": false,
+            "port": 8442
+          }
+        },
+        "ambari_url": "{{ \"https\" if AMBARI.ssl.enabled else \"http\" }}://{{ hostvars[groups[\"ambariserver\"][0]][\"ansible_all_ipv4_addresses\"][0] }}:{{ AMBARI.ssl.port if AMBARI.ssl.enabled else \"8080\" }}",
+        "blueprint_name": "{{ domain | regex_replace(\"\\.\", \"-\") }}-blueprint"
+      }
+    },
+    {
+      "service": "HDFS",
+      "config": {
+        "HDFS": {}
+      }
+    },
+    {
+      "service": "ZOOKEEPER",
+      "config": {
+        "ZOOKEEPER": {}
+      }
+    },
+    {
+      "service": "YARN",
+      "config": {
+        "YARN": {}
+      }
+    },
+    {
+      "service": "SPARK2",
+      "config": {
+        "SPARK2": {}
+      }
+    },
+    {
+      "service": "HBASE",
+      "config": {
+        "HBASE": {}
+      }
+    },
+    {
+      "service": "HIVE",
+      "config": {
+        "HIVE": {}
+      }
+    },
+    {
+      "service": "FREEIPA",
+      "config": {
+        "FREEIPA": {
+          "dm_password": "dm_p4ssw0rd",
+          "admin_password": "adm1n_p4ssw0rd"
+        }
+      }
+    },
+    {
+      "service": "KERBEROS",
+      "config": {
+        "kerberos_enabled": true
+      }
+    },
+    {
+      "service": "OOZIE",
+      "config": {
+        "OOZIE": {}
+      }
+    },
+    {
+      "service": "ZEPPELIN",
+      "config": {
+        "ZEPPELIN": {}
+      }
+    }
+  ]
 }
