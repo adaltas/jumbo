@@ -221,7 +221,7 @@ def restart(*, cluster):
 
 
 @checks.valid_cluster
-def provision(*, cluster):
+def provision(bundle=None, ansible_param=None, *, cluster):
     """Provision the cluster.
 
     Calls `deploy.yml` master plabyooks of each bundle
@@ -229,16 +229,23 @@ def provision(*, cluster):
 
     ss.load_config(cluster)
 
-    for bundle in ss.svars['bundles']:
-        cmd = ['ansible-playbook', 'playbooks/deploy.yml',
-               '-i', os.path.join(JUMBODIR, 'clusters',
-                                  cluster, 'inventory/')]
+    for bundle_item in ss.svars['bundles']:
+        if bundle and bundle != bundle_item:
+            # skip bundle if not the specified bundle
+            # when a bundle has been specified (else run all bundles)
+            continue
+
+        cmd = 'ansible-playbook playbooks/deploy.yml ' + \
+            (ansible_param if ansible_param else '') + \
+            ' -i ' + os.path.join(JUMBODIR, 'clusters', cluster, 'inventory/')
+        print(cmd)
         try:
             res = subprocess.Popen(cmd,
                                    cwd=os.path.join(
-                                       JUMBODIR, 'bundles', bundle),
+                                       JUMBODIR, 'bundles', bundle_item),
                                    stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
+                                   stderr=subprocess.STDOUT,
+                                   shell=True)
 
             for line in res.stdout:
                 print(line.decode('utf-8').rstrip())

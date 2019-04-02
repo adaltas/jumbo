@@ -803,14 +803,18 @@ def restart(cluster_name, cluster):
 @jumbo.command()
 @click.argument('cluster_name', required=False)
 @click.option('--cluster', '-c')
-def provision(cluster_name, cluster):
+@click.option('--ansible-param', '-p', help="Parameters to pass to ansible-playbook command")
+@click.option('--bundle', '-b', help="Specify single bundle to run")
+def provision(cluster_name, cluster, ansible_param, bundle):
     cluster = cluster_name if cluster_name else cluster
 
     if not cluster:
         cluster = ss.svars['cluster']
 
     try:
-        clusters.provision(cluster=cluster)
+        clusters.provision(cluster=cluster,
+                           bundle=bundle,
+                           ansible_param=ansible_param)
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
 
