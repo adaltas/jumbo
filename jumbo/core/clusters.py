@@ -25,7 +25,7 @@ def check_config(name):
 
 
 def create_cluster(domain, template=None, template_path=None,
-                   remote=None, realm=None, *, cluster):
+                   remote=None, realm=None, ansible_user=None, *, cluster):
     """Create a new cluster and load it in the session.
 
     :param name: New cluster name
@@ -75,6 +75,9 @@ def create_cluster(domain, template=None, template_path=None,
     ss.svars['domain'] = domain or '%s.local' % cluster
     ss.svars['realm'] = realm or ss.svars['domain'].upper()
     ss.svars['location'] = 'remote' if remote else 'local'
+    ss.svars['ansible_user'] = ansible_user or \
+        ('vagrant' if ss.svars['location'] == 'local' else 'root')
+
     # Add basic bundle if no bundle is set via templates
     if not ss.svars['bundles']:
         ss.svars['bundles'].append('jumbo-services')

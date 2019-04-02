@@ -155,11 +155,11 @@ def validate_cluster_name_cb(ctx, param, value):
 @click.option('--domain', '-d', help='Domain name of the cluster')
 @click.option('--realm', '-R', help='Realm of the cluster')
 @click.option('--template', '-t', help='Preconfigured cluster name')
-@click.option('--template-file', '-t', type=click.Path(),
-              help='Preconfigured cluster path')
+@click.option('--template-file', '-t', type=click.Path(), help='Preconfigured cluster path')
+@click.option('--ansible-user', '-u', help='Ansible ssh user')
 @click.option('--remote', '-r', is_flag=True, help='Use existing machines')
 @click.pass_context
-def create(ctx, name, domain, realm, template, template_file, remote):
+def create(ctx, name, domain, realm, template, template_file, ansible_user, remote):
     """Create a new cluster.
 
     :param name: New cluster name
@@ -176,6 +176,7 @@ def create(ctx, name, domain, realm, template, template_file, remote):
                                 realm=realm,
                                 template=template,
                                 template_path=template_file,
+                                ansible_user=ansible_user,
                                 remote=remote)
     except ex.CreationError as e:
         print_with_color(e.message, 'red')

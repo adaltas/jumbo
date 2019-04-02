@@ -148,8 +148,7 @@ def generate_ansible_groups(serv_conf):
               'w+') as vf:
         vf.write(hosts_temp.render(hosts=svars['nodes'],
                                    groups=groups,
-                                   ansible_user="vagrant" if svars['location'] == 'local'
-                                   else svars.get('ansible_user', 'root')))
+                                   ansible_user=svars['ansible_user']))
 
 
 def generate_ansible_vars(serv_comp_hosts, serv_conf):
