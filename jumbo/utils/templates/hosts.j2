@@ -1,5 +1,5 @@
 {% for host in hosts %}
-{{ host.name }} ansible_host={{ host.ip }} ansible_user=vagrant
+{{ host.name }} ansible_host={{ host.ip }} ansible_user={{ ansible_user }}
 {% endfor %}
 
 {% for name, hosts in groups.items() %}
