@@ -4,6 +4,7 @@ import sys
 import ipaddress as ipadd
 from prettytable import PrettyTable
 import json
+import yaml
 import ansible
 import os
 
@@ -71,6 +72,7 @@ def jumbo(ctx, cluster):
     sh.add_command(rmpass)
     sh.add_command(getpass)
     sh.add_command(savetemplate)
+    sh.add_command(list)
 
     # If cluster exists, call manage command (saves the shell in session
     #  variable svars and adapts the shell prompt)
@@ -1032,3 +1034,51 @@ def print_colorized_table(table):
 
     for l in to_print:
         click.echo(l)
+        to_print = table
+
+    for l in to_print:
+        click.echo(l)
+
+
+@jumbo.command()
+@click.option('--cluster', '-c')
+@click.option('--node', '-n', multiple=True)
+@click.option('--type', '-t', multiple=True)
+@click.option('--service', '-s', multiple=True)
+@click.option('--component', '-c', multiple=True)
+@click.option('--all', '-a', is_flag=True)
+def list(cluster, node, type, service, component, all):
+    if not cluster:
+        cluster = ss.svars['cluster']
+
+    node_serv_comp = {}
+
+    try:
+        for m in ss.svars['nodes']:
+            if m['name'] not in node and len(node) > 0:
+                continue
+
+            node_serv_comp[m['name']] = {}
+
+            for c in services.list_components(node=m['name'], cluster=cluster):
+                if c not in component and len(component) > 0:
+                    continue
+
+                serv = services.check_component(c)
+                if serv not in service and len(service) > 0:
+                    continue
+
+                if serv not in node_serv_comp[m['name']]:
+                    node_serv_comp[m['name']][serv] = []
+
+                node_serv_comp[m['name']][serv].append(c)
+
+            if not node_serv_comp[m['name']] and not all:
+                del node_serv_comp[m['name']]
+
+    except (ex.LoadError, ex.CreationError) as e:
+        print_with_color(e.message, 'red')
+    except (ansible.parsing.vault.AnsibleVaultError) as e:
+        print_with_color(e.message + '. Wrong vault password ?', 'red')
+
+    print(yaml.dump(node_serv_comp, default_flow_style=False))
