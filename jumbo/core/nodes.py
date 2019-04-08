@@ -3,6 +3,7 @@ import string
 
 from jumbo.utils import session as ss, exceptions as ex
 from jumbo.utils.checks import valid_cluster
+from jumbo.core import services
 
 
 @valid_cluster
@@ -83,7 +84,8 @@ def edit_node(name, ip=None, ram=None, cpus=None, new_name=None, *, cluster):
                     ["name", ss.svars['nodes'][i]['name'], new_name])
                 ss.svars['nodes'][i]['name'] = new_name
 
-    ss.dump_config()
+    services_components_hosts = services.get_services_components_hosts()
+    ss.dump_config(services_components_hosts, services.config)
 
     return changed
 
