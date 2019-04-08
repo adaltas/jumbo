@@ -169,6 +169,9 @@ def generate_host_vars():
             for c in m['components']:
                 content['components'].append(c)
 
+            content['RAM'] = m['ram']
+            content['CPU'] = m['cpus']
+
             yaml.dump(content, host_file, default_flow_style=False,
                       explicit_start=True)
 
