@@ -188,8 +188,7 @@ def generate_group_vars(serv_comp_hosts, serv_conf):
         'realm': svars.get('realm', None) or svars['domain'].upper(),
         'cluster_name': svars['domain'].replace('.', ''),  # real cluster name
         'jumbo_cluster': svars['cluster'],  # cluster name in Jumbo
-        'serv_comp_host': serv_comp_hosts,
-        'VAULT': {}  # ensures that VAULT exists even if empty
+        'serv_comp_host': serv_comp_hosts
     }
 
     # Add versions variables (repository urls...)
