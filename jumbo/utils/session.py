@@ -138,6 +138,12 @@ def generate_ansible_groups(serv_conf):
                         if node_comp == comp['name']:
                             groups[group].append(node['name'])
 
+    for node in svars['nodes']:
+        for type in node['types']:
+            if type not in groups:
+                groups[type] = []
+            groups[type].append(node['name'])
+
     hosts = []
     for node in svars['nodes']:
         hosts.append(node['name'])
