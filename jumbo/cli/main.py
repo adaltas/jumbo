@@ -703,7 +703,9 @@ def checkservice(name, cluster):
 
 @jumbo.command()
 @click.option('--cluster', '-c')
-def listservices(cluster):
+@click.option('--all', '-a', is_flag=True,
+              help="Show not installed services in the list.")
+def listservices(cluster, all):
     """Check the state of all services installed.
 
     :param cluster: Cluster name
@@ -729,6 +731,14 @@ def listservices(cluster):
                                 'X' if services.check_ha(s) else ' ',
                                 print_missing])
         table_serv.sortby = 'Service'
+
+        if all:
+            services.config = services.load_services_conf(cluster=cluster)
+            for service in services.config['services']:
+                if service['name'] not in ss.svars['services']:
+                    table_serv.add_row(
+                        [click.style(service['name'], fg='red'), '', ''])
+
     except (ex.LoadError, ex.CreationError) as e:
         print_with_color(e.message, 'red')
     else:
