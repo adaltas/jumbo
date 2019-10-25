@@ -1,0 +1,7 @@
+{% for name, hosts in groups.items() %}
+
+[{{ name }}:children]
+  {% for host in hosts %}
+{{ host }}_hostgroup
+  {% endfor %}
+{% endfor %}

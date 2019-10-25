@@ -148,14 +148,21 @@ def generate_ansible_groups(serv_conf):
     for node in svars['nodes']:
         hosts.append(node['name'])
 
-    hosts_temp = jinja_env.get_template('hosts.j2')
-    with open(JUMBODIR + 'clusters/' + svars['cluster'] +
-              '/inventory/hosts',
-              'w+') as vf:
-        vf.write(hosts_temp.render(hosts=svars['nodes'],
-                                   groups=groups,
-                                   ansible_user=svars['ansible_user']))
+    node_hosts_temp = jinja_env.get_template('01-nodes.hosts.j2')
+    components_hosts_temp = jinja_env.get_template('02-components.hosts.j2')
 
+    with open(JUMBODIR + 'clusters/' + svars['cluster'] +
+              '/inventory/01-nodes.hosts',
+              'w+') as vf:
+        vf.write(node_hosts_temp.render(hosts=svars['nodes'],
+                                        groups=groups,
+                                        ansible_user=svars['ansible_user']))
+
+    with open(JUMBODIR + 'clusters/' + svars['cluster'] +
+              '/inventory/02-components.hosts',
+              'w+') as vf:
+        vf.write(components_hosts_temp.render(hosts=svars['nodes'],
+                                              groups=groups))
 
 def generate_ansible_vars(serv_comp_hosts, serv_conf):
     generate_group_vars(serv_comp_hosts, serv_conf)
